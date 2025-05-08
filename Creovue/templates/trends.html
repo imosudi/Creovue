@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Trending Insights - Creovue{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2 class="mb-3">Trend Alerts & Emerging Topics</h2>
+        <p class="text-muted">Stay ahead with real-time insights into trending videos, channels, and tags in your niche.</p>
+    </div>
+</div>
+
+<!-- Trends Overview -->
+<div class="row">
+    <div class="col-md-6">
+        <h5>Trending Keywords</h5>
+        <ul class="list-group mb-4">
+            {% for keyword in trending_keywords %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ keyword.name }}
+                    <span class="badge bg-success rounded-pill">{{ keyword.volume }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <h5>Popular Channels</h5>
+        <ul class="list-group mb-4">
+            {% for channel in top_channels %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ channel.name }}
+                    <span class="badge bg-primary">{{ channel.subscribers }} subs</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<!-- Trend Graph Placeholder -->
+<div class="row">
+    <div class="col">
+        <h5>Trend Visualisation</h5>
+        <canvas id="trendChart" height="120"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    const trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ trend_data.labels | safe }},
+            datasets: [{
+                label: 'Keyword Popularity',
+                data: {{ trend_data.values | safe }},
+                borderColor: 'rgba(75, 192, 192, 1)',
+                fill: false,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+{% endblock %}

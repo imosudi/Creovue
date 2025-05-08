@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}SEO Recommendations - Creovue{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2 class="mb-3">Keyword Research & SEO Recommendations</h2>
+        <p class="text-muted">Optimise your content using smart keyword suggestions and video metadata recommendations.</p>
+    </div>
+</div>
+
+<!-- Keyword Input Section -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <form method="POST" action="{{ url_for('seo') }}">
+            <div class="input-group">
+                <input type="text" name="keyword" class="form-control" placeholder="Enter keyword..." required>
+                <button class="btn btn-primary" type="submit">Analyse</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results Section -->
+<div class="row">
+    <div class="col">
+        {% if recommendations %}
+            <h5 class="mt-4">Recommended Tags:</h5>
+            <ul class="list-group list-group-flush mb-4">
+                {% for tag in recommendations.tags %}
+                    <li class="list-group-item">{{ tag }}</li>
+                {% endfor %}
+            </ul>
+
+            <h5>SEO Tips:</h5>
+            <ul class="list-group list-group-numbered">
+                {% for tip in recommendations.tips %}
+                    <li class="list-group-item">{{ tip }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No recommendations available yet. Enter a keyword to begin analysis.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

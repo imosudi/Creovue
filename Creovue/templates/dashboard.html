@@ -1,0 +1,19 @@
+<!-- templates/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Creovue{% endblock %}
+
+{% block content %}
+<h2>📊 Channel Overview</h2>
+
+<ul>
+  <li><strong>Subscribers:</strong> {{ stats.subscribers }}</li>
+  <li><strong>Views:</strong> {{ stats.views }}</li>
+  <li><strong>Videos:</strong> {{ stats.videos }}</li>
+  <li><strong>Sudden Spike Detected?</strong> {{ "Yes 🚀" if stats.spike_detected else "No" }}</li>
+</ul>
+
+<h3>📈 Recent Views Plot</h3>
+<img src="{{ stats.plot_url }}" alt="Views Graph" style="max-width: 100%; border: 1px solid #ccc;">
+
+{% endblock %}

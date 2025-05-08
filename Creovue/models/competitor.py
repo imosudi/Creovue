@@ -1,0 +1,1 @@
+"""Module: competitor.py."""

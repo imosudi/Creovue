@@ -1,0 +1,73 @@
+
+{% extends "base.html" %}
+
+{% block title %}Analytics | Creovue{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">Video Performance Analytics</h2>
+
+    <!-- Summary Cards -->
+    <div class="row text-center mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Views</h5>
+                    <p class="display-6 fw-bold">{{ analytics.total_views }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Average Watch Time</h5>
+                    <p class="display-6 fw-bold">{{ analytics.avg_watch_time }} mins</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Engagement Rate</h5>
+                    <p class="display-6 fw-bold">{{ analytics.engagement_rate }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plot Section -->
+    <div class="my-5">
+        <h4>View Trends This Week</h4>
+        <canvas id="analyticsChart" width="600" height="300" aria-label="View Trends Chart" role="img"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('analyticsChart').getContext('2d');
+    const analyticsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_data["labels"] | tojson }},
+            datasets: [{
+                label: 'Views',
+                data: {{ chart_data["values"] | tojson }},
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true },
+                title: { display: true, text: 'Weekly View Count' }
+            }
+        }
+    });
+</script>
+{% endblock %}
+
