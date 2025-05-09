@@ -1,8 +1,14 @@
+
+
 {% extends "base.html" %}
 
 {% block title %}SEO Recommendations - Creovue{% endblock %}
 
 {% block content %}
+{% if error %}
+    <div class="alert alert-danger" role="alert">{{ error }}</div>
+{% endif %}
+
 <div class="row mb-4">
     <div class="col">
         <h2 class="mb-3">Keyword Research & SEO Recommendations</h2>
@@ -45,3 +51,5 @@
     </div>
 </div>
 {% endblock %}
+
+

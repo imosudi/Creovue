@@ -1,46 +1,24 @@
 {% extends "base.html" %}
-
-{% block title %}Trending Insights - Creovue{% endblock %}
+{% block title %}Realtime Trends | Creovue{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col">
-        <h2 class="mb-3">Trend Alerts & Emerging Topics</h2>
-        <p class="text-muted">Stay ahead with real-time insights into trending videos, channels, and tags in your niche.</p>
-    </div>
-</div>
+<div class="container py-4">
+    <h2 class="mb-4">Realtime Video Trends</h2>
 
-<!-- Trends Overview -->
-<div class="row">
-    <div class="col-md-6">
-        <h5>Trending Keywords</h5>
-        <ul class="list-group mb-4">
-            {% for keyword in trending_keywords %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ keyword.name }}
-                    <span class="badge bg-success rounded-pill">{{ keyword.volume }}</span>
-                </li>
-            {% endfor %}
-        </ul>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Trending Keywords</h4>
+            <ul id="keywords-list" class="list-group"></ul>
+        </div>
+        <div class="col-md-6">
+            <h4>Top Channels</h4>
+            <ul id="channels-list" class="list-group"></ul>
+        </div>
     </div>
-    <div class="col-md-6">
-        <h5>Popular Channels</h5>
-        <ul class="list-group mb-4">
-            {% for channel in top_channels %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ channel.name }}
-                    <span class="badge bg-primary">{{ channel.subscribers }} subs</span>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
 
-<!-- Trend Graph Placeholder -->
-<div class="row">
-    <div class="col">
-        <h5>Trend Visualisation</h5>
-        <canvas id="trendChart" height="120"></canvas>
+    <div class="my-5">
+        <h4>Keyword Frequency Chart</h4>
+        <canvas id="trendChart" width="600" height="300"></canvas>
     </div>
 </div>
 {% endblock %}
@@ -48,24 +26,65 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('trendChart').getContext('2d');
-    const trendChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: {{ trend_data.labels | safe }},
-            datasets: [{
-                label: 'Keyword Popularity',
-                data: {{ trend_data.values | safe }},
-                borderColor: 'rgba(75, 192, 192, 1)',
-                fill: false,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: true } },
-            scales: { y: { beginAtZero: true } }
-        }
+let chart;
+
+function updateUI(data) {
+    const keywordList = document.getElementById('keywords-list');
+    const channelList = document.getElementById('channels-list');
+
+    keywordList.innerHTML = '';
+    data.trending_keywords.forEach(keyword => {
+        keywordList.innerHTML += `<li class="list-group-item d-flex justify-content-between">
+            ${keyword.name}
+            <span class="badge bg-primary rounded-pill">${keyword.volume}</span>
+        </li>`;
     });
+
+    channelList.innerHTML = '';
+    data.top_channels.forEach(channel => {
+        channelList.innerHTML += `<li class="list-group-item d-flex justify-content-between">
+            ${channel.name}
+            <span class="badge bg-success rounded-pill">${channel.subscribers}</span>
+        </li>`;
+    });
+
+    if (chart) {
+        chart.data.labels = data.chart_data.labels;
+        chart.data.datasets[0].data = data.chart_data.values;
+        chart.update();
+    } else {
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.chart_data.labels,
+                datasets: [{
+                    label: 'Keyword Frequency',
+                    data: data.chart_data.values,
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: { display: true, text: 'Weekly Keyword Trend' },
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+}
+
+async function fetchTrendData() {
+    const res = await fetch('/api/trend_data');
+    const data = await res.json();
+    updateUI(data);
+}
+
+// Initial fetch and auto-update every 5 seconds
+fetchTrendData();
+setInterval(fetchTrendData, 50000);
 </script>
 {% endblock %}
