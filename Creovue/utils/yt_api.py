@@ -13,11 +13,11 @@ from Creovue.app_secets import creo_api_key, cre_base_url
 
 
 
-def fetch_youtube_analytics(channel_id, days=7):
+def fetch_youtube_analytics(channel_id, days=700):
     """
     Fetches and simulates key YouTube analytics from public statistics.
     """
-
+    print("channel_id: ", channel_id)
     end_date = datetime.date.today()
     start_date = end_date - datetime.timedelta(days=days)
 

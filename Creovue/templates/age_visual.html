@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Age Visual | Creovue{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2>Viewer Age Distribution by Category ({{ region }})</h2>
+    <img src="{{ plot_img }}" alt="Age Distribution Chart" class="img-fluid shadow rounded">
+</div>
+{% endblock %}

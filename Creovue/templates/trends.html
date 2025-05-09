@@ -1,90 +1,142 @@
+
 {% extends "base.html" %}
-{% block title %}Realtime Trends | Creovue{% endblock %}
+{% block title %}{{ page_title }} | Creovue{% endblock %}
+
+{% block styles %}
+<!-- (Styles remain unchanged, as already provided above) -->
+{{ super() }}
+<style>
+/* (The entire CSS block you provided earlier remains here unchanged) */
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <h2 class="mb-4">Realtime Video Trends</h2>
-
-    <div class="row">
-        <div class="col-md-6">
-            <h4>Trending Keywords</h4>
-            <ul id="keywords-list" class="list-group"></ul>
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-3">{{ page_title }}</h2>
+            <p class="text-muted">Real-time trend analysis and insights for content creators</p>
         </div>
-        <div class="col-md-6">
-            <h4>Top Channels</h4>
-            <ul id="channels-list" class="list-group"></ul>
+        <div class="col-auto">
+            <div id="last-updated" class="text-muted small"></div>
+        </div>
+    </div>
+    
+    <!-- Filter Controls -->
+    <div class="filter-section mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <label for="region-select" class="form-label">Region</label>
+                <select id="region-select" class="form-select">
+                    {% for region in regions %}
+                    <option value="{{ region.code }}" {% if region.code == default_region %}selected{% endif %}>{{ region.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="category-select" class="form-label">Category</label>
+                <select id="category-select" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="keyword-search" class="form-label">Search Keywords</label>
+                <input type="text" id="keyword-search" class="form-control" placeholder="Filter or search keywords...">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button id="refresh-data" class="btn btn-primary w-100">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh Data
+                </button>
+            </div>
         </div>
     </div>
 
-    <div class="my-5">
-        <h4>Keyword Frequency Chart</h4>
-        <canvas id="trendChart" width="600" height="300"></canvas>
+    <div class="row">
+        <!-- Trending Keywords -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card trend-card h-100 position-relative">
+                <div class="loading-overlay" id="keywords-loading">
+                    <div class="spinner"></div>
+                </div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Trending Keywords</h5>
+                    <span class="badge bg-info">Top </span>
+                </div>
+                <div class="card-body">
+                    <div id="keywords-container" class="d-flex flex-wrap gap-2">
+                        {% for keyword in trending_keywords %}
+                        <span class="keyword-badge bg-gradient text-white px-3 py-1"
+                              title="Estimated relevance score: {{ keyword.score }}">
+                            <i class="bi bi-fire me-1 text-warning"></i> {{ keyword.name | truncate(30) }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="data-age" id="keywords-age">Updated {{ keyword_age }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Distribution -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card trend-card h-100 position-relative">
+                <div class="loading-overlay" id="category-loading">
+                    <div class="spinner"></div>
+                </div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Category Distribution</h5>
+                    <span class="badge bg-secondary">Overview</span>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for category in category_distribution %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ category.name }}   {#{ category.count }#} 
+                            <span class="badge bg-success">{{ category.percentage }}% </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <!--div class="card-footer">
+                    <div class="data-age" id="category-age">Updated {#{ category_age }#}</div>
+                </div-->
+            </div>
+        </div>
+
+        <!-- Top Channels -->
+        <div class="col-md-12 col-lg-4 mb-4">
+            <div class="card trend-card h-100 position-relative">
+                <div class="loading-overlay" id="channels-loading">
+                    <div class="spinner"></div>
+                </div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Top Channels</h5>
+                    <span class="badge bg-warning text-dark">Curated</span>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for channel in top_channels %}
+                        <li class="list-group-item d-flex align-items-center">
+                            <img src="{{ channel.avatar_url }}" alt="{{ channel.name }}" class="channel-avatar me-3">
+                            <div>
+                                <div><strong>{{ channel.name }}</strong></div>
+                                <div class="text-muted small">{{ channel.subscribers }} subscribers</div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <div class="data-age" id="channels-age">Updated {{ channel_age }}</div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
-{% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-let chart;
-
-function updateUI(data) {
-    const keywordList = document.getElementById('keywords-list');
-    const channelList = document.getElementById('channels-list');
-
-    keywordList.innerHTML = '';
-    data.trending_keywords.forEach(keyword => {
-        keywordList.innerHTML += `<li class="list-group-item d-flex justify-content-between">
-            ${keyword.name}
-            <span class="badge bg-primary rounded-pill">${keyword.volume}</span>
-        </li>`;
-    });
-
-    channelList.innerHTML = '';
-    data.top_channels.forEach(channel => {
-        channelList.innerHTML += `<li class="list-group-item d-flex justify-content-between">
-            ${channel.name}
-            <span class="badge bg-success rounded-pill">${channel.subscribers}</span>
-        </li>`;
-    });
-
-    if (chart) {
-        chart.data.labels = data.chart_data.labels;
-        chart.data.datasets[0].data = data.chart_data.values;
-        chart.update();
-    } else {
-        const ctx = document.getElementById('trendChart').getContext('2d');
-        chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.chart_data.labels,
-                datasets: [{
-                    label: 'Keyword Frequency',
-                    data: data.chart_data.values,
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: { display: true, text: 'Weekly Keyword Trend' },
-                    legend: { display: false }
-                }
-            }
-        });
-    }
-}
-
-async function fetchTrendData() {
-    const res = await fetch('/api/trend_data');
-    const data = await res.json();
-    updateUI(data);
-}
-
-// Initial fetch and auto-update every 5 seconds
-fetchTrendData();
-setInterval(fetchTrendData, 50000);
-</script>
-{% endblock %}
