@@ -1,0 +1,111 @@
+{# djlint:off H030,H031 #}
+{% block doc -%}
+<!DOCTYPE html>
+<html{% block html_attribs %} lang="en"{% endblock html_attribs %}>
+  {%- block html %}
+  <head>
+    {%- block head %}
+    <title>{% block title %}{{ title|default }}{% endblock title %} | Creovue</title>
+
+      {%- block metas %}
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Creovue - Smart tools for content creators.">
+        <meta name="author" content="Creovue Team">
+        <meta name="robots" content="index, follow">
+      {%- endblock metas %}
+
+      {%- block favicon %}
+        <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
+      {%- endblock favicon %}
+
+      {%- block styles %}
+        <!-- Bootstrap 5 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+        
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        
+        <style>
+          html, body {
+            height: 100%;
+          }
+          body {
+            display: flex;
+            flex-direction: column;
+          }
+          main {
+            flex: 1;
+          }
+          .fs-center { text-align: center }
+          .fs-important { font-size: larger; font-weight: bold }
+          .fs-gap { margin-top: 20px; }
+          .fs-div { margin: 4px; }
+          .fs-error-msg { color: darkred; }
+        </style>
+      {%- endblock styles %}
+
+      {%- block head_scripts %}
+      {%- endblock head_scripts %}
+    {%- endblock head %}
+  </head>
+  <body{% block body_attribs %} class="container"{% endblock body_attribs %}>
+    {% block body -%}
+      {% block navbar %}
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm" aria-label="Main Navigation">
+          <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('home') }}">
+              <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Creovue Logo" width="36" height="36" class="rounded-circle me-2">
+              <span class="fw-bold text-primary">Creovue</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+              <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('security.login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('security.register') }}">Register</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      {%- endblock navbar %}
+
+      <!-- Main Content -->
+      <main class="container my-5" role="main" aria-label="Page Content">
+        {% block content -%}
+        {%- endblock content %}
+      </main>
+
+      <!-- Sticky Footer -->
+      <footer class="bg-light text-center py-3 small border-top mt-auto">
+        <div class="container">
+          &copy; {{ moment().format('YYYY') if moment is defined else "2025" }} Creovue. All rights reserved.
+        </div>
+      </footer>
+
+      {% block scripts %}
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.min.js" integrity="sha384-RuyvpeZCxMJCqVUGFI0Do1mQrods/hhxYlcVfGPOfQtPJh0JCw12tUAZ/Mv10S7D" crossorigin="anonymous"></script>
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        
+        {% if moment is defined %}
+          {{ moment.include_moment() }}
+        {% endif %}
+      {%- endblock scripts %}
+    {%- endblock body %}
+  </body>
+  {%- endblock html %}
+</html>
+{% endblock doc -%}

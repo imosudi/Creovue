@@ -1,17 +1,23 @@
 
 import datetime
+import os
 import time
-from .logic import extract_keywords
+from flask import Flask, redirect, render_template, request, jsonify, session, url_for
+import requests
+from flask_security import Security, SQLAlchemyUserDatastore, login_required, roles_required
 
-from flask import Flask, render_template, request, jsonify
 from .models.analytics import get_channel_stats, process_channel_analytics, fetch_youtube_analytics, generate_plot
-
+from .logic import extract_keywords
+from .models import db, User, Role
 from Creovue.models.trends import fetch_trending_keywords, fetch_top_channels, get_all_regions, get_available_categories, get_category_age_distribution, get_default_region, get_top_channels, get_trend_chart_data, get_trending_keywords, visualise_category_age_distribution_base64
 from .models.seo import get_seo_recommendations
-
 from .app_secets import creo_channel_id, creo_api_key, creo_mock_view_history
-
 from . import app
+
+
+from datetime import datetime, timedelta
+
+
 from Creovue.models.trends  import (
     fetch_trending_keywords, 
     fetch_top_channels,
@@ -26,22 +32,37 @@ from Creovue.models.trends  import (
     get_default_region
 )
 
+from google_auth_oauthlib.flow import Flow
+from google.oauth2.credentials import Credentials
 
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # For localhost testing
+
+# Setup Flask-Security
+## Set up user datastore
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+
+## Attach Security
+security = Security(app, user_datastore)
 
 # Register the blueprint in main route
 #from .route_trends import trends_bp
 #app.register_blueprint(trends_bp)
+
+@app.route("/admin")
+@roles_required("Admin")
+def admin_panel():
+    return render_template("admin.html")
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
 @app.route("/dashboard")
+@login_required
 def dashboard():
     # Use fetch_youtube_analytics to get real stats with simulated daily views
     analytics = process_channel_analytics(creo_channel_id)
     return render_template("dashboard.html", stats=analytics)
-
 
 
 @app.route('/seo', methods=['GET', 'POST'])
@@ -169,3 +190,130 @@ def keyword_research():
     content = request.json['text']
     keywords = extract_keywords([content])
     return jsonify({"keywords": keywords})
+
+
+
+@app.route('/google-login')
+def google_login():
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": creo_oauth_client_id,
+                "client_secret": creo_oauth_client_secret,
+                "auth_uri": creo_google_auth_uri,
+                "token_uri": creo_google_token_uri,
+                "redirect_uris": creo_google_redirect_uri,
+            }
+        },
+        scopes=creo_google_auth_scope,
+    )
+    flow.redirect_uri = creo_google_redirect_uri
+
+    auth_url, state = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true'
+    )
+
+    session['oauth_state'] = state
+    return redirect(auth_url)
+
+from .config            import (
+     creo_oauth_client_id, creo_oauth_client_secret,creo_google_redirect_uri, creo_google_auth_scope,
+     creo_google_auth_uri, creo_google_token_uri
+)
+@app.route('/oauth2callback')
+def oauth2callback():
+    state = session['oauth_state']
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": creo_oauth_client_id,
+                "client_secret": creo_oauth_client_secret,
+                "auth_uri": creo_google_auth_uri,
+                "token_uri": creo_google_token_uri,
+                "redirect_uris": creo_google_redirect_uri,
+            }
+        },
+        scopes=creo_google_auth_scope,
+        state=state
+    )
+    flow.redirect_uri = creo_google_redirect_uri
+
+    authorization_response = request.url
+    flow.fetch_token(authorization_response=authorization_response)
+
+    credentials = flow.credentials
+    session['youtube_token'] = {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
+
+    return redirect(url_for('youtube_dashboard'))
+
+
+
+@app.route('/youtube-dashboard')
+def youtube_dashboard():
+    if 'youtube_token' not in session:
+        return redirect(url_for('google_login'))
+
+    creds = Credentials(**session['youtube_token'])
+
+    # --- 1. Fetch channel metadata ---
+    channel_resp = requests.get(
+        'https://www.googleapis.com/youtube/v3/channels',
+        headers={'Authorization': f'Bearer {creds.token}'},
+        params={'part': 'snippet,statistics', 'mine': 'true'}
+    )
+    channel_data = channel_resp.json()
+
+    # --- 2. Fetch top videos (last 10 uploads) ---
+    uploads_resp = requests.get(
+        'https://www.googleapis.com/youtube/v3/search',
+        headers={'Authorization': f'Bearer {creds.token}'},
+        params={
+            'part': 'snippet',
+            'maxResults': 10,
+            'order': 'viewCount',
+            'type': 'video',
+            'mine': 'true'
+        }
+    )
+    uploads_data = uploads_resp.json()
+
+    top_video_ids = [item['id']['videoId'] for item in uploads_data.get('items', []) if 'videoId' in item['id']]
+
+    # --- 3. Fetch view stats for those videos ---
+    stats_data = []
+    if top_video_ids:
+        stats_resp = requests.get(
+            'https://www.googleapis.com/youtube/v3/videos',
+            headers={'Authorization': f'Bearer {creds.token}'},
+            params={
+                'part': 'snippet,statistics',
+                'id': ','.join(top_video_ids)
+            }
+        )
+        stats_json = stats_resp.json()
+        stats_data = [{
+            'title': v['snippet']['title'],
+            'views': int(v['statistics'].get('viewCount', 0))
+        } for v in stats_json.get('items', [])]
+
+    # --- 4. Simulate 7-day subscriber growth trend ---
+    base_subs = int(channel_data['items'][0]['statistics'].get('subscriberCount', 1000))
+    sub_growth = [base_subs - i * 20 for i in reversed(range(7))]  # mock growth
+
+    return render_template('youtube_dashboard.html', 
+        data=channel_data,
+        top_videos=stats_data,
+        subscriber_trend=sub_growth,
+        subscriber_labels=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    )
+
+
+

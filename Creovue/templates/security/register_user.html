@@ -1,0 +1,293 @@
+{% set title = title|default(_fsdomain('Register')) %}
+{% extends "security/base.html" %}
+{% from "security/_macros.html" import render_field_with_errors, render_field, render_form_errors, render_field_errors %}
+
+{% block head_scripts %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" integrity="sha512-GWzVrcGlo0TxTRvz9ttioyYJ+Wwk9Ck0G81D+eO63BaqHaJ3YZX9wuqjwgfcV/MrB2PhaVX9DkYVhbFpStnqpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock head_scripts %}
+
+{% block styles %}
+  {{ super() }}
+  <style>
+    .card {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    
+    .register-heading {
+      color: #3e6fbd;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-control:focus {
+      border-color: #3e6fbd;
+      box-shadow: 0 0 0 0.25rem rgba(62, 111, 189, 0.25);
+    }
+    
+    .btn-primary {
+      background-color: #3e6fbd;
+      border-color: #3e6fbd;
+    }
+    
+    .btn-primary:hover {
+      background-color: #325ba0;
+      border-color: #2e5293;
+    }
+    
+    .password-field-wrapper {
+      position: relative;
+    }
+    
+    .password-toggle-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #6c757d;
+    }
+    
+    .form-check-input:checked {
+      background-color: #3e6fbd;
+      border-color: #3e6fbd;
+    }
+    
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .divider span {
+      padding: 0 10px;
+      color: #6c757d;
+      font-size: 0.875rem;
+    }
+    
+    .form-floating {
+      margin-bottom: 16px;
+    }
+    
+    .password-requirements {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-top: 5px;
+    }
+    
+    .password-requirement {
+      display: flex;
+      align-items: center;
+      margin-bottom: 3px;
+    }
+    
+    .password-requirement i {
+      margin-right: 5px;
+      font-size: 0.75rem;
+    }
+    
+    .requirement-met {
+      color: #198754;
+    }
+    
+    .requirement-unmet {
+      color: #6c757d;
+    }
+  </style>
+{% endblock styles %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card p-4">
+      <div class="card-body">
+        {% include "security/_messages.html" %}
+        
+        <div class="text-center mb-4">
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Creovue Logo" width="60" height="60" class="rounded-circle mb-2">
+          <h1 class="register-heading">{{ _fsdomain('Register') }}</h1>
+        </div>
+        
+        <form action="{{ url_for_security('register') }}" method="post" name="register_user_form" id="register_user_form">
+          {{ register_user_form.hidden_tag() }}
+          {{ render_form_errors(register_user_form) }}
+          
+          <div class="form-floating">
+            {{ register_user_form.email(class="form-control", placeholder=_fsdomain('Email Address'), id="email") }}
+            <label for="email"><i class="fas fa-envelope me-2"></i>{{ _fsdomain('Email Address') }}</label>
+            {% if register_user_form.email.errors %}
+              <div class="invalid-feedback d-block">
+                {% for error in register_user_form.email.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          {% if register_user_form.username %}
+            <div class="form-floating">
+              {{ register_user_form.username(class="form-control", placeholder=_fsdomain('Username'), id="username") }}
+              <label for="username"><i class="fas fa-user me-2"></i>{{ _fsdomain('Username') }}</label>
+              {% if register_user_form.username.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in register_user_form.username.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+          
+          <div class="form-floating password-field-wrapper">
+            {{ register_user_form.password(class="form-control", placeholder=_fsdomain('Password'), id="password", oninput="checkPasswordStrength()") }}
+            <label for="password"><i class="fas fa-lock me-2"></i>{{ _fsdomain('Password') }}</label>
+            <span class="password-toggle-icon" onclick="togglePasswordVisibility('password', 'togglePassword')">
+              <i class="fas fa-eye" id="togglePassword"></i>
+            </span>
+            {% if register_user_form.password.errors %}
+              <div class="invalid-feedback d-block">
+                {% for error in register_user_form.password.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+            <div class="password-requirements mt-2" id="password-requirements">
+              <div class="password-requirement" id="req-length">
+                <i class="fas fa-circle"></i> 
+                <span>{{ _fsdomain('At least 8 characters') }}</span>
+              </div>
+              <div class="password-requirement" id="req-uppercase">
+                <i class="fas fa-circle"></i> 
+                <span>{{ _fsdomain('At least one uppercase letter') }}</span>
+              </div>
+              <div class="password-requirement" id="req-lowercase">
+                <i class="fas fa-circle"></i> 
+                <span>{{ _fsdomain('At least one lowercase letter') }}</span>
+              </div>
+              <div class="password-requirement" id="req-number">
+                <i class="fas fa-circle"></i> 
+                <span>{{ _fsdomain('At least one number') }}</span>
+              </div>
+              <div class="password-requirement" id="req-special">
+                <i class="fas fa-circle"></i> 
+                <span>{{ _fsdomain('At least one special character') }}</span>
+              </div>
+            </div>
+          </div>
+          
+          {% if register_user_form.password_confirm %}
+            <div class="form-floating password-field-wrapper">
+              {{ register_user_form.password_confirm(class="form-control", placeholder=_fsdomain('Confirm Password'), id="password_confirm") }}
+              <label for="password_confirm"><i class="fas fa-lock me-2"></i>{{ _fsdomain('Confirm Password') }}</label>
+              <span class="password-toggle-icon" onclick="togglePasswordVisibility('password_confirm', 'togglePasswordConfirm')">
+                <i class="fas fa-eye" id="togglePasswordConfirm"></i>
+              </span>
+              {% if register_user_form.password_confirm.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in register_user_form.password_confirm.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+            
+          {{ render_field_errors(register_user_form.csrf_token) }}
+          
+          <div class="d-grid gap-2 mt-4">
+            {{ register_user_form.submit(class="btn btn-primary btn-lg") }}
+          </div>
+          
+          <div class="mt-3 text-center">
+            <p>{{ _fsdomain("Already have an account?") }} <a href="{{ url_for_security('login') }}">{{ _fsdomain('Login') }}</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    function togglePasswordVisibility(inputId, iconId) {
+      const passwordInput = document.getElementById(inputId);
+      const toggleIcon = document.getElementById(iconId);
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+      }
+    }
+    
+    function checkPasswordStrength() {
+      const password = document.getElementById('password').value;
+      
+      // Check requirements
+      const hasLength = password.length >= 8;
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+      
+      // Update visual indicators
+      updateRequirement('req-length', hasLength);
+      updateRequirement('req-uppercase', hasUppercase);
+      updateRequirement('req-lowercase', hasLowercase);
+      updateRequirement('req-number', hasNumber);
+      updateRequirement('req-special', hasSpecial);
+    }
+    
+    function updateRequirement(reqId, isMet) {
+      const reqElement = document.getElementById(reqId);
+      const iconElement = reqElement.querySelector('i');
+      
+      if (isMet) {
+        reqElement.classList.add('requirement-met');
+        reqElement.classList.remove('requirement-unmet');
+        iconElement.classList.remove('fa-circle');
+        iconElement.classList.add('fa-check-circle');
+      } else {
+        reqElement.classList.add('requirement-unmet');
+        reqElement.classList.remove('requirement-met');
+        iconElement.classList.remove('fa-check-circle');
+        iconElement.classList.add('fa-circle');
+      }
+    }
+    
+    // Apply floating label effect for non-empty fields on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const inputs = document.querySelectorAll('.form-control');
+      inputs.forEach(input => {
+        if (input.value !== '') {
+          input.classList.add('filled');
+        }
+        
+        input.addEventListener('blur', function() {
+          if (this.value !== '') {
+            this.classList.add('filled');
+          } else {
+            this.classList.remove('filled');
+          }
+        });
+      });
+      
+      // Initial password strength check
+      checkPasswordStrength();
+    });
+  </script>
+{% endblock scripts %}
+{% endblock content %}

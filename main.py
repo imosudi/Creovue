@@ -1,3 +1,4 @@
+#export FLASK_APP=main.py
 import config
 from Creovue import app
 
