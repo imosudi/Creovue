@@ -6,7 +6,7 @@ py_vers = (".").join(platform.python_version().split(".")[:2])
 dir_path = os.path.dirname(os.path.realpath(__file__)).strip("Creovue")
 #print(py_vers, dir_path)
 python_path = os.path.join(dir_path, f"venv/lib/python{py_vers}/site-packages")
-
+print("python_path: ", python_path)
 sys.path.insert(0, python_path)
 
 import time
