@@ -50,6 +50,67 @@ _trend_cache = {}
 _cache_timestamps = {}
 
 
+"""ALLOWED_YOUTUBE_REGIONS = [
+    "US", "NG", "GB", "IN", "CA", "KE", "ZA", "GH", "EG", "DE", "BR", "FR", "RU", "JP", "KR", "ID", "AU", "MX"
+]"""
+ALLOWED_YOUTUBE_REGIONS = [
+    'AR',  # Argentina
+    'AU',  # Australia
+    'AT',  # Austria
+    'BE',  # Belgium
+    'BR',  # Brazil
+    'CA',  # Canada
+    'CL',  # Chile
+    'CO',  # Colombia
+    'CZ',  # Czech Republic
+    'DK',  # Denmark
+    'EG',  # Egypt
+    'FI',  # Finland
+    'FR',  # France
+    'DE',  # Germany
+    'GH',  # Ghana
+    'GR',  # Greece
+    'HK',  # Hong Kong
+    'HU',  # Hungary
+    'IN',  # India
+    'ID',  # Indonesia
+    'IE',  # Ireland
+    'IL',  # Israel
+    'IT',  # Italy
+    'JP',  # Japan
+    'JO',  # Jordan
+    'KE',  # Kenya
+    'KR',  # South Korea
+    'LB',  # Lebanon
+    'MY',  # Malaysia
+    'MX',  # Mexico
+    'MA',  # Morocco
+    'NL',  # Netherlands
+    'NZ',  # New Zealand
+    'NG',  # Nigeria
+    'NO',  # Norway
+    'PE',  # Peru
+    'PH',  # Philippines
+    'PL',  # Poland
+    'PT',  # Portugal
+    'RO',  # Romania
+    'RU',  # Russia
+    'SA',  # Saudi Arabia
+    'SG',  # Singapore
+    'ZA',  # South Africa
+    'ES',  # Spain
+    'SE',  # Sweden
+    'CH',  # Switzerland
+    'TW',  # Taiwan
+    'TH',  # Thailand
+    'TR',  # Turkey
+    'UG',  # Uganda
+    'UA',  # Ukraine
+    'AE',  # United Arab Emirates
+    'GB',  # United Kingdom
+    'US',  # United States
+    'VN'   # Vietnam
+]
 def get_youtube_client():
     return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=creo_api_key)
 
@@ -514,6 +575,7 @@ def get_all_regions():
     """Get list of available regions with localised names"""
     # Custom name mappings to match original entries and common usage
     custom_names = {
+        "NG": "Nigeria",
         "GB": "United Kingdom",
         "US": "United States",
         "KR": "South Korea",
@@ -527,7 +589,8 @@ def get_all_regions():
     for country in pycountry.countries:
         code = country.alpha_2
         name = custom_names.get(code, country.name)
-        regions.append({"code": code, "name": name})
+        if code in ALLOWED_YOUTUBE_REGIONS:
+            regions.append({"code": code, "name": name})
     
     return regions
 
@@ -556,6 +619,10 @@ def get_default_region(client_ipaddr):
     
     # Final fallback
     return "US"
+
+
+def get_safe_region_code(raw_region):
+    return raw_region if raw_region in ALLOWED_YOUTUBE_REGIONS else "US"
 
 def get_available_categories(api_key, region_code="US"):
     """Retrieve available YouTube video categories using the YouTube Data API v3."""

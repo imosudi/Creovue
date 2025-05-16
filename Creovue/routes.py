@@ -19,6 +19,8 @@ from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from werkzeug.security import generate_password_hash
 
+from Creovue.utils.youtube_client import ensure_channel_id
+
 # Local application imports
 from . import app, google, oauth
 from .models import db, User, Role
@@ -51,6 +53,7 @@ from Creovue.models.trends import (
     get_category_distribution,
     get_default_region,
     get_related_keywords,
+    get_safe_region_code,
     get_top_channels,
     get_trend_chart_data,
     get_trending_keywords,
@@ -84,6 +87,9 @@ def home():
 @app.route("/dashboard")
 @login_required
 def dashboard():
+    # ✅ Ensure channel_id is up to date
+    ensure_channel_id()
+
     if not current_user.channel_id:
         return render_template("dashboard.html", stats=None)  # No data yet
 
@@ -168,6 +174,8 @@ def trend_data():
         pass
     default_region = get_default_region(client_ip)
     region = request.args.get("region", default_region)
+    region = get_safe_region_code(region)
+
     category = request.args.get("category", None)
 
     
@@ -181,7 +189,14 @@ def trend_data():
     trending_keywords = fetch_trending_keywords(region)
     category_distribution = get_category_distribution(region)
     category_age_distribution = get_category_age_distribution(region)
-    top_channels, channel_data_age = get_top_channels(region)
+    #top_channels, channel_data_age = get_top_channels(region)
+
+    result = get_top_channels(region)
+    if not result or len(result) != 2:
+        top_channels, channel_data_age = [], None
+    else:
+        top_channels, channel_data_age = result
+
     
     return jsonify({
         "trending_keywords": trending_keywords,
@@ -353,6 +368,9 @@ def oauth2callback():
         'client_secret': credentials.client_secret,
         'scopes': credentials.scopes
     }
+
+    # ✅ Ensure channel_id is up to date
+    ensure_channel_id()
 
     return redirect(session.pop('next_url', url_for('dashboard')))
 
