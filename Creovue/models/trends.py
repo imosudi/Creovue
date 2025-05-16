@@ -535,6 +535,7 @@ def get_all_regions():
 def get_default_region(client_ipaddr):
     """Determine the default region using client IP geolocation, fallback to server geolocation or 'US'."""
     # First attempt: Try using client IP if provided
+    print("client_ipaddr: ", client_ipaddr)
     if client_ipaddr:
         try:
             client_location = geocoder.ip(client_ipaddr)
