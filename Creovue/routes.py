@@ -14,7 +14,7 @@ from .app_secets import creo_channel_id, creo_api_key, creo_mock_view_history
 from . import app
 
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 from Creovue.models.trends  import (
     clear_trend_cache,
@@ -188,7 +188,7 @@ def analytics():
             "values": y
         }
 
-    x_labels = [(datetime.date.today() - datetime.timedelta(days=i)).strftime('%a') for i in reversed(range(7))]
+    x_labels = [(datetime.today() - timedelta(days=i)).strftime('%a') for i in reversed(range(7))]
     y_values = analytics_data["daily_views"]
 
     chart_data = generate_plot(x_labels, y_values)
