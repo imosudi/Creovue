@@ -72,9 +72,11 @@
                 <li class="nav-item">
                   <a class="nav-link" href="{{ url_for('security.login') }}">Login</a>
                 </li>
+                {% if security.registerable %}
                 <li class="nav-item">
                   <a class="nav-link" href="{{ url_for('security.register') }}">Register</a>
                 </li>
+                {% endif %}
               </ul>
             </div>
           </div>
