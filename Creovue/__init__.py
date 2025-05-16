@@ -9,7 +9,10 @@ import os, sys, platform
 #print("python_path: ", python_path)
 #sys.path.insert(0, python_path)
 
-
+from Creovue.matplotlib_cache_check import setup_matplotlib_cache
+if not setup_matplotlib_cache():
+    exit(1) 
+    
 import time
 from flask import       Flask
 from flask_moment       import Moment

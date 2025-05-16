@@ -1,1 +1,0 @@
-"""Module: thumbnail.py."""
