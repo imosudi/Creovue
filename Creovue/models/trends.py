@@ -539,6 +539,7 @@ def get_default_region(client_ipaddr):
     if client_ipaddr:
         try:
             client_location = geocoder.ip(client_ipaddr)
+            print("client_location: ", client_location)
             if client_location and client_location.country:
                 return client_location.country.upper()
         except Exception as e:
