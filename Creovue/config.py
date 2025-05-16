@@ -81,3 +81,6 @@ config_by_name = {
 }
 
 os.environ['MPLCONFIGDIR'] = '/tmp/mpl_cache'
+## Ensure:
+# sudo mkdir -p /tmp/mpl_cache
+# sudo chown www-data:www-data /tmp/mpl_cache
