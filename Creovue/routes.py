@@ -5,13 +5,14 @@ import time
 from flask import Flask, redirect, render_template, request, jsonify, session, url_for
 import requests
 from flask_security import Security, SQLAlchemyUserDatastore, login_required, roles_required
+from flask_security.utils import login_user
 
 from .models.analytics import get_channel_stats, process_channel_analytics, fetch_youtube_analytics, generate_plot
 from .logic import extract_keywords
 from .models import db, User, Role
 from .models.seo import get_seo_recommendations
 #from .app_secets import creo_channel_id, creo_api_key, creo_mock_view_history
-from . import app
+from . import app, google, oauth
 
 
 from datetime import datetime, timedelta, date
@@ -336,3 +337,32 @@ def youtube_dashboard():
 
 
 
+
+@app.route("/login/google")
+def google_user_login():
+    redirect_uri = url_for("google_authorise", _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@app.route("/login_oauth2callback")
+def google_authorise():
+    token = google.authorize_access_token()
+    resp = google.get("userinfo")
+    user_info = resp.json()
+    
+    email = user_info["email"]
+    user = User.query.filter_by(email=email).first()
+
+    # First-time user: register
+    if not user:
+        user = User(
+            email=email,
+            username=email.split("@")[0],
+            active=True,
+            fs_uniquifier=os.urandom(16).hex()
+        )
+        db.session.add(user)
+        db.session.commit()
+
+    login_user(user)
+    return redirect(url_for("dashboard"))

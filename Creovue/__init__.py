@@ -20,10 +20,13 @@ from flask_migrate      import Migrate
 from flask_sqlalchemy   import SQLAlchemy
 from flask_mail         import Mail
 
+from authlib.integrations.flask_client import OAuth
+
 from .config            import (
     creo_appdb_host, creo_appdb_name, creo_appdb_user, creo_appdb_pass, flask_secret, flask_password_salt, 
     creo_mail_server, creo_mail_default_sender, creo_mail_username, creo_mail_password, creo_mail_tls, creo_mail_ssl,
-    creo_oauth_client_id, creo_oauth_client_secret,creo_google_redirect_uri, creo_google_auth_scope
+    creo_oauth_client_id, creo_oauth_client_secret,creo_google_redirect_uri, creo_google_auth_scope, creo_google_auth_uri,
+    creo_google_token_uri, creo_google_auth_base_uri
 )
 
 #Config#, ProductionConfig, DevelopmentConfig
@@ -80,6 +83,26 @@ app.config["GOOGLE_REDIRECT_URI"]      = creo_google_redirect_uri
 app.config["GOOGLE_AUTH_SCOPE"]          = creo_google_auth_scope
 
 
+# Google Oauth
+app.config["SECURITY_OAUTH_ENABLE"] = True
+app.config["SECURITY_OAUTH_PROVIDERS"] = {
+    "google": {
+        "consumer_key": creo_oauth_client_id,
+        "consumer_secret": creo_oauth_client_secret,
+        "request_token_params": {
+            "scope": "openid email profile"
+        },
+        "authorize_url": creo_google_auth_uri,
+        "access_token_url": creo_google_token_uri,
+        "base_url": creo_google_auth_base_uri,
+        "client_kwargs": {
+            "scope": "openid email profile"
+        },
+        "redirect_uri": creo_google_redirect_uri
+    }
+}
+
+
 
 app.jinja_env.filters['format_number'] = format_number
 
@@ -88,6 +111,17 @@ db          = SQLAlchemy(app)
 migrate     = Migrate(app, db)
 moment      = Moment(app)
 mail        = Mail(app)
+oauth       = OAuth(app)
+
+google = oauth.register(
+    name='google',
+    client_id=app.config["SECURITY_OAUTH_PROVIDERS"]["google"]["consumer_key"],
+    client_secret=app.config["SECURITY_OAUTH_PROVIDERS"]["google"]["consumer_secret"],
+    access_token_url=app.config["SECURITY_OAUTH_PROVIDERS"]["google"]["access_token_url"],
+    authorize_url=app.config["SECURITY_OAUTH_PROVIDERS"]["google"]["authorize_url"],
+    api_base_url=app.config["SECURITY_OAUTH_PROVIDERS"]["google"]["base_url"],
+    client_kwargs=app.config["SECURITY_OAUTH_PROVIDERS"]["google"]["client_kwargs"]
+)
 
 
 import Creovue.routes

@@ -57,7 +57,7 @@ creo_google_redirect_uri= os.getenv("GOOGLE_REDIRECT_URI")
 creo_google_auth_scope = "https://www.googleapis.com/auth/youtube.readonly"
 creo_google_auth_uri=os.getenv("GOOGLE_AUTH_URI")#https://accounts.google.com/o/oauth2/auth"
 creo_google_token_uri=os.getenv("GOOGLE_TOKEN_URI")#https://oauth2.googleapis.com/token"
-
+creo_google_auth_base_uri=os.getenv("GOOGLE_OAUTH_BASE_URL")
 #print("creo_oauth_client_id: ", creo_oauth_client_id, "creo_oauth_client_secret: ", creo_oauth_client_secret, "creo_google_redirect_uri: ", creo_google_redirect_uri)
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret')
