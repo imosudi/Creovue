@@ -20,6 +20,8 @@ from Creovue.utils.decorators import cached, handle_api_error
 from youtubesearchpython import Suggestions
 
 import pycountry, geocoder
+import matplotlib
+matplotlib.use('Agg')  # Use a non-GUI backend
 import matplotlib.pyplot as plt
 import numpy as np
 
