@@ -257,15 +257,15 @@
                     <i class="fab fa-twitter"></i>
                   {% elif provider|lower == 'github' %}
                     <i class="fab fa-github"></i>
-                  {% elif provider|lower == 'linkedin' %}
+                  {#% elif provider|lower == 'linkedin' %#}
                     <i class="fab fa-linkedin-in"></i>
-                  {% elif provider|lower == 'microsoft' %}
+                  {#% elif provider|lower == 'microsoft' %#}
                     <i class="fab fa-microsoft"></i>
-                  {% elif provider|lower == 'apple' %}
+                  {#% elif provider|lower == 'apple' %#}
                     <i class="fab fa-apple"></i>
-                  {% else %}
+                  {#% else %#}
                     <i class="fas fa-sign-in-alt"></i>
-                  {% endif %}
+                  {#% endif %#}
                   {{ _fsdomain('Sign in with %(provider)s', provider=provider) }}
                 </button>
                 {% if csrf_token is defined %}
