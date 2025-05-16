@@ -32,6 +32,10 @@ from Creovue.models.trends  import (
     get_default_region
 )
 
+from .config            import (
+     creo_oauth_client_id, creo_oauth_client_secret,creo_google_redirect_uri, creo_google_auth_scope,
+     creo_google_auth_uri, creo_google_token_uri
+)
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 
@@ -217,10 +221,7 @@ def google_login():
     session['oauth_state'] = state
     return redirect(auth_url)
 
-from .config            import (
-     creo_oauth_client_id, creo_oauth_client_secret,creo_google_redirect_uri, creo_google_auth_scope,
-     creo_google_auth_uri, creo_google_token_uri
-)
+
 @app.route('/oauth2callback')
 def oauth2callback():
     state = session['oauth_state']
