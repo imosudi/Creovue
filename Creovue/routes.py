@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, date
 
 # Third-party imports
 import requests
-from flask import redirect, render_template, request, jsonify, session, url_for
+from flask import flash, redirect, render_template, request, jsonify, session, url_for
 from flask_security import (
     Security, 
     SQLAlchemyUserDatastore, 
@@ -365,7 +365,7 @@ def youtube_dashboard():
 
     creds = Credentials(**session['youtube_token'])
 
-    # 1. Channel metadata
+    # --- 1. Fetch channel metadata ---
     channel_resp = requests.get(
         'https://www.googleapis.com/youtube/v3/channels',
         headers={'Authorization': f'Bearer {creds.token}'},
@@ -373,7 +373,15 @@ def youtube_dashboard():
     )
     channel_data = channel_resp.json()
 
-    # 2. Top videos
+    # 🔒 Check if 'items' exist
+    items = channel_data.get('items', [])
+    if not items:
+        flash("No YouTube channel found or access denied. Please check your permissions.", "danger")
+        return redirect(url_for("dashboard"))
+
+    channel = items[0]
+
+    # --- 2. Fetch top videos ---
     uploads_resp = requests.get(
         'https://www.googleapis.com/youtube/v3/search',
         headers={'Authorization': f'Bearer {creds.token}'},
@@ -388,7 +396,7 @@ def youtube_dashboard():
     uploads_data = uploads_resp.json()
     top_video_ids = [item['id']['videoId'] for item in uploads_data.get('items', []) if 'videoId' in item['id']]
 
-    # 3. Video stats
+    # --- 3. Fetch stats for top videos ---
     stats_data = []
     if top_video_ids:
         stats_resp = requests.get(
@@ -405,8 +413,8 @@ def youtube_dashboard():
             'views': int(v['statistics'].get('viewCount', 0))
         } for v in stats_json.get('items', [])]
 
-    # 4. Subscriber trend (mock)
-    base_subs = int(channel_data['items'][0]['statistics'].get('subscriberCount', 1000))
+    # --- 4. Simulate 7-day subscriber growth ---
+    base_subs = int(channel['statistics'].get('subscriberCount', 1000))
     sub_growth = [base_subs - i * 20 for i in reversed(range(7))]
 
     return render_template('youtube_dashboard.html',
