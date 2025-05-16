@@ -240,6 +240,34 @@ def google_login():
     session['oauth_state'] = state
     return redirect(auth_url)
 
+@app.route("/login_user_google")
+def google_user_login():
+    redirect_uri = url_for("google_authorise", _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route("/login_oauth2callback")
+def google_authorise():
+    token = google.authorize_access_token()
+    resp = google.get("userinfo")
+    user_info = resp.json()
+    
+    email = user_info["email"]
+    user = User.query.filter_by(email=email).first()
+
+    # First-time user: register
+    if not user:
+        user = User(
+            email=email,
+            username=email.split("@")[0],
+            active=True,
+            fs_uniquifier=os.urandom(16).hex()
+        )
+        db.session.add(user)
+        db.session.commit()
+
+    login_user(user)
+    return redirect(url_for("dashboard"))
+
 
 @app.route('/oauth2callback')
 def oauth2callback():
@@ -338,31 +366,6 @@ def youtube_dashboard():
 
 
 """
-@app.route("/login/google")
-def google_user_login():
-    redirect_uri = url_for("google_authorise", _external=True)
-    return google.authorize_redirect(redirect_uri)
 
 
-@app.route("/login_oauth2callback")
-def google_authorise():
-    token = google.authorize_access_token()
-    resp = google.get("userinfo")
-    user_info = resp.json()
-    
-    email = user_info["email"]
-    user = User.query.filter_by(email=email).first()
-
-    # First-time user: register
-    if not user:
-        user = User(
-            email=email,
-            username=email.split("@")[0],
-            active=True,
-            fs_uniquifier=os.urandom(16).hex()
-        )
-        db.session.add(user)
-        db.session.commit()
-
-    login_user(user)
-    return redirect(url_for("dashboard"))"""
+"""
