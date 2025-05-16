@@ -9,7 +9,6 @@ from flask_security import Security, SQLAlchemyUserDatastore, login_required, ro
 from .models.analytics import get_channel_stats, process_channel_analytics, fetch_youtube_analytics, generate_plot
 from .logic import extract_keywords
 from .models import db, User, Role
-from Creovue.models.trends import fetch_trending_keywords, fetch_top_channels, get_all_regions, get_available_categories, get_category_age_distribution, get_default_region, get_top_channels, get_trend_chart_data, get_trending_keywords, visualise_category_age_distribution_base64
 from .models.seo import get_seo_recommendations
 from .app_secets import creo_channel_id, creo_api_key, creo_mock_view_history
 from . import app
@@ -17,20 +16,22 @@ from . import app
 
 from datetime import datetime, timedelta
 
-
 from Creovue.models.trends  import (
-    fetch_trending_keywords, 
-    fetch_top_channels,
-    get_trend_chart_data,
-    get_category_distribution,
-    get_related_keywords,
-    get_trending_regions,
     clear_trend_cache,
-    get_trending_keywords,
+    fetch_top_channels,
+    fetch_trending_keywords,
+    get_all_regions,
+    get_available_categories,
+    get_category_age_distribution,
     get_category_distribution,
+    get_default_region,
+    get_related_keywords,
     get_top_channels,
-    get_default_region
-)
+    get_trend_chart_data,
+    get_trending_keywords,
+    get_trending_regions,
+    visualise_category_age_distribution_base64
+    )
 
 from .config            import (
      creo_oauth_client_id, creo_oauth_client_secret,creo_google_redirect_uri, creo_google_auth_scope,
@@ -94,8 +95,13 @@ def trends():
 
 @app.route("/trends")
 def trends():
+    client_ip = None
+    try:
+        client_ip = request.remote_addr
+    except :
+        pass
     regions = get_all_regions()
-    default_region = get_default_region()
+    default_region = get_default_region(client_ip)
     #print("default_region: ", default_region); #time.sleep(300)
     categories = get_available_categories(creo_api_key, default_region)
 
@@ -125,10 +131,16 @@ def trends():
 
 @app.route('/api/trend_data')
 def trend_data():
-    region = request.args.get("region", get_default_region())
+    client_ip = None
+    try:
+        client_ip = request.remote_addr
+    except :
+        pass
+    default_region = get_default_region(client_ip)
+    region = request.args.get("region", default_region)
     category = request.args.get("category", None)
 
-    default_region = get_default_region()
+    
     categories = get_available_categories(creo_api_key, default_region)
 
     #trending_keywords, keyword_age = get_trending_keywords(region, category)
@@ -152,8 +164,13 @@ def trend_data():
 
 @app.route("/category/age-visual")
 def category_age_visual():
+    client_ip = None
+    try:
+        client_ip = request.remote_addr
+    except :
+        pass
     regions = get_all_regions()
-    default_region = get_default_region()
+    default_region = get_default_region(client_ip)
     #print("default_region: ", default_region); #time.sleep(300)
     categories = get_available_categories(creo_api_key, default_region)
 

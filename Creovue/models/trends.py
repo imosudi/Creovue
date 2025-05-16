@@ -532,16 +532,27 @@ def get_all_regions():
     return regions
 
 # Default region
-def get_default_region():
-    """Determine the default region using geolocation, fallback to 'US'."""
+def get_default_region(client_ipaddr=None):
+    """Determine the default region using client IP geolocation, fallback to server geolocation or 'US'."""
+    # First attempt: Try using client IP if provided
+    if client_ipaddr:
+        try:
+            client_location = geocoder.ip(client_ipaddr)
+            if client_location and client_location.country:
+                return client_location.country.upper()
+        except Exception as e:
+            print(f"Client IP geolocation failed: {e}")
+    
+    # Second attempt: Use server's location (original logic)
     try:
-        # Get location based on IP
-        location = geocoder.ip('me')
-        if location and location.country:
-            return location.country.upper()
+        server_location = geocoder.ip('me')
+        if server_location and server_location.country:
+            return server_location.country.upper()
     except Exception as e:
-        print(f"Geolocation failed: {e}")
-    return "US"  # Default fallback
+        print(f"Server geolocation failed: {e}")
+    
+    # Final fallback
+    return "US"
 
 def get_available_categories(api_key, region_code="US"):
     """Retrieve available YouTube video categories using the YouTube Data API v3."""
