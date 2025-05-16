@@ -74,8 +74,8 @@ app.config['SECURITY_PASSWORD_HASH'] = 'pbkdf2_sha512'
 app.config['SECURITY_PASSWORD_SALT'] = flask_password_salt  # from your .env or config.py
 
 ## Enable features
-app.config['SECURITY_REGISTERABLE'] = True
-app.config['SECURITY_RECOVERABLE'] = True
+app.config['SECURITY_REGISTERABLE'] = False
+app.config['SECURITY_RECOVERABLE'] = False
 app.config['SECURITY_CONFIRMABLE'] = False  # disable email confirmation for dev
 app.config['SECURITY_SEND_REGISTER_EMAIL'] = False
 app.config['SECURITY_TRACKABLE'] = True
