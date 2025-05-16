@@ -237,12 +237,13 @@
         
         {% if security.oauthglue %}
           <div class="oauth-container mt-3">
+            <button href="{{ url_for('google_login') }}" class="btn oauth-btn  w-100 mb-3">
+              <i class="bi bi-google"></i> Sign in with Google
+          </button>
             {% for provider in security.oauthglue.provider_names %}
               <form method="post" id="{{ provider }}_form" name="{{ provider }}_form">
 
-                <button href="{{ url_for('google_login') }}" class="btn oauth-btn  w-100 mb-3">
-                    <i class="bi bi-google"></i> Sign in with Google
-                </button>
+                
                 <button type="submit" class="btn oauth-btn oauth-{{ provider|lower }}" formaction="{{ url_for_security('oauthstart', name=provider) }}{{ prop_next() }}">
                   {% if provider|lower == 'google' %}
                     <i class="fab fa-google"></i>
