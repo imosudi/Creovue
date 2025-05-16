@@ -532,7 +532,7 @@ def get_all_regions():
     return regions
 
 # Default region
-def get_default_region(client_ipaddr=None):
+def get_default_region(client_ipaddr):
     """Determine the default region using client IP geolocation, fallback to server geolocation or 'US'."""
     # First attempt: Try using client IP if provided
     if client_ipaddr:
