@@ -1,10 +1,9 @@
-
 import datetime
 import os
 import time
 from flask import Flask, redirect, render_template, request, jsonify, session, url_for
 import requests
-from flask_security import Security, SQLAlchemyUserDatastore, login_required, roles_required
+from flask_security import Security, SQLAlchemyUserDatastore, login_required, roles_required, login_user, current_user
 from flask_security.utils import login_user
 
 from .models.analytics import get_channel_stats, process_channel_analytics, fetch_youtube_analytics, generate_plot
@@ -218,6 +217,11 @@ def keyword_research():
 
 @app.route('/google-login')
 def google_login():
+    """Initiate Google OAuth flow for both app login and YouTube access"""
+    # Check if user is already authenticated (but needs YouTube access)
+    if current_user.is_authenticated and 'youtube_token' not in session:
+        return redirect(url_for('oauth_youtube'))
+    
     flow = Flow.from_client_config(
         {
             "web": {
@@ -225,52 +229,28 @@ def google_login():
                 "client_secret": creo_oauth_client_secret,
                 "auth_uri": creo_google_auth_uri,
                 "token_uri": creo_google_token_uri,
-                "redirect_uris": creo_google_redirect_uri,
+                "redirect_uris": [creo_google_redirect_uri],
             }
         },
-        scopes=creo_google_auth_scope,
+        scopes=[
+            'openid email profile',  # For user authentication
+            'https://www.googleapis.com/auth/youtube.readonly'  # For YouTube access
+        ],
     )
     flow.redirect_uri = creo_google_redirect_uri
 
     auth_url, state = flow.authorization_url(
         access_type='offline',
-        include_granted_scopes='true'
+        include_granted_scopes='true',
+        prompt='consent'  # Ensure we get refresh token
     )
 
     session['oauth_state'] = state
     return redirect(auth_url)
 
-@app.route("/login_user_google")
-def google_user_login():
-    redirect_uri = url_for("google_authorise", _external=True)
-    return google.authorize_redirect(redirect_uri)
-
-@app.route("/login_oauth2callback")
-def google_authorise():
-    token = google.authorize_access_token()
-    resp = google.get("userinfo")
-    user_info = resp.json()
-    
-    email = user_info["email"]
-    user = User.query.filter_by(email=email).first()
-
-    # First-time user: register
-    if not user:
-        user = User(
-            email=email,
-            username=email.split("@")[0],
-            active=True,
-            fs_uniquifier=os.urandom(16).hex()
-        )
-        db.session.add(user)
-        db.session.commit()
-
-    login_user(user)
-    return redirect(url_for("dashboard"))
-
-
 @app.route('/oauth2callback')
 def oauth2callback():
+    """Handle OAuth callback for both authentication and YouTube access"""
     state = session['oauth_state']
     flow = Flow.from_client_config(
         {
@@ -279,18 +259,21 @@ def oauth2callback():
                 "client_secret": creo_oauth_client_secret,
                 "auth_uri": creo_google_auth_uri,
                 "token_uri": creo_google_token_uri,
-                "redirect_uris": creo_google_redirect_uri,
+                "redirect_uris": [creo_google_redirect_uri],
             }
         },
-        scopes=creo_google_auth_scope,
+        scopes=[
+            'openid email profile',
+            'https://www.googleapis.com/auth/youtube.readonly'
+        ],
         state=state
     )
     flow.redirect_uri = creo_google_redirect_uri
 
-    authorization_response = request.url
-    flow.fetch_token(authorization_response=authorization_response)
-
+    flow.fetch_token(authorization_response=request.url)
     credentials = flow.credentials
+
+    # Store YouTube credentials in session
     session['youtube_token'] = {
         'token': credentials.token,
         'refresh_token': credentials.refresh_token,
@@ -300,70 +283,129 @@ def oauth2callback():
         'scopes': credentials.scopes
     }
 
+    # Get user info for authentication
+    userinfo = requests.get(
+        'https://www.googleapis.com/oauth2/v1/userinfo',
+        headers={'Authorization': f'Bearer {credentials.token}'}
+    ).json()
+
+    # Authenticate or register user
+    email = userinfo['email']
+    user = User.query.filter_by(email=email).first()
+    
+    if not user:
+        user = User(
+            email=email,
+            username=email.split('@')[0],
+            active=True,
+            fs_uniquifier=os.urandom(16).hex()
+        )
+        db.session.add(user)
+        db.session.commit()
+
+    login_user(user)
+    
     return redirect(url_for('youtube_dashboard'))
 
+@app.route('/oauth-youtube')
+@login_required
+def oauth_youtube():
+    """Separate endpoint to just request YouTube permissions"""
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": creo_oauth_client_id,
+                "client_secret": creo_oauth_client_secret,
+                "auth_uri": creo_google_auth_uri,
+                "token_uri": creo_google_token_uri,
+                "redirect_uris": [creo_google_redirect_uri],
+            }
+        },
+        scopes=['https://www.googleapis.com/auth/youtube.readonly'],
+    )
+    flow.redirect_uri = creo_google_redirect_uri
 
+    auth_url, state = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true',
+        prompt='consent'
+    )
+
+    session['oauth_state'] = state
+    return redirect(auth_url)
 
 @app.route('/youtube-dashboard')
+@login_required
 def youtube_dashboard():
+    """YouTube dashboard requiring both user auth and YouTube permissions"""
     if 'youtube_token' not in session:
-        return redirect(url_for('google_login'))
+        return redirect(url_for('oauth_youtube'))
 
-    creds = Credentials(**session['youtube_token'])
+    try:
+        creds = Credentials(**session['youtube_token'])
+        
+        # Refresh token if expired
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            session['youtube_token'] = {
+                'token': creds.token,
+                'refresh_token': creds.refresh_token,
+                'token_uri': creds.token_uri,
+                'client_id': creds.client_id,
+                'client_secret': creds.client_secret,
+                'scopes': creds.scopes
+            }
 
-    # --- 1. Fetch channel metadata ---
-    channel_resp = requests.get(
-        'https://www.googleapis.com/youtube/v3/channels',
-        headers={'Authorization': f'Bearer {creds.token}'},
-        params={'part': 'snippet,statistics', 'mine': 'true'}
-    )
-    channel_data = channel_resp.json()
+        # Fetch YouTube data
+        channel_resp = requests.get(
+            'https://www.googleapis.com/youtube/v3/channels',
+            headers={'Authorization': f'Bearer {creds.token}'},
+            params={'part': 'snippet,statistics', 'mine': 'true'}
+        )
+        channel_data = channel_resp.json()
 
-    # --- 2. Fetch top videos (last 10 uploads) ---
-    uploads_resp = requests.get(
-        'https://www.googleapis.com/youtube/v3/search',
-        headers={'Authorization': f'Bearer {creds.token}'},
-        params={
-            'part': 'snippet',
-            'maxResults': 10,
-            'order': 'viewCount',
-            'type': 'video',
-            'mine': 'true'
-        }
-    )
-    uploads_data = uploads_resp.json()
-
-    top_video_ids = [item['id']['videoId'] for item in uploads_data.get('items', []) if 'videoId' in item['id']]
-
-    # --- 3. Fetch view stats for those videos ---
-    stats_data = []
-    if top_video_ids:
-        stats_resp = requests.get(
-            'https://www.googleapis.com/youtube/v3/videos',
+        uploads_resp = requests.get(
+            'https://www.googleapis.com/youtube/v3/search',
             headers={'Authorization': f'Bearer {creds.token}'},
             params={
-                'part': 'snippet,statistics',
-                'id': ','.join(top_video_ids)
+                'part': 'snippet',
+                'maxResults': 10,
+                'order': 'viewCount',
+                'type': 'video',
+                'mine': 'true'
             }
         )
-        stats_json = stats_resp.json()
-        stats_data = [{
-            'title': v['snippet']['title'],
-            'views': int(v['statistics'].get('viewCount', 0))
-        } for v in stats_json.get('items', [])]
+        uploads_data = uploads_resp.json()
 
-    # --- 4. Simulate 7-day subscriber growth trend ---
-    base_subs = int(channel_data['items'][0]['statistics'].get('subscriberCount', 1000))
-    sub_growth = [base_subs - i * 20 for i in reversed(range(7))]  # mock growth
+        top_video_ids = [item['id']['videoId'] for item in uploads_data.get('items', []) 
+                       if 'videoId' in item['id']]
 
-    return render_template('youtube_dashboard.html', 
-        data=channel_data,
-        top_videos=stats_data,
-        subscriber_trend=sub_growth,
-        subscriber_labels=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    )
+        stats_data = []
+        if top_video_ids:
+            stats_resp = requests.get(
+                'https://www.googleapis.com/youtube/v3/videos',
+                headers={'Authorization': f'Bearer {creds.token}'},
+                params={'part': 'snippet,statistics', 'id': ','.join(top_video_ids)}
+            )
+            stats_data = [{
+                'title': v['snippet']['title'],
+                'views': int(v['statistics'].get('viewCount', 0))
+            } for v in stats_resp.json().get('items', [])]
 
+        base_subs = int(channel_data['items'][0]['statistics'].get('subscriberCount', 1000))
+        sub_growth = [base_subs - i * 20 for i in reversed(range(7))]
 
+        return render_template('youtube_dashboard.html', 
+            data=channel_data,
+            top_videos=stats_data,
+            subscriber_trend=sub_growth,
+            subscriber_labels=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        )
+
+    except Exception as e:
+        # Handle token expiration or other errors
+        session.pop('youtube_token', None)
+        return redirect(url_for('oauth_youtube'))
 
 """
 
