@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from collections import Counter, defaultdict
-from Creovue.app_secrets import creo_api_key, creo_base_url
+from Creovue.config import creo_api_key, creo_base_url
 # models/trends.py
 
 # Setup logging

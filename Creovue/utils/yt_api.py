@@ -9,7 +9,7 @@ import datetime
 
 
 
-from Creovue.app_secets import creo_api_key, cre_base_url
+from Creovue.config import creo_api_key, cre_base_url
 
 
 

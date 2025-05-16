@@ -10,7 +10,7 @@ from .models.analytics import get_channel_stats, process_channel_analytics, fetc
 from .logic import extract_keywords
 from .models import db, User, Role
 from .models.seo import get_seo_recommendations
-from .app_secets import creo_channel_id, creo_api_key, creo_mock_view_history
+#from .app_secets import creo_channel_id, creo_api_key, creo_mock_view_history
 from . import app
 
 
@@ -35,7 +35,8 @@ from Creovue.models.trends  import (
 
 from .config            import (
      creo_oauth_client_id, creo_oauth_client_secret,creo_google_redirect_uri, creo_google_auth_scope,
-     creo_google_auth_uri, creo_google_token_uri
+     creo_google_auth_uri, creo_google_token_uri,
+     creo_channel_id, creo_api_key, creo_mock_view_history
 )
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials

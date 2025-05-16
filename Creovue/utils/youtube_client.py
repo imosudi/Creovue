@@ -2,7 +2,7 @@
 
 import os
 from googleapiclient.discovery import build
-from Creovue.app_secrets import creo_api_key
+from Creovue.config import creo_api_key
 
 def get_youtube_client():
     """
