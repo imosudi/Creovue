@@ -90,13 +90,21 @@ app.config["SECURITY_OAUTH_PROVIDERS"] = {
         "consumer_key": creo_oauth_client_id,
         "consumer_secret": creo_oauth_client_secret,
         "request_token_params": {
-            "scope": "openid email profile"
+            "scope": ["openid", "https://www.googleapis.com/auth/userinfo.profile",
+                       "https://www.googleapis.com/auth/userinfo.email",
+                       "https://www.googleapis.com/auth/youtube.readonly"  # For user authentication
+            #'https://www.googleapis.com/auth/youtube.readonly'  # For YouTube access
+        ]
         },
         "authorize_url": creo_google_auth_uri,
         "access_token_url": creo_google_token_uri,
         "base_url": creo_google_auth_base_uri,
         "client_kwargs": {
-            "scope": "openid email profile"
+            "scope": ["openid", "https://www.googleapis.com/auth/userinfo.profile",
+                       "https://www.googleapis.com/auth/userinfo.email",
+                       "https://www.googleapis.com/auth/youtube.readonly"  # For user authentication
+            #'https://www.googleapis.com/auth/youtube.readonly'  # For YouTube access
+        ]
         },
         #"redirect_uri": creo_google_redirect_uri
         "redirect_uri": creo_google_auth_redirect_uri
