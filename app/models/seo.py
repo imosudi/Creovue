@@ -240,7 +240,7 @@ def get_seo_recommendations(keyword, include_competition=True, debug=False):
     result = {
         "primary_keyword": clean,
         "tags": [],
-        "categorized_keywords": {},
+        "categorised_keywords": {},
         "variations": [],
         "competition": {},
         "tips": []
