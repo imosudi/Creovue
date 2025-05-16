@@ -337,7 +337,7 @@ def youtube_dashboard():
 
 
 
-
+"""
 @app.route("/login/google")
 def google_user_login():
     redirect_uri = url_for("google_authorise", _external=True)
@@ -365,4 +365,4 @@ def google_authorise():
         db.session.commit()
 
     login_user(user)
-    return redirect(url_for("dashboard"))
+    return redirect(url_for("dashboard"))"""

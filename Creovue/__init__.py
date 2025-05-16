@@ -98,7 +98,8 @@ app.config["SECURITY_OAUTH_PROVIDERS"] = {
         "client_kwargs": {
             "scope": "openid email profile"
         },
-        "redirect_uri": creo_google_auth_redirect_uri
+        #"redirect_uri": creo_google_auth_redirect_uri
+        "redirect_uri": creo_google_redirect_uri
     }
 }
 
