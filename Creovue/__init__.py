@@ -2,12 +2,12 @@
 #Creovue/__init__.py
 import os, sys, platform
 
-py_vers = (".").join(platform.python_version().split(".")[:2])
-dir_path = os.path.dirname(os.path.realpath(__file__)).strip("Creovue")
+#py_vers = (".").join(platform.python_version().split(".")[:2])
+#dir_path = os.path.dirname(os.path.realpath(__file__)).strip("Creovue")
 #print(py_vers, dir_path)
-python_path = os.path.join(dir_path, f"venv/lib/python{py_vers}/site-packages")
+#python_path = os.path.join(dir_path, f"venv/lib/python{py_vers}/site-packages")
 #print("python_path: ", python_path)
-sys.path.insert(0, python_path)
+#sys.path.insert(0, python_path)
 
 
 import time
@@ -22,6 +22,12 @@ from .config            import (
     creo_mail_server, creo_mail_default_sender, creo_mail_username, creo_mail_password, creo_mail_tls, creo_mail_ssl,
     creo_oauth_client_id, creo_oauth_client_secret,creo_google_redirect_uri, creo_google_auth_scope
 )
+
+print(
+    creo_appdb_host, creo_appdb_name, creo_appdb_user, creo_appdb_pass, flask_secret, flask_password_salt, 
+    creo_mail_server, creo_mail_default_sender, creo_mail_username, creo_mail_password, creo_mail_tls, creo_mail_ssl,
+    creo_oauth_client_id, creo_oauth_client_secret,creo_google_redirect_uri, creo_google_auth_scope
+); time.sleep(300)
 #Config#, ProductionConfig, DevelopmentConfig
 
 #print(creo_mail_server, creo_mail_default_sender, creo_mail_username, creo_mail_password, creo_mail_tls, creo_mail_ssl)
