@@ -38,6 +38,8 @@ class User(db.Model, UserMixin):
     current_login_ip = db.Column(db.String(100))
     login_count = db.Column(db.Integer)
     
+    channel_id = db.Column(db.String(255), nullable=True)
+
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
     #roles = db.relationship('Role', secondary=roles_users, backref='users')

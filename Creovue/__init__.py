@@ -1,40 +1,63 @@
 #!/usr/bin/env python3
-#Creovue/__init__.py
-import os, sys, platform
+# Creovue/__init__.py
 
-#py_vers = (".").join(platform.python_version().split(".")[:2])
-#dir_path = os.path.dirname(os.path.realpath(__file__)).strip("Creovue")
-#print(py_vers, dir_path)
-#python_path = os.path.join(dir_path, f"venv/lib/python{py_vers}/site-packages")
-#print("python_path: ", python_path)
-#sys.path.insert(0, python_path)
-
-from Creovue.matplotlib_cache_check import setup_matplotlib_cache
-if not setup_matplotlib_cache():
-    exit(1) 
-    
+# Standard library imports
+import os
+import sys
+import platform
 import time
-from flask import       Flask
-from flask_moment       import Moment
-from flask_migrate      import Migrate
-from flask_sqlalchemy   import SQLAlchemy
-from flask_mail         import Mail
 
+# Third-party imports
+from flask import Flask
+from flask_moment import Moment
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail
 from authlib.integrations.flask_client import OAuth
 
-from .config            import (
-    creo_appdb_host, creo_appdb_name, creo_appdb_user, creo_appdb_pass, flask_secret, flask_password_salt, 
-    creo_mail_server, creo_mail_default_sender, creo_mail_username, creo_mail_password, creo_mail_tls, creo_mail_ssl,
-    creo_oauth_client_id, creo_oauth_client_secret,creo_google_redirect_uri, creo_google_auth_scope, creo_google_auth_uri,
-    creo_google_token_uri, creo_google_auth_base_uri, creo_google_auth_redirect_uri
+# Local application imports
+from Creovue.matplotlib_cache_check import setup_matplotlib_cache
+from .filters import format_number
+from .config import (
+    creo_appdb_host,
+    creo_appdb_name,
+    creo_appdb_user,
+    creo_appdb_pass,
+    flask_secret,
+    flask_password_salt,
+    creo_mail_server,
+    creo_mail_default_sender,
+    creo_mail_username,
+    creo_mail_password,
+    creo_mail_tls,
+    creo_mail_ssl,
+    creo_oauth_client_id,
+    creo_oauth_client_secret,
+    creo_google_redirect_uri,
+    creo_google_auth_scope,
+    creo_google_auth_uri,
+    creo_google_token_uri,
+    creo_google_auth_base_uri,
+    creo_google_auth_redirect_uri
 )
 
-#Config#, ProductionConfig, DevelopmentConfig
+# Check matplotlib cache setup
+if not setup_matplotlib_cache():
+    exit(1)
 
-#print(creo_mail_server, creo_mail_default_sender, creo_mail_username, creo_mail_password, creo_mail_tls, creo_mail_ssl)
-# In __init__.py or wherever you define the app
-from .filters import format_number
+# Commented out Python path manipulation code
+'''
+py_vers = (".").join(platform.python_version().split(".")[:2])
+dir_path = os.path.dirname(os.path.realpath(__file__)).strip("Creovue")
+python_path = os.path.join(dir_path, f"venv/lib/python{py_vers}/site-packages")
+sys.path.insert(0, python_path)
+'''
 
+# Commented out print debug statements
+# print(creo_mail_server, creo_mail_default_sender, creo_mail_username, creo_mail_password, creo_mail_tls, creo_mail_ssl)
+
+# Config class reference
+# Config, ProductionConfig, DevelopmentConfig
 
 app = Flask(__name__)
 # Construct the URI

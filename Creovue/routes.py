@@ -1,21 +1,47 @@
+# Standard library imports
 import os
 import time
-from flask import redirect, render_template, request, jsonify, session, url_for
-from flask_security.utils import login_user
-import requests
-from flask_security import Security, SQLAlchemyUserDatastore, login_required, roles_required, login_user, current_user
-
-from .models.analytics import get_channel_stats, process_channel_analytics, fetch_youtube_analytics, generate_plot
-from .logic import extract_keywords
-from .models import db, User, Role
-from .models.seo import get_seo_recommendations
-#from .app_secets import creo_channel_id, creo_api_key, creo_mock_view_history
-from . import app, google, oauth
-
-import datetime
 from datetime import datetime, timedelta, date
 
-from Creovue.models.trends  import (
+# Third-party imports
+import requests
+from flask import redirect, render_template, request, jsonify, session, url_for
+from flask_security import (
+    Security, 
+    SQLAlchemyUserDatastore, 
+    login_required, 
+    roles_required, 
+    login_user, 
+    current_user
+)
+from flask_security.utils import login_user
+from google_auth_oauthlib.flow import Flow
+from google.oauth2.credentials import Credentials
+from werkzeug.security import generate_password_hash
+
+# Local application imports
+from . import app, google, oauth
+from .models import db, User, Role
+from .models.analytics import (
+    get_channel_stats, 
+    process_channel_analytics, 
+    fetch_youtube_analytics, 
+    generate_plot
+)
+from .models.seo import get_seo_recommendations
+from .logic import extract_keywords
+from .config import (
+    creo_oauth_client_id,
+    creo_oauth_client_secret,
+    creo_google_redirect_uri,
+    creo_google_auth_scope,
+    creo_google_auth_uri,
+    creo_google_token_uri,
+    creo_channel_id,
+    creo_api_key,
+    creo_mock_view_history
+)
+from Creovue.models.trends import (
     clear_trend_cache,
     fetch_top_channels,
     fetch_trending_keywords,
@@ -30,15 +56,10 @@ from Creovue.models.trends  import (
     get_trending_keywords,
     get_trending_regions,
     visualise_category_age_distribution_base64
-    )
-
-from .config            import (
-     creo_oauth_client_id, creo_oauth_client_secret,creo_google_redirect_uri, creo_google_auth_scope,
-     creo_google_auth_uri, creo_google_token_uri,
-     creo_channel_id, creo_api_key, creo_mock_view_history
 )
-from google_auth_oauthlib.flow import Flow
-from google.oauth2.credentials import Credentials
+
+# Commented out import
+# from .app_secets import creo_channel_id, creo_api_key, creo_mock_view_history
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # For localhost testing
 
@@ -59,15 +80,25 @@ def admin_panel():
 def home():
     return render_template("index.html")
 
+# Dashboard route – personalised analytics
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    # Use fetch_youtube_analytics to get real stats with simulated daily views
-    analytics = process_channel_analytics(creo_channel_id)
-    return render_template("dashboard.html", stats=analytics)
+    if not current_user.channel_id:
+        return render_template("dashboard.html", stats=None)  # No data yet
+
+    try:
+        analytics = process_channel_analytics(current_user.channel_id)
+        return render_template("dashboard.html", stats=analytics)
+    except Exception as e:
+        # Log error and show dashboard without stats
+        print(f"[Dashboard Error] {e}")
+        return render_template("dashboard.html", stats=None)
+
 
 
 @app.route('/seo', methods=['GET', 'POST'])
+@login_required
 def seo():
     recommendations = None
     error = None
@@ -91,6 +122,7 @@ def trends():
     return render_template('trends.html', trending_keywords=trending_keywords, top_channels=top_channels, trend_data=trend_data)"""
 
 @app.route("/trends")
+@login_required
 def trends():
     client_ip = None
     try:
@@ -127,6 +159,7 @@ def trends():
     )
 
 @app.route('/api/trend_data')
+@login_required
 def trend_data():
     client_ip = None
     try:
@@ -160,6 +193,7 @@ def trend_data():
     })
 
 @app.route("/category/age-visual")
+@login_required
 def category_age_visual():
     client_ip = None
     try:
@@ -176,6 +210,7 @@ def category_age_visual():
     return render_template("age_visual.html", plot_img=plot_img, region=default_region)
 
 @app.route('/analytics')
+@login_required
 def analytics():
     analytics_data = fetch_youtube_analytics(creo_channel_id)
 
@@ -204,14 +239,19 @@ def analytics():
 
 
 @app.route("/seo/keywords", methods=["POST"])
+@login_required
 def keyword_research():
     content = request.json['text']
     keywords = extract_keywords([content])
     return jsonify({"keywords": keywords})
 
 
+# Initiate Google OAuth
 @app.route('/google-login')
 def google_login():
+    next_url = request.args.get('next', url_for('dashboard'))
+    session['next_url'] = next_url
+
     flow = Flow.from_client_config(
         {
             "web": {
@@ -230,16 +270,15 @@ def google_login():
         ],
     )
     flow.redirect_uri = creo_google_redirect_uri
-
     auth_url, state = flow.authorization_url(
         access_type='offline',
         include_granted_scopes='true',
         prompt="consent"
     )
-
     session['oauth_state'] = state
     return redirect(auth_url)
 
+# OAuth Callback Handler
 @app.route('/oauth2callback')
 def oauth2callback():
     state = session.get('oauth_state')
@@ -265,37 +304,47 @@ def oauth2callback():
         state=state
     )
     flow.redirect_uri = creo_google_redirect_uri
-
     flow.fetch_token(authorization_response=request.url)
     credentials = flow.credentials
 
-    # Fetch user info
+    # Fetch basic user info
     userinfo_resp = requests.get(
         "https://www.googleapis.com/oauth2/v1/userinfo",
         headers={"Authorization": f"Bearer {credentials.token}"}
     )
-
-    if not userinfo_resp.ok:
-        return "Failed to fetch user info.", 400
-
     user_info = userinfo_resp.json()
     email = user_info.get("email")
 
-    # Login or register user
+    # Check or create user
     user = User.query.filter_by(email=email).first()
     if not user:
         user = User(
             email=email,
             username=email.split('@')[0],
+            password=generate_password_hash(os.urandom(12).hex()),
             fs_uniquifier=os.urandom(16).hex(),
             active=True
         )
         db.session.add(user)
         db.session.commit()
 
+    # Fetch and save channel ID to user (first time)
+    if not user.channel_id:
+        # After login_user(user)
+        channel_resp = requests.get(
+            'https://www.googleapis.com/youtube/v3/channels',
+            headers={'Authorization': f'Bearer {credentials.token}'},
+            params={'part': 'id', 'mine': 'true'}
+        )
+        channel_data = channel_resp.json()
+        if channel_data.get('items'):
+            user.channel_id = channel_data['items'][0]['id']
+            db.session.commit()
+
+
     login_user(user)
 
-    # Store YouTube token in session
+    # Save token to session
     session['youtube_token'] = {
         'token': credentials.token,
         'refresh_token': credentials.refresh_token,
@@ -305,17 +354,18 @@ def oauth2callback():
         'scopes': credentials.scopes
     }
 
-    return redirect(url_for('youtube_dashboard'))
+    return redirect(session.pop('next_url', url_for('dashboard')))
 
-
+# Personalised YouTube dashboard
 @app.route('/youtube-dashboard')
+@login_required
 def youtube_dashboard():
     if 'youtube_token' not in session:
-        return redirect(url_for('google_login'))
+        return redirect(url_for('google_login', next=request.path))
 
     creds = Credentials(**session['youtube_token'])
 
-    # --- 1. Fetch channel metadata ---
+    # 1. Channel metadata
     channel_resp = requests.get(
         'https://www.googleapis.com/youtube/v3/channels',
         headers={'Authorization': f'Bearer {creds.token}'},
@@ -323,7 +373,7 @@ def youtube_dashboard():
     )
     channel_data = channel_resp.json()
 
-    # --- 2. Fetch top videos (last 10 uploads) ---
+    # 2. Top videos
     uploads_resp = requests.get(
         'https://www.googleapis.com/youtube/v3/search',
         headers={'Authorization': f'Bearer {creds.token}'},
@@ -336,10 +386,9 @@ def youtube_dashboard():
         }
     )
     uploads_data = uploads_resp.json()
-
     top_video_ids = [item['id']['videoId'] for item in uploads_data.get('items', []) if 'videoId' in item['id']]
 
-    # --- 3. Fetch view stats for those videos ---
+    # 3. Video stats
     stats_data = []
     if top_video_ids:
         stats_resp = requests.get(
@@ -356,11 +405,11 @@ def youtube_dashboard():
             'views': int(v['statistics'].get('viewCount', 0))
         } for v in stats_json.get('items', [])]
 
-    # --- 4. Simulate 7-day subscriber growth trend ---
+    # 4. Subscriber trend (mock)
     base_subs = int(channel_data['items'][0]['statistics'].get('subscriberCount', 1000))
-    sub_growth = [base_subs - i * 20 for i in reversed(range(7))]  # mock growth
+    sub_growth = [base_subs - i * 20 for i in reversed(range(7))]
 
-    return render_template('youtube_dashboard.html', 
+    return render_template('youtube_dashboard.html',
         data=channel_data,
         top_videos=stats_data,
         subscriber_trend=sub_growth,
@@ -369,7 +418,3 @@ def youtube_dashboard():
 
 
 
-"""
-
-
-"""

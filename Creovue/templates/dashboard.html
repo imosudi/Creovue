@@ -1,22 +1,26 @@
-<!-- templates/dashboard.html -->
 {% extends "base.html" %}
-
 {% block title %}Dashboard | Creovue{% endblock %}
 
 {% block content %}
 <h2>📊 Channel Overview</h2>
-<a href="{{ url_for('google_login') }}" class="btn btn-outline-danger">
-  <i class="bi bi-google"></i> Link YouTube
-</a>
 
-<ul>
-  <li><strong>Subscribers:</strong> {{ stats.subscribers }}</li>
-  <li><strong>Views:</strong> {{ stats.views }}</li>
-  <li><strong>Videos:</strong> {{ stats.videos }}</li>
-  <li><strong>Sudden Spike Detected?</strong> {{ "Yes 🚀" if stats.spike_detected else "No" }}</li>
-</ul>
+{% if not stats %}
+  <p class="text-warning">
+    You have not connected a YouTube channel yet.
+    <a href="{{ url_for('youtube_dashboard') }}" class="btn btn-danger">
+      <i class="bi bi-google"></i> Connect YouTube
+    </a>
+  </p>
+{% else %}
+  <ul>
+    <li><strong>Subscribers:</strong> {{ stats.subscribers }}</li>
+    <li><strong>Views:</strong> {{ stats.views }}</li>
+    <li><strong>Videos:</strong> {{ stats.videos }}</li>
+    <li><strong>Sudden Spike Detected?</strong> {{ "Yes 🚀" if stats.spike_detected else "No" }}</li>
+  </ul>
 
-<h3>📈 Recent Views Plot</h3>
-<img src="{{ stats.plot_url }}" alt="Views Graph" style="max-width: 100%; border: 1px solid #ccc;">
+  <h3>📈 Recent Views Plot</h3>
+  <img src="{{ stats.plot_url }}" alt="Views Graph" style="max-width: 100%; border: 1px solid #ccc;">
+{% endif %}
 
 {% endblock %}
