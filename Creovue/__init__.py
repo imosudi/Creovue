@@ -26,7 +26,7 @@ from .config            import (
     creo_appdb_host, creo_appdb_name, creo_appdb_user, creo_appdb_pass, flask_secret, flask_password_salt, 
     creo_mail_server, creo_mail_default_sender, creo_mail_username, creo_mail_password, creo_mail_tls, creo_mail_ssl,
     creo_oauth_client_id, creo_oauth_client_secret,creo_google_redirect_uri, creo_google_auth_scope, creo_google_auth_uri,
-    creo_google_token_uri, creo_google_auth_base_uri
+    creo_google_token_uri, creo_google_auth_base_uri, creo_google_auth_redirect_uri
 )
 
 #Config#, ProductionConfig, DevelopmentConfig
@@ -98,7 +98,7 @@ app.config["SECURITY_OAUTH_PROVIDERS"] = {
         "client_kwargs": {
             "scope": "openid email profile"
         },
-        "redirect_uri": creo_google_redirect_uri
+        "redirect_uri": creo_google_auth_redirect_uri
     }
 }
 
