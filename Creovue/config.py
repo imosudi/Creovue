@@ -80,3 +80,4 @@ config_by_name = {
     'production': ProductionConfig
 }
 
+os.environ['MPLCONFIGDIR'] = '/tmp/mpl_cache'
