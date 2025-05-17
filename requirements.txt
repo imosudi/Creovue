@@ -52,6 +52,7 @@ nltk==3.9.1
 numpy==2.2.5
 oauthlib==2.1.0
 opencv-python==4.11.0.86
+opencv-python-headless==4.11.0.86
 packaging==25.0
 pandas==2.2.3
 passlib==1.7.4
