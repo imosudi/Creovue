@@ -72,7 +72,7 @@ def face_detect():
             cv2.imwrite(result_path, image)
 
             # Image URL for template rendering
-            image_url = url_for('thumbnail_eval/static', filename=f"uploads/{result_filename}")
+            image_url = url_for('face_detection.static', filename=f"uploads/{result_filename}")
 
         else:
             flash('Invalid file format. Please upload a JPG, JPEG, or PNG image.', 'danger')
