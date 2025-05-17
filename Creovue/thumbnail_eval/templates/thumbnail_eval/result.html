@@ -1,0 +1,8 @@
+<!-- Creovue/thumbnail_eval/templates/thumbnail_eval/result.html-->
+{% extends "base.html" %}
+{% block title %}Evaluation Result{% endblock %}
+{% block content %}
+<h2>Evaluation Score: {{ score }}</h2>
+<img src="{{ image }}" style="max-width: 100%; border: 1px solid #ccc;" alt="Evaluated Thumbnail">
+<a href="{{ url_for('thumbnail_eval.thumbnail_eval') }}" class="btn btn-secondary mt-3">Try Another</a>
+{% endblock %}
