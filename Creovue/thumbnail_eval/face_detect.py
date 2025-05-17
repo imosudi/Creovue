@@ -1,6 +1,7 @@
 
 
 import os
+import time
 import cv2
 import numpy as np
 from flask import Blueprint, jsonify, request, render_template, redirect, url_for, flash, current_app
@@ -12,7 +13,7 @@ face_bp = Blueprint(
     __name__,
     template_folder='templates',
     static_folder='static',
-    url_prefix='/thumbnail_eval'
+    url_prefix='/thumbnail'
 )
 
 # Define base directory at module level
@@ -72,8 +73,8 @@ def face_detect():
             cv2.imwrite(result_path, image)
 
             # Image URL for template rendering
-            image_url = url_for('face_detection.static', filename=f"uploads/{result_filename}")
-
+            image_url = url_for('thumbnail_eval/static', filename=f"uploads/{result_filename}")
+            print("image_url: ", image_url); time.sleep(300)
         else:
             flash('Invalid file format. Please upload a JPG, JPEG, or PNG image.', 'danger')
 
@@ -89,4 +90,5 @@ def setup_blueprint(setup_state):
             os.makedirs(upload_folder, exist_ok=True)    
         except :
             pass
+        
         
