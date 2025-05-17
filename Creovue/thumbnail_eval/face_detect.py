@@ -1,7 +1,6 @@
 
 
 import os
-import time
 import cv2
 import numpy as np
 from flask import Blueprint, jsonify, request, render_template, redirect, url_for, flash, current_app
@@ -74,7 +73,7 @@ def face_detect():
 
             # Image URL for template rendering
             image_url = url_for('thumbnail_eval/static', filename=f"uploads/{result_filename}")
-            print("image_url: ", image_url); time.sleep(300)
+
         else:
             flash('Invalid file format. Please upload a JPG, JPEG, or PNG image.', 'danger')
 
