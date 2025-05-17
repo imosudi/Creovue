@@ -157,3 +157,6 @@ google = oauth.register(
 
 
 import Creovue.routes
+
+# mkdir -p /home/mosud/dev/Creovue/Creovue/static/uploads
+# sudo chmod 755 /home/mosud/dev/Creovue/Creovue/static/uploads
