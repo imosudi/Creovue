@@ -1,3 +1,4 @@
+# Creovue/thumbnail/face_detect.py
 import os
 import cv2
 import numpy as np
@@ -9,21 +10,21 @@ face_bp = Blueprint(
     'face_detection',
     __name__,
     template_folder='templates',
-    static_folder='static',
     url_prefix='/thumbnail'
+    # Removed static_folder to use application default
 )
 
-# Define base directory at module level
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-RELATIVE_UPLOAD = 'static/uploads'
+# Define relative upload path for application's static folder
+RELATIVE_UPLOAD = 'uploads'
 
 # Create a function to get the upload folder path
 def get_upload_folder():
     if current_app:
-        return os.path.join(current_app.root_path, RELATIVE_UPLOAD)
+        return os.path.join(current_app.static_folder, RELATIVE_UPLOAD)
     else:
         # Fallback path for development/testing
-        return os.path.join(BASE_DIR, 'static', 'uploads')
+        app_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        return os.path.join(app_root, 'static', RELATIVE_UPLOAD)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -69,8 +70,8 @@ def face_detect():
             result_path = os.path.join(UPLOAD_FOLDER, result_filename)
             cv2.imwrite(result_path, image)
 
-            # Image URL for template rendering
-            image_url = url_for('face_detection.static', filename=f"uploads/{result_filename}")
+            # Image URL for template rendering - using application's static url
+            image_url = url_for('static', filename=f"{RELATIVE_UPLOAD}/{result_filename}")
 
         else:
             flash('Invalid file format. Please upload a JPG, JPEG, or PNG image.', 'danger')
@@ -85,6 +86,5 @@ def setup_blueprint(setup_state):
         upload_folder = get_upload_folder()
         try:
             os.makedirs(upload_folder, exist_ok=True)    
-        except :
+        except:
             pass
-        
