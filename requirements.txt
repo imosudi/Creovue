@@ -65,6 +65,7 @@ pycountry==24.6.1
 pycparser==2.22
 PyMySQL==1.1.1
 pyparsing==3.2.3
+pytesseract==0.3.13
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
 pytrends==4.9.2
