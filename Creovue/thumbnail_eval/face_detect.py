@@ -2,7 +2,7 @@
 import os
 import cv2
 import numpy as np
-from flask import Blueprint, request, render_template, redirect, url_for, flash
+from flask import Blueprint, jsonify, request, render_template, redirect, url_for, flash
 from werkzeug.utils import secure_filename
 
 face_bp = Blueprint(
@@ -37,6 +37,14 @@ def face_detect():
 
             # Face detection
             image = cv2.imread(save_path)
+            
+            if image is None or image.size == 0:
+                # Handle the error appropriately, maybe return an error response
+                return jsonify({"error": "Invalid or empty image provided"}), 400
+
+            # Only proceed if we have a valid image
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             face_cascade = cv2.CascadeClassifier(
                 cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
