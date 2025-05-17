@@ -1,8 +1,8 @@
-#  Creovue/thumbnail_eval/face_detect.py
 import os
 import cv2
 import numpy as np
-from flask import Blueprint, jsonify, request, render_template, redirect, url_for, flash
+from flask import Blueprint, jsonify, request, render_template, redirect, url_for, flash, current_app
+
 from werkzeug.utils import secure_filename
 
 face_bp = Blueprint(
@@ -13,12 +13,19 @@ face_bp = Blueprint(
     url_prefix='/thumbnail'
 )
 
+# Define base directory at module level
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
-#UPLOAD_FOLDER = '/tmp/creovue_uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+RELATIVE_UPLOAD = 'static/uploads'
 
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Create a function to get the upload folder path
+def get_upload_folder():
+    if current_app:
+        return os.path.join(current_app.root_path, RELATIVE_UPLOAD)
+    else:
+        # Fallback path for development/testing
+        return os.path.join(BASE_DIR, 'static', 'uploads')
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -27,6 +34,10 @@ def allowed_file(filename):
 def face_detect():
     faces_count = 0
     image_url = None
+    
+    # Create upload folder if it doesn't exist
+    UPLOAD_FOLDER = get_upload_folder()
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
     if request.method == 'POST':
         file = request.files.get('thumbnail')
@@ -45,7 +56,6 @@ def face_detect():
             # Only proceed if we have a valid image
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             face_cascade = cv2.CascadeClassifier(
                 cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
             )
@@ -67,3 +77,10 @@ def face_detect():
 
     return render_template('face_detect.html', image_url=image_url, faces_count=faces_count)
 
+# This ensures the upload folder exists when the blueprint is registered
+@face_bp.record
+def setup_blueprint(setup_state):
+    app = setup_state.app
+    with app.app_context():
+        upload_folder = get_upload_folder()
+        os.makedirs(upload_folder, exist_ok=True)

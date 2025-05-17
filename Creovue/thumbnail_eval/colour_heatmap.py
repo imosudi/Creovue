@@ -29,6 +29,8 @@ except :
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+from flask import current_app
+
 @colour_bp.route('/thumbnail/colour-heatmap', methods=['GET', 'POST'])
 def colour_heatmap():
     image_url = None
@@ -36,10 +38,18 @@ def colour_heatmap():
 
     if request.method == 'POST':
         file = request.files.get('thumbnail')
+
         if file and allowed_file(file.filename):
+            # Ensure folders exist
+            abs_upload_path = os.path.join(current_app.root_path, UPLOAD_FOLDER)
+            abs_heatmap_path = os.path.join(current_app.root_path, HEATMAP_FOLDER)
+            os.makedirs(abs_upload_path, exist_ok=True)
+            os.makedirs(abs_heatmap_path, exist_ok=True)
+
             filename = secure_filename(file.filename)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            filepath = os.path.join(abs_upload_path, filename)
             file.save(filepath)
+
 
             # Load image and convert to heatmap
             image = cv2.imread(filepath)
