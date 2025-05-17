@@ -1,6 +1,7 @@
 
 
 import os
+import time
 import cv2
 import numpy as np
 from flask import Blueprint, jsonify, request, render_template, redirect, url_for, flash, current_app
@@ -23,6 +24,7 @@ RELATIVE_UPLOAD = 'static/uploads'
 def get_upload_folder():
     if current_app:
         return os.path.join(current_app.root_path, RELATIVE_UPLOAD)
+        print("RELATIVE_UPLOAD: ", RELATIVE_UPLOAD); time.sleep(300)
     else:
         # Fallback path for development/testing
         return os.path.join(BASE_DIR, 'static', 'uploads')
