@@ -164,3 +164,5 @@ import Creovue.routes
 # mkdir -p Creovue/static/uploads
 # mkdir -p Creovue/static/heatmaps
 # chmod -R 775 Creovue/static
+#pip install pytesseract
+#sudo apt install tesseract-ocr  # or brew install tesseract on macOS

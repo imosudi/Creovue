@@ -1,0 +1,77 @@
+<!-- Creovue/thumbnail/templates/text_density.html -->
+{% extends 'base.html' %}
+
+{% block title %}Text Density | Creovue{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+  .dropzone {
+    border: 2px dashed #bbb;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.3s;
+  }
+  .dropzone.dragover {
+    background: #e9ecef;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>🔠 Text Density Detection (OCR)</h2>
+
+  <form method="POST" enctype="multipart/form-data" class="mb-4" id="upload-form">
+    <div id="dropzone" class="dropzone mb-3">
+      <input class="form-control" type="file" name="thumbnail" id="thumbnail" accept="image/*" hidden required>
+      <p>📂 Drag and drop or click to upload a thumbnail</p>
+    </div>
+    <button class="btn btn-primary" type="submit">Analyse</button>
+  </form>
+
+  {% if overlay_url %}
+  <div class="alert alert-info">
+    <strong>📊 Text Count:</strong> {{ text_count }}<br>
+    <strong>📐 Density Score:</strong> {{ text_density_score }}<br>
+    <strong>💡 Recommendation:</strong> {{ recommendation }}
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h5>📷 Original</h5>
+      <img src="{{ image_url }}" class="img-fluid border rounded">
+    </div>
+    <div class="col-md-6">
+      <h5>📝 OCR Overlay</h5>
+      <img src="{{ overlay_url }}" class="img-fluid border rounded">
+    </div>
+  </div>
+{% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('thumbnail');
+
+  dropzone.addEventListener('click', () => fileInput.click());
+
+  dropzone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropzone.classList.add('dragover');
+  });
+
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    fileInput.files = e.dataTransfer.files;
+  });
+</script>
+{% endblock %}

@@ -114,6 +114,11 @@
                                     <i class="bi bi-palette2"></i> Colour Heatmap
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item{% if request.endpoint == 'colour_heatmap.colour_heatmap' %} active{% endif %}" href="{{ url_for('text_density.text_density') }}">
+                                    <i class="bi bi-palette2"></i> Text Density
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
