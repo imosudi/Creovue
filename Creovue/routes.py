@@ -79,7 +79,9 @@ app.register_blueprint(thumbnail_eval_bp)
 from Creovue.thumbnail_eval.face_detect import face_bp
 app.register_blueprint(face_bp)"""
 
-from Creovue.thumbnail_eval import register_thumbnail_eval
+from Creovue.thumbnail_eval import register_thumbnail_eval,  register_thumbnail_routes
+register_thumbnail_routes(app)
+
 register_thumbnail_eval(app)
 
 
