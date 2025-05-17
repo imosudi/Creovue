@@ -161,3 +161,6 @@ import Creovue.routes
 # mkdir -p /home/mosud/dev/Creovue/Creovue/static/uploads
 # mkdir -p /home/mosud/dev/Creovue/Creovue/static/heatmaps
 # sudo chmod 755 /home/mosud/dev/Creovue/Creovue/static/uploads
+# mkdir -p Creovue/static/uploads
+# mkdir -p Creovue/static/heatmaps
+# chmod -R 775 Creovue/static
