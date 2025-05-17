@@ -53,8 +53,7 @@ def colour_heatmap():
             filepath = os.path.join(abs_upload_path, filename)
             file.save(filepath)
 
-
-            # Load image and convert to heatmap
+            # Generate grayscale heatmap
             image = cv2.imread(filepath)
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -62,23 +61,19 @@ def colour_heatmap():
             plt.imshow(gray, cmap='hot', interpolation='nearest')
             plt.axis('off')
 
+            # ⛑️ Ensure path safety
             name, _ = os.path.splitext(filename)
             heatmap_filename = f"heatmap_{name}.png"
-            
+            abs_heatmap_path = os.path.join(current_app.root_path, HEATMAP_FOLDER)
+            os.makedirs(abs_heatmap_path, exist_ok=True)
+
             heatmap_path = os.path.join(abs_heatmap_path, heatmap_filename)
             plt.savefig(heatmap_path, bbox_inches='tight', pad_inches=0)
             plt.close()
 
-            #heatmap_filename = f"heatmap_{filename}.png"
-            #heatmap_path = os.path.join(HEATMAP_FOLDER, heatmap_filename)
-            #plt.savefig(heatmap_path, bbox_inches='tight', pad_inches=0)
-            #plt.close()
-
-            #image_url = url_for('colour_heatmap.static', filename=f'uploads/{filename}')
-            #heatmap_url = url_for('colour_heatmap.static', filename=f'heatmaps/{heatmap_filename}')
-            
             image_url = url_for('colour_heatmap.static', filename=f'uploads/{filename}')
             heatmap_url = url_for('colour_heatmap.static', filename=f'heatmaps/{heatmap_filename}')
+
         else:
             flash('Invalid image format. Only PNG, JPG, JPEG supported.', 'danger')
 
