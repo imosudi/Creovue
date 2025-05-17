@@ -1,7 +1,4 @@
-
-
 import os
-import time
 import cv2
 import numpy as np
 from flask import Blueprint, jsonify, request, render_template, redirect, url_for, flash, current_app
@@ -23,12 +20,9 @@ RELATIVE_UPLOAD = 'static/uploads'
 # Create a function to get the upload folder path
 def get_upload_folder():
     if current_app:
-        print("RELATIVE_UPLOAD: ", RELATIVE_UPLOAD); #time.sleep(300)
         return os.path.join(current_app.root_path, RELATIVE_UPLOAD)
-        
     else:
         # Fallback path for development/testing
-        print("BASE_DIR: ", BASE_DIR); time.sleep(300)
         return os.path.join(BASE_DIR, 'static', 'uploads')
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -93,5 +87,4 @@ def setup_blueprint(setup_state):
             os.makedirs(upload_folder, exist_ok=True)    
         except :
             pass
-        
         
