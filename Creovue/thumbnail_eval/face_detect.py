@@ -23,7 +23,7 @@ RELATIVE_UPLOAD = 'static/uploads'
 # Create a function to get the upload folder path
 def get_upload_folder():
     if current_app:
-        print("RELATIVE_UPLOAD: ", RELATIVE_UPLOAD); time.sleep(300)
+        print("RELATIVE_UPLOAD: ", RELATIVE_UPLOAD); #time.sleep(300)
         return os.path.join(current_app.root_path, RELATIVE_UPLOAD)
         
     else:
