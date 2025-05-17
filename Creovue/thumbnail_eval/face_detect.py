@@ -83,4 +83,8 @@ def setup_blueprint(setup_state):
     app = setup_state.app
     with app.app_context():
         upload_folder = get_upload_folder()
-        os.makedirs(upload_folder, exist_ok=True)
+        try:
+            os.makedirs(upload_folder, exist_ok=True)    
+        except :
+            pass
+        
