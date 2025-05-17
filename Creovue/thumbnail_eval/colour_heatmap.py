@@ -13,8 +13,18 @@ UPLOAD_FOLDER = 'static/uploads'
 HEATMAP_FOLDER = 'static/heatmaps'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(HEATMAP_FOLDER, exist_ok=True)
+#sudo mkdir -p /home/mosud/dev/Creovue/Creovue/thumbnail_eval/static
+try:
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+except :
+    pass
+
+try:
+    os.makedirs(HEATMAP_FOLDER, exist_ok=True)
+except :
+    pass
+
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
