@@ -73,13 +73,13 @@ user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 ## Attach Security
 security = Security(app, user_datastore)
 
-from Creovue.thumbnail_eval import thumbnail_eval_bp
+from Creovue.thumbnail import thumbnail_eval_bp
 app.register_blueprint(thumbnail_eval_bp)
 """
 from Creovue.thumbnail_eval.face_detect import face_bp
 app.register_blueprint(face_bp)"""
 
-from Creovue.thumbnail_eval import register_thumbnail_eval,  register_thumbnail_routes
+from Creovue.thumbnail import register_thumbnail_eval,  register_thumbnail_routes
 register_thumbnail_routes(app)
 
 register_thumbnail_eval(app)
