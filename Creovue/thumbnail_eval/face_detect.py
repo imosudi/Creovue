@@ -27,6 +27,7 @@ def get_upload_folder():
         print("RELATIVE_UPLOAD: ", RELATIVE_UPLOAD); time.sleep(300)
     else:
         # Fallback path for development/testing
+        print("BASE_DIR: ", BASE_DIR); time.sleep(300)
         return os.path.join(BASE_DIR, 'static', 'uploads')
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
