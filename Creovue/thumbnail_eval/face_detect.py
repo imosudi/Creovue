@@ -1,3 +1,5 @@
+
+
 import os
 import cv2
 import numpy as np
@@ -10,7 +12,7 @@ face_bp = Blueprint(
     __name__,
     template_folder='templates',
     static_folder='static',
-    url_prefix='/thumbnail'
+    url_prefix='/thumbnail_eval'
 )
 
 # Define base directory at module level
