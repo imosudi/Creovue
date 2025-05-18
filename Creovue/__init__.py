@@ -164,6 +164,9 @@ import Creovue.routes
 # mkdir -p Creovue/static/uploads
 # mkdir -p Creovue/static/heatmaps
 # mkdir -p Creovue/static/text_overlay
+# sudo chmod 755 /home/mosud/dev/Creovue/Creovue/static/text_overlay
+# sudo chown www-data:www-data /home/mosud/dev/Creovue/Creovue/static/text_overlay
 # chmod -R 775 Creovue/static
 #pip install pytesseract
 #sudo apt install tesseract-ocr  # or brew install tesseract on macOS
+# sudo apt install tesseract-ocr  # or brew install tesseract on macOS

@@ -99,9 +99,20 @@
                     </li>
                 
                     <!-- New Dropdown for Thumbnail Tools -->
+                    <!-- Extended Dropdown for Thumbnail Tools -->
                     <li class="nav-item dropdown px-2">
-                        <a class="nav-link dropdown-toggle{% if request.endpoint in ['face_detection.face_detect', 'colour_heatmap.colour_heatmap'] %} active{% endif %}" href="#" id="thumbToolsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-images{% if request.endpoint in ['face_detection.face_detect', 'colour_heatmap.colour_heatmap'] %} text-primary{% endif %}"></i>Thumbnail Tools
+                        <a class="nav-link dropdown-toggle{% if request.endpoint in [
+                            'face_detection.face_detect',
+                            'colour_heatmap.colour_heatmap',
+                            'text_density.text_density',
+                            'ctr_predict.ctr_score'
+                        ] %} active{% endif %}" href="#" id="thumbToolsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-images{% if request.endpoint in [
+                                'face_detection.face_detect',
+                                'colour_heatmap.colour_heatmap',
+                                'text_density.text_density',
+                                'ctr_predict.ctr_score'
+                            ] %} text-primary{% endif %}"></i>Thumbnail Tools
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="thumbToolsDropdown">
                             <li>
@@ -115,12 +126,18 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item{% if request.endpoint == 'colour_heatmap.colour_heatmap' %} active{% endif %}" href="{{ url_for('text_density.text_density') }}">
-                                    <i class="bi bi-palette2"></i> Text Density
+                                <a class="dropdown-item{% if request.endpoint == 'text_density.text_density' %} active{% endif %}" href="{{ url_for('text_density.text_density') }}">
+                                    <i class="bi bi-type"></i> Text Density
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item{% if request.endpoint == 'ctr_predict.ctr_prediction' %} active{% endif %}" href="{{ url_for('ctr_predict.ctr_score') }}">
+                                    <i class="bi bi-stars"></i> CTR Prediction
                                 </a>
                             </li>
                         </ul>
                     </li>
+
                 </ul>
                 
                 

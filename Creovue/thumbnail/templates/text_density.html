@@ -7,68 +7,106 @@
 {{ super() }}
 <style>
   .dropzone {
-    border: 2px dashed #bbb;
+    border: 2px dashed #ccc;
     padding: 40px;
     text-align: center;
     cursor: pointer;
     border-radius: 8px;
     transition: background 0.3s;
   }
+
   .dropzone.dragover {
     background: #e9ecef;
+  }
+
+  .progress {
+    height: 25px;
+  }
+
+  .text-preview {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+  }
+
+  .result-section {
+    margin-top: 30px;
   }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-  <h2>🔠 Text Density Detection (OCR)</h2>
+  <h2>🔠 Thumbnail Text Density Analysis</h2>
 
   <form method="POST" enctype="multipart/form-data" class="mb-4" id="upload-form">
     <div id="dropzone" class="dropzone mb-3">
-      <input class="form-control" type="file" name="thumbnail" id="thumbnail" accept="image/*" hidden required>
-      <p>📂 Drag and drop or click to upload a thumbnail</p>
+      <input type="file" name="thumbnail" id="thumbnail" accept="image/*" hidden required>
+      <p>📂 Drag & drop your thumbnail here or click to select</p>
     </div>
     <button class="btn btn-primary" type="submit">Analyse</button>
   </form>
 
-  {% if overlay_url %}
-  <div class="alert alert-info">
-    <strong>📊 Text Count:</strong> {{ text_count }}<br>
-    <strong>📐 Density Score:</strong> {{ text_density_score }}<br>
-    <strong>💡 Recommendation:</strong> {{ recommendation }}
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-      <h5>📷 Original</h5>
-      <img src="{{ image_url }}" class="img-fluid border rounded">
-    </div>
-    <div class="col-md-6">
-      <h5>📝 OCR Overlay</h5>
-      <img src="{{ overlay_url }}" class="img-fluid border rounded">
-    </div>
-  </div>
-{% endif %}
+  {% if image_url %}
+  <div class="result-section">
+    <h5>🧮 Text Count: <strong>{{ text_count }}</strong></h5>
 
+    {% if recommendation %}
+      <div class="alert alert-warning">{{ recommendation }}</div>
+    {% endif %}
+
+    <div class="mb-4">
+      <h6 class="mb-2">📊 Estimated Text Coverage</h6>
+      <div class="progress">
+        <div class="progress-bar 
+          {% if text_count == 0 %}bg-secondary
+          {% elif text_count > 20 %}bg-danger
+          {% else %}bg-success{% endif %}"
+          role="progressbar"
+          style="width: {{ (text_count * 5) if text_count <= 20 else 100 }}%;"
+          aria-valuenow="{{ text_count }}"
+          aria-valuemin="0"
+          aria-valuemax="100">
+          {{ (text_count * 5) if text_count <= 20 else 100 }}%
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <h6>🖼️ Original</h6>
+        <img src="{{ image_url }}" class="text-preview">
+      </div>
+      <div class="col-md-6">
+        <h6>🔍 Overlay</h6>
+        <img src="{{ overlay_url }}" class="text-preview">
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 <script>
+  // Drag-and-drop logic
   const dropzone = document.getElementById('dropzone');
   const fileInput = document.getElementById('thumbnail');
 
   dropzone.addEventListener('click', () => fileInput.click());
 
-  dropzone.addEventListener('dragover', e => {
+  dropzone.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropzone.classList.add('dragover');
   });
 
-  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+  dropzone.addEventListener('dragleave', () => {
+    dropzone.classList.remove('dragover');
+  });
 
-  dropzone.addEventListener('drop', e => {
+  dropzone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropzone.classList.remove('dragover');
     fileInput.files = e.dataTransfer.files;

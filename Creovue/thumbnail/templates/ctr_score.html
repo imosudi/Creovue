@@ -1,0 +1,37 @@
+<!-- Creovue/thumbnail_eval/templates/ctr_score.html -->
+{% extends 'base.html' %}
+{% block title %}CTR Prediction | Creovue{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>📊 CTR Prediction (Heuristic)</h2>
+
+  <form method="POST" enctype="multipart/form-data" class="mb-4">
+    <div class="mb-3">
+      <input type="file" name="thumbnail" class="form-control" accept="image/*" required>
+    </div>
+    <button class="btn btn-primary" type="submit">Analyse</button>
+  </form>
+
+  {% if image_url %}
+    <div class="row">
+      <div class="col-md-6">
+        <img src="{{ image_url }}" class="img-fluid rounded border mb-3" alt="Thumbnail Preview">
+      </div>
+      <div class="col-md-6">
+        <h5>🔍 Heuristic Evaluation</h5>
+        <ul class="list-group mb-3">
+          {% for item in feedback %}
+            <li class="list-group-item">{{ item }}</li>
+          {% endfor %}
+        </ul>
+
+        <h6>CTR Score: <strong>{{ score }}/10</strong></h6>
+        <div class="progress">
+          <div class="progress-bar bg-success" role="progressbar" style="width: {{ score * 10 }}%" aria-valuenow="{{ score }}" aria-valuemin="0" aria-valuemax="10"></div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
