@@ -7,6 +7,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from flask import Blueprint, request, render_template, redirect, url_for, flash, jsonify, current_app
+from flask_security import login_required
+
 from werkzeug.utils import secure_filename
 
 colour_bp = Blueprint('colour_heatmap', __name__, template_folder='templates', static_folder='static')
@@ -34,6 +36,7 @@ def allowed_file(filename):
 
 # Main route (template-based)
 @colour_bp.route('/thumbnail/colour-heatmap', methods=['GET', 'POST'])
+@login_required
 def colour_heatmap():
     image_url = None
     heatmap_url = None

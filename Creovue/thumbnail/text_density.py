@@ -3,6 +3,7 @@ import os
 import cv2
 import pytesseract
 from flask import Blueprint, request, render_template, flash, url_for, current_app
+from flask_security import login_required
 from werkzeug.utils import secure_filename
 
 text_bp = Blueprint(
@@ -25,6 +26,7 @@ def get_folder(relative_path):
     return folder
 
 @text_bp.route('/text-density', methods=['GET', 'POST'])
+@login_required
 def text_density():
     image_url = overlay_url = recommendation = None
     text_count = 0
@@ -111,6 +113,7 @@ def text_density():
 from flask import jsonify
 
 @text_bp.route('/api/text-density', methods=['POST'])
+@login_required
 def text_density_api():
     if 'thumbnail' not in request.files:
         return jsonify({"error": "No file part in request."}), 400

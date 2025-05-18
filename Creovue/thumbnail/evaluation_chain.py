@@ -7,6 +7,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from flask import Blueprint, request, render_template, url_for, flash, current_app
+from flask_security import login_required
+
 from werkzeug.utils import secure_filename
 
 from skimage import exposure
@@ -28,6 +30,7 @@ def get_folder(relative_path):
     return folder
 
 @eval_chain_bp.route('/summary', methods=['GET', 'POST'])
+@login_required
 def thumbnail_summary():
     image_url = face_result_url = heatmap_url = text_overlay_url = None
     text_count = 0

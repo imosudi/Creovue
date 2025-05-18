@@ -3,6 +3,7 @@ import os
 import cv2
 import numpy as np
 from flask import Blueprint, jsonify, request, render_template, redirect, url_for, flash, current_app
+from flask_security import login_required
 
 from werkzeug.utils import secure_filename
 
@@ -32,6 +33,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @face_bp.route('/face-detect', methods=['GET', 'POST'])
+@login_required
 def face_detect():
     faces_count = 0
     image_url = None
@@ -81,6 +83,7 @@ def face_detect():
 
 
 @face_bp.route('/api/face-detect', methods=['POST'])
+@login_required
 def face_detect_api():
     # Ensure upload folder exists
     UPLOAD_FOLDER = get_upload_folder()

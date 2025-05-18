@@ -3,6 +3,8 @@ import os
 import cv2
 import numpy as np
 from flask import Blueprint, request, render_template, url_for, flash, current_app
+from flask_security import login_required
+
 from werkzeug.utils import secure_filename
 from skimage import exposure
 from flask import jsonify
@@ -28,6 +30,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @ctr_bp.route('/ctr-score', methods=['GET', 'POST'])
+@login_required
 def ctr_score():
     image_url = None
     score = 0
@@ -115,6 +118,7 @@ def ctr_score():
 
 
 @ctr_bp.route('/api/ctr-score', methods=['POST'])
+@login_required
 def ctr_score_api():
     file = request.files.get('thumbnail')
     if not file or not allowed_file(file.filename):
