@@ -1,3 +1,4 @@
+# Creovue/thumbnail/evaluation_chain.py
 import os
 import cv2
 import numpy as np
@@ -100,8 +101,6 @@ def thumbnail_summary():
 
         image_area = image.shape[0] * image.shape[1]
         text_ratio = total_area / image_area if image_area > 0 else 0
-        text_ratio = text_ratio if text_ratio is not None else 0
-
 
         if text_count == 0:
             text_recommendation = "⚠️ No text detected. Use bold titles."
@@ -131,7 +130,7 @@ def thumbnail_summary():
 
         # Face size
         faces = face_cascade.detectMultiScale(gray, 1.1, 5)
-        if faces.any():
+        if len(faces) > 0:
             x, y, w, h = max(faces, key=lambda f: f[2] * f[3])
             if (w * h) / (gray.shape[0] * gray.shape[1]) > 0.1:
                 score += 2.0
@@ -140,6 +139,7 @@ def thumbnail_summary():
                 ctr_feedback.append("⚠️ Face too small")
         else:
             ctr_feedback.append("⚠️ No face")
+        
 
         # Colour clutter
         hsv = cv2.cvtColor(ctr_image, cv2.COLOR_BGR2HSV)
@@ -181,24 +181,5 @@ def thumbnail_summary():
         text_count=text_count,
         text_recommendation=text_recommendation,
         ctr_score=ctr_score,
-        ctr_feedback=ctr_feedback,
-        overlays={
-            'face': face_result_url,
-            'text': text_overlay_url,
-            'heatmap': heatmap_url
-        }
+        ctr_feedback=ctr_feedback
     )
-
-    return render_template("summary.html", 
-    faces=faces_count,
-    text_count=text_count,
-    text_ratio=text_ratio or 0,
-    ctr_score=ctr_score,
-    ctr_feedback=ctr_feedback,
-    image_url=image_url,
-    overlays={
-        'face': face_overlay_url,
-        'text': text_overlay_url,
-        'heatmap': heatmap_url
-    }
-)

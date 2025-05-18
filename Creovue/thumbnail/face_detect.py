@@ -78,6 +78,50 @@ def face_detect():
 
     return render_template('face_detect.html', image_url=image_url, faces_count=faces_count)
 
+
+
+@face_bp.route('/api/face-detect', methods=['POST'])
+def face_detect_api():
+    # Ensure upload folder exists
+    UPLOAD_FOLDER = get_upload_folder()
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+    file = request.files.get('thumbnail')
+    if not file or not allowed_file(file.filename):
+        return jsonify({"error": "Invalid or missing file. Only JPG, PNG, JPEG allowed."}), 400
+
+    filename = secure_filename(file.filename)
+    save_path = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(save_path)
+
+    image = cv2.imread(save_path)
+    if image is None or image.size == 0:
+        return jsonify({"error": "Invalid or unreadable image provided"}), 400
+
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+
+    faces_count = len(faces)
+    face_boxes = []
+
+    for (x, y, w, h) in faces:
+        face_boxes.append({"x": int(x), "y": int(y), "w": int(w), "h": int(h)})
+        cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+    result_filename = f"faces_{filename}"
+    result_path = os.path.join(UPLOAD_FOLDER, result_filename)
+    cv2.imwrite(result_path, image)
+
+    image_url = url_for('static', filename=f"{RELATIVE_UPLOAD}/{result_filename}", _external=True)
+
+    return jsonify({
+        "faces_detected": faces_count,
+        "face_boxes": face_boxes,
+        "result_image": image_url
+    })
+
+
 # This ensures the upload folder exists when the blueprint is registered
 @face_bp.record
 def setup_blueprint(setup_state):
@@ -88,3 +132,5 @@ def setup_blueprint(setup_state):
             os.makedirs(upload_folder, exist_ok=True)    
         except:
             pass
+
+

@@ -35,6 +35,14 @@
     border: 1px solid #ccc;
     border-radius: 8px;
   }
+  pre.code-block {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.9rem;
+  }
 </style>
 {% endblock %}
 
@@ -42,6 +50,18 @@
 <div class="container mt-5">
   <h2 class="mb-4">📊 Thumbnail Evaluation Summary</h2>
 
+  <!-- Upload Form -->
+  <form method="POST" enctype="multipart/form-data" class="mb-5 p-4 border rounded bg-light shadow-sm">
+    <div class="mb-3">
+      <label for="thumbnail" class="form-label fw-semibold">Upload Thumbnail Image</label>
+      <input type="file" name="thumbnail" id="thumbnail" accept="image/*" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">
+      <i class="bi bi-lightning-charge"></i> Evaluate Thumbnail
+    </button>
+  </form>
+
+  {% if image_url %}
   <div class="row">
     <div class="col-lg-6">
       <div class="summary-card">
@@ -66,7 +86,6 @@
       <div class="summary-card">
         <div class="summary-header">🔠 Text Detection</div>
         <p>Text Count: <strong>{{ text_count }}</strong></p>
-        <!--p>Density: <strong>{#{ text_ratio|round(2) * 100 }#}%</strong></p-->
         <p>Density: <strong>{{ (text_ratio | default(0)) | round(2) * 100 }}%</strong></p>
         {% if text_overlay_url %}
           <img src="{{ text_overlay_url }}" class="overlay-image" alt="Text Overlay">
@@ -87,5 +106,32 @@
       </div>
     </div>
   </div>
+
+  <!-- Collapsible JSON Export -->
+  <div class="mt-5">
+    <button class="btn btn-outline-secondary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#jsonExport" aria-expanded="false" aria-controls="jsonExport">
+      <i class="bi bi-code-slash"></i> Toggle JSON Export
+    </button>
+    <div class="collapse" id="jsonExport">
+      <div class="card card-body bg-light">
+        <pre class="code-block">{{ {
+            "image_url": image_url or "",
+            "face_count": face_count or 0,
+            "text_count": text_count or 0,
+            "text_ratio": (text_ratio | default(0)) | round(4),
+            "text_recommendation": text_recommendation or "",
+            "ctr_score": ctr_score or 0,
+            "ctr_feedback": ctr_feedback or [],
+            "overlay_urls": {
+              "face": face_image_url or "",
+              "heatmap": heatmap_url or "",
+              "text": text_overlay_url or ""
+            }
+          } | tojson(indent=2) }}</pre>
+          
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
