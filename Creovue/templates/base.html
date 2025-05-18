@@ -97,22 +97,10 @@
                             <i class="bi bi-bar-chart-steps{% if request.endpoint == 'trends' %} text-primary{% endif %}"></i>Trends
                         </a>
                     </li>
-                
-                    <!-- New Dropdown for Thumbnail Tools -->
-                    <!-- Extended Dropdown for Thumbnail Tools -->
+                    <!-- Thumbnail Tools Dropdown -->
                     <li class="nav-item dropdown px-2">
-                        <a class="nav-link dropdown-toggle{% if request.endpoint in [
-                            'face_detection.face_detect',
-                            'colour_heatmap.colour_heatmap',
-                            'text_density.text_density',
-                            'ctr_predict.ctr_score'
-                        ] %} active{% endif %}" href="#" id="thumbToolsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-images{% if request.endpoint in [
-                                'face_detection.face_detect',
-                                'colour_heatmap.colour_heatmap',
-                                'text_density.text_density',
-                                'ctr_predict.ctr_score'
-                            ] %} text-primary{% endif %}"></i>Thumbnail Tools
+                        <a class="nav-link dropdown-toggle{% if request.endpoint in ['face_detection.face_detect', 'colour_heatmap.colour_heatmap', 'text_density.text_density', 'ctr_predict.ctr_score', 'thumbnail_summary.thumbnail_summary'] %} active{% endif %}" href="#" id="thumbToolsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-images{% if request.endpoint in ['face_detection.face_detect', 'colour_heatmap.colour_heatmap', 'text_density.text_density', 'ctr_predict.ctr_score', 'thumbnail_summary.thumbnail_summary'] %} text-primary{% endif %}"></i>Thumbnail Tools
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="thumbToolsDropdown">
                             <li>
@@ -127,16 +115,23 @@
                             </li>
                             <li>
                                 <a class="dropdown-item{% if request.endpoint == 'text_density.text_density' %} active{% endif %}" href="{{ url_for('text_density.text_density') }}">
-                                    <i class="bi bi-type"></i> Text Density
+                                    <i class="bi bi-text-paragraph"></i> Text Density
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item{% if request.endpoint == 'ctr_predict.ctr_prediction' %} active{% endif %}" href="{{ url_for('ctr_predict.ctr_score') }}">
-                                    <i class="bi bi-stars"></i> CTR Prediction
+                                <a class="dropdown-item{% if request.endpoint == 'ctr_predict.ctr_score' %} active{% endif %}" href="{{ url_for('ctr_predict.ctr_score') }}">
+                                    <i class="bi bi-graph-up-arrow"></i> CTR Prediction
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item{% if request.endpoint == 'thumbnail_summary.thumbnail_summary' %} active{% endif %}" href="{{ url_for('thumbnail_summary.thumbnail_summary') }}">
+                                    <i class="bi bi-pie-chart"></i> Evaluation Summary
                                 </a>
                             </li>
                         </ul>
                     </li>
+
+                    
 
                 </ul>
                 
