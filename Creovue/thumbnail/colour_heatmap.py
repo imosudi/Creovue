@@ -11,8 +11,8 @@ from werkzeug.utils import secure_filename
 
 colour_bp = Blueprint('colour_heatmap', __name__, template_folder='templates', static_folder='static')
 
-UPLOAD_FOLDER = 'uploads' #'static/uploads'
-HEATMAP_FOLDER = 'heatmaps' #'static/heatmaps'
+UPLOAD_FOLDER = '/uploads' #'static/uploads'
+HEATMAP_FOLDER = '/heatmaps' #'static/heatmaps'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 # Ensure folders exist
