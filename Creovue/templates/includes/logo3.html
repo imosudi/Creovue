@@ -1,0 +1,34 @@
+
+<svg width="528" height="528"  viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="64" cy="64" r="60" stroke="#0077FF" stroke-width="8" fill="transparent"/>
+    <!-- 3D YouTube play button with gradient and shadow -->
+    <!-- Base red circle with shadow -->
+    <circle cx="64" cy="64" r="28" fill="url(#redGradient)"/>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="2" dy="3" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- 3D Play button triangle with highlight -->
+    <path d="M55 50 L80 64 L55 78 Z" fill="url(#triangleGradient)" filter="url(#shadow)"/>
+    
+    <!-- Gradients for 3D effect -->
+    <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF3333"/>
+      <stop offset="100%" stop-color="#CC0000"/>
+    </linearGradient>
+    
+    <linearGradient id="triangleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#DDDDDD"/>
+    </linearGradient>
+    <path d="M96 32 L112 16" stroke="#FF9900" stroke-width="6" stroke-linecap="round"/>
+    <path d="M112 32 L96 16" stroke="#FF9900" stroke-width="6" stroke-linecap="round"/>
+</svg>
