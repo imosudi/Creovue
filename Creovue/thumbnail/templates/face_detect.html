@@ -1,5 +1,4 @@
 <!--Creovue/thumbnail/templates/face_detect.html -->
-
 {% extends 'base.html' %}
 
 {% block title %}Face Detection | Creovue{% endblock %}
@@ -18,10 +17,11 @@
   .dropzone.dragover {
     background: #e9ecef;
   }
-  video {
-    width: 100%;
+  .preview-img {
+    max-width: 100%;
+    margin-top: 15px;
     border-radius: 8px;
-    margin-top: 20px;
+    border: 1px solid #ddd;
   }
 </style>
 {% endblock %}
@@ -30,20 +30,14 @@
 <div class="container mt-5">
   <h2>🧠 Thumbnail Face Detection</h2>
 
-  <form method="POST" enctype="multipart/form-data" class="mb-4" id="upload-form">
+  <form method="POST" enctype="multipart/form-data"  class="mb-5 p-4 border rounded bg-light shadow-sm" id="upload-form">
     <div id="dropzone" class="dropzone mb-3">
       <input type="file" name="thumbnail" id="thumbnail" accept="image/*" hidden required>
       <p>📂 Drag & drop your image here or click to select</p>
+      <img id="preview" class="preview-img" style="display: none;" alt="Image Preview">
     </div>
     <button class="btn btn-primary" type="submit">Analyse</button>
   </form>
-
-  <div class="mb-4">
-    <h5>📸 Or Use Camera</h5>
-    <video id="camera" autoplay muted></video>
-    <button class="btn btn-outline-secondary mt-2" id="capture">Capture and Analyse</button>
-    <canvas id="canvas" style="display:none;"></canvas>
-  </div>
 
   {% if image_url %}
     <div class="alert alert-info">Faces Detected: {{ faces_count }}</div>
@@ -55,9 +49,9 @@
 {% block scripts %}
 {{ super() }}
 <script>
-  // Drag-and-drop logic
   const dropzone = document.getElementById('dropzone');
   const fileInput = document.getElementById('thumbnail');
+  const preview = document.getElementById('preview');
 
   dropzone.addEventListener('click', () => fileInput.click());
 
@@ -73,33 +67,26 @@
   dropzone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropzone.classList.remove('dragover');
-    fileInput.files = e.dataTransfer.files;
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      showPreview(files[0]);
+    }
   });
 
-  // Camera preview and capture
-  const video = document.getElementById('camera');
-  const canvas = document.getElementById('canvas');
-  const captureBtn = document.getElementById('capture');
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+      showPreview(fileInput.files[0]);
+    }
+  });
 
-  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => video.srcObject = stream)
-      .catch(err => console.error('Camera error:', err));
+  function showPreview(file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
   }
-
-  captureBtn.addEventListener('click', () => {
-    const context = canvas.getContext('2d');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob(blob => {
-      const form = document.getElementById('upload-form');
-      const file = new File([blob], 'capture.jpg', { type: 'image/jpeg' });
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      fileInput.files = dataTransfer.files;
-      form.submit();
-    }, 'image/jpeg');
-  });
 </script>
 {% endblock %}
