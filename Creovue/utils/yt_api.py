@@ -184,7 +184,7 @@ def calculate_ctr_metrics(channel_id, days=700):
     start_date_str = start_date.strftime('%Y-%m-%d')
     end_date_str = end_date.strftime('%Y-%m-%d')
     
-    creds = Credentials(**session['youtube_token'])
+    #creds = Credentials(**session['youtube_token'])
     print("creds: ", creds); time.sleep(300)
     # Build the YouTube and YouTube Analytics services with session credentials
     youtube = build('youtube', 'v3', credentials=creds)
