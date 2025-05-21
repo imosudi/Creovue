@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,6 +34,10 @@
     
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- AOS Library -->
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -79,6 +84,135 @@
             }
         }
     </style>
+    <style>
+        :root {
+          --color-primary: #3E63DD;
+          --color-accent: #A259FF;
+          --color-muted: #6C757D;
+          --color-success: #22C55E;
+          --bg-light: #f8f9fa;
+          --bg-dark: #1a1a1a;
+          --font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+        }
+      
+        body {
+          font-family: var(--font-family);
+          background-color: var(--bg-light);
+          color: var(--bg-dark);
+          scroll-behavior: smooth;
+        }
+      
+        a {
+          text-decoration: none;
+          transition: all 0.2s ease-in-out;
+        }
+      
+        .navbar {
+          background-color: #fff;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+      
+        .navbar-brand span {
+          font-size: 1.35rem;
+          color: var(--color-primary);
+        }
+      
+        .nav-link {
+          font-weight: 500;
+          color: var(--color-muted);
+        }
+      
+        .nav-link:hover,
+        .nav-link.active {
+          color: var(--color-primary) !important;
+        }
+      
+        .dropdown-menu {
+          border-radius: 8px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+      
+        .dropdown-item:hover {
+          background-color: rgba(62, 99, 221, 0.08);
+        }
+      
+        .btn-primary {
+          background-color: var(--color-primary);
+          border-color: var(--color-primary);
+        }
+      
+        .btn-outline-primary:hover {
+          background-color: var(--color-primary);
+          color: #fff;
+        }
+      
+        summary-card, .card, .shadow-box {
+            border-radius: 12px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card:hover,
+        .card:hover,
+        .shadow-box:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        .summary-card::before,
+        .card::before,
+        .shadow-box::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            width: 0%;
+            background-color: var(--color-primary);
+            transition: width 0.3s ease-in-out;
+        }
+
+        .summary-card:hover::before,
+        .card:hover::before,
+        .shadow-box:hover::before {
+            width: 100%;
+        }
+      
+        footer {
+          background: var(--bg-light);
+          border-top: 1px solid rgba(0, 0, 0, 0.05);
+          font-size: 0.85rem;
+          color: var(--color-muted);
+        }
+      
+        .badge-primary {
+          background-color: var(--color-primary);
+        }
+      
+        .highlight {
+          color: var(--color-accent);
+          font-weight: bold;
+        }
+      
+        .rounded-circle {
+          border: 2px solid var(--color-primary);
+        }
+      
+        .fade-in {
+          animation: fadeIn 0.5s ease-in-out;
+        }
+      
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+      
+      
 </head>
 <body class="container">
 
@@ -95,64 +229,70 @@
             </button>
 
             <div class="collapse navbar-collapse" id="mainNavbar">
+                
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center">
-                    <li class="nav-item px-2">
+                    {% if current_user.is_authenticated %}
+                      <li class="nav-item px-2">
                         <a class="nav-link{% if request.endpoint == 'dashboard' %} active{% endif %}" href="{{ url_for('dashboard') }}">
-                            <i class="bi bi-speedometer2{% if request.endpoint == 'dashboard' %} text-primary{% endif %}"></i>Dashboard
+                          <i class="bi bi-speedometer2{% if request.endpoint == 'dashboard' %} text-primary{% endif %}"></i>Dashboard
                         </a>
-                    </li>
-                    <li class="nav-item px-2">
+                      </li>
+                      <li class="nav-item px-2">
                         <a class="nav-link{% if request.endpoint == 'seo' %} active{% endif %}" href="{{ url_for('seo') }}">
-                            <i class="bi bi-search{% if request.endpoint == 'seo' %} text-primary{% endif %}"></i>SEO
+                          <i class="bi bi-search{% if request.endpoint == 'seo' %} text-primary{% endif %}"></i>SEO
                         </a>
-                    </li>
-                    <li class="nav-item px-2">
+                      </li>
+                      <li class="nav-item px-2">
                         <a class="nav-link{% if request.endpoint == 'analytics' %} active{% endif %}" href="{{ url_for('analytics') }}">
-                            <i class="bi bi-graph-up{% if request.endpoint == 'analytics' %} text-primary{% endif %}"></i>Analytics
+                          <i class="bi bi-graph-up{% if request.endpoint == 'analytics' %} text-primary{% endif %}"></i>Analytics
                         </a>
-                    </li>
-                    <li class="nav-item px-2">
+                      </li>
+                      <li class="nav-item px-2">
                         <a class="nav-link{% if request.endpoint == 'trends' %} active{% endif %}" href="{{ url_for('trends') }}">
-                            <i class="bi bi-bar-chart-steps{% if request.endpoint == 'trends' %} text-primary{% endif %}"></i>Trends
+                          <i class="bi bi-bar-chart-steps{% if request.endpoint == 'trends' %} text-primary{% endif %}"></i>Trends
                         </a>
-                    </li>
-                    <!-- Thumbnail Tools Dropdown -->
-                    <li class="nav-item dropdown px-2">
+                      </li>
+                      <!-- Thumbnail Tools Dropdown -->
+                      <li class="nav-item dropdown px-2">
                         <a class="nav-link dropdown-toggle{% if request.endpoint in ['face_detection.face_detect', 'colour_heatmap.colour_heatmap', 'text_density.text_density', 'ctr_predict.ctr_score', 'thumbnail_summary.thumbnail_summary'] %} active{% endif %}" href="#" id="thumbToolsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-images{% if request.endpoint in ['face_detection.face_detect', 'colour_heatmap.colour_heatmap', 'text_density.text_density', 'ctr_predict.ctr_score', 'thumbnail_summary.thumbnail_summary'] %} text-primary{% endif %}"></i>Thumbnail Tools
+                          <i class="bi bi-images{% if request.endpoint in ['face_detection.face_detect', 'colour_heatmap.colour_heatmap', 'text_density.text_density', 'ctr_predict.ctr_score', 'thumbnail_summary.thumbnail_summary'] %} text-primary{% endif %}"></i>Thumbnail Tools
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="thumbToolsDropdown">
-                            <li>
-                                <a class="dropdown-item{% if request.endpoint == 'face_detection.face_detect' %} active{% endif %}" href="{{ url_for('face_detection.face_detect') }}">
-                                    <i class="bi bi-person-square"></i> Face Detection
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item{% if request.endpoint == 'colour_heatmap.colour_heatmap' %} active{% endif %}" href="{{ url_for('colour_heatmap.colour_heatmap') }}">
-                                    <i class="bi bi-palette2"></i> Colour Heatmap
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item{% if request.endpoint == 'text_density.text_density' %} active{% endif %}" href="{{ url_for('text_density.text_density') }}">
-                                    <i class="bi bi-text-paragraph"></i> Text Density
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item{% if request.endpoint == 'ctr_predict.ctr_score' %} active{% endif %}" href="{{ url_for('ctr_predict.ctr_score') }}">
-                                    <i class="bi bi-graph-up-arrow"></i> CTR Prediction
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item{% if request.endpoint == 'thumbnail_summary.thumbnail_summary' %} active{% endif %}" href="{{ url_for('thumbnail_summary.thumbnail_summary') }}">
-                                    <i class="bi bi-pie-chart"></i> Evaluation Summary
-                                </a>
-                            </li>
+                          <li>
+                            <a class="dropdown-item{% if request.endpoint == 'face_detection.face_detect' %} active{% endif %}" href="{{ url_for('face_detection.face_detect') }}">
+                              <i class="bi bi-person-square"></i> Face Detection
+                            </a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item{% if request.endpoint == 'colour_heatmap.colour_heatmap' %} active{% endif %}" href="{{ url_for('colour_heatmap.colour_heatmap') }}">
+                              <i class="bi bi-palette2"></i> Colour Heatmap
+                            </a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item{% if request.endpoint == 'text_density.text_density' %} active{% endif %}" href="{{ url_for('text_density.text_density') }}">
+                              <i class="bi bi-text-paragraph"></i> Text Density
+                            </a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item{% if request.endpoint == 'ctr_predict.ctr_score' %} active{% endif %}" href="{{ url_for('ctr_predict.ctr_score') }}">
+                              <i class="bi bi-graph-up-arrow"></i> CTR Prediction
+                            </a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item{% if request.endpoint == 'thumbnail_summary.thumbnail_summary' %} active{% endif %}" href="{{ url_for('thumbnail_summary.thumbnail_summary') }}">
+                              <i class="bi bi-pie-chart"></i> Evaluation Summary
+                            </a>
+                          </li>
                         </ul>
-                    </li>
-
-                    
-
-                </ul>
+                      </li>
+                    {% else %}
+                      <!-- Placeholder items to preserve layout spacing -->
+                      {% for _ in range(5) %}
+                      <li class="nav-item px-2 invisible"><a class="nav-link disabled">&nbsp;</a></li>
+                      {% endfor %}
+                    {% endif %}
+                  </ul>
+                  
                 
                 
                 <!-- User Authentication Section -->
@@ -216,8 +356,18 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.min.js" integrity="sha384-RuyvpeZCxMJCqVUGFI0Do1mQrods/hhxYlcVfGPOfQtPJh0JCw12tUAZ/Mv10S7D" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            once: true,        // Only animate once
+            duration: 800,     // Animation duration in ms
+            easing: 'ease-out-cubic'
+        });
+    </script>
+
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% if request.path == "/trends" %}
         <script src="{{ url_for('static', filename='js/trends.js') }}"></script>

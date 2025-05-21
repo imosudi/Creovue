@@ -1,48 +1,161 @@
-
-
 {% extends "base.html" %}
 
 {% block title %}Welcome | Creovue{% endblock %}
 
-{% block content %}
-<div class="container text-center py-5">
-
-    <!-- App Logo -->
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Creovue Logo" width="160" class="mb-4">
-
-    <!-- Welcome Header -->
-    <h1 class="display-4 fw-bold">Welcome to Creovue</h1>
-    <p class="lead text-muted mb-4">
-        Your AI-powered assistant for intelligent content insights, trend detection, and creator growth analytics.
-    </p>
-
-    <!-- Explainers -->
-    <div class="row my-5">
-        <div class="col-md-4">
-            <h5>🎯 Philosophy</h5>
-            <p class="text-start">We fundamentally believe in empowering individual creators and small business enterprises to flourish in the digital landscape through accessible, actionable data intelligence. Our comprehensive analytics platform transforms complex metrics into simplified, digestible insights that drive meaningful growth and strategic decision-making, ensuring that creators of all sizes can harness powerful analytical capabilities previously available only to large corporations.</p>
-        </div>
-        <div class="col-md-4">
-            <h5>📊 What We Do</h5>
-            <p>Our sophisticated yet intuitive platform meticulously monitors your channel's performance across multiple dimensions, instantly identifying significant view spikes and engagement patterns that might otherwise go unnoticed. Through advanced algorithmic analysis, we provide real-time tracking of key performance indicators, comprehensive engagement monitoring, and predictive trend forecasting while eliminating statistical noise to focus exclusively on metrics that truly matter.</p>
-        </div>
-        <div class="col-md-4">
-            <h5>🔒 Creator First</h5>
-            <p class="text-end">We have established our entire business framework around an unwavering commitment to creator priorities: absolute privacy protection, exceptional clarity in data presentation, and complete autonomy over your creative direction. Unlike other analytics platforms that prioritize their own data collection or promote cluttered interfaces, our streamlined approach delivers precisely what creators need without invasive tracking or distracting elements.</p>
-        </div>
-    </div>
-
-    <!-- Call to Action -->
-    <div class="my-4">
-        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4">
-            🚀 Launch Dashboard
-        </a>
-    </div>
-
-    <!-- Optional Banner Image -->
-    <img src="{{ url_for('static', filename='images/dashboard_preview.png') }}" 
-         alt="Dashboard Preview" class="img-fluid mt-5 shadow rounded" style="max-height: 400px;">
-
-</div>
+{% block styles %}
+{{ super() }}
+<style>
+    .hero {
+      padding: 80px 0;
+      background: linear-gradient(135deg, #eef4ff, #f9fafc);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(62, 99, 221, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+  
+    .hero h1 span {
+      background: linear-gradient(90deg, #3E63DD, #A259FF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -30%;
+      right: -25%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(62, 99, 221, 0.2), transparent 60%);
+      border-radius: 50%;
+      z-index: 0;
+    }
+  
+    .hero > * {
+      position: relative;
+      z-index: 2;
+    }
+  
+    .section-title {
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #003566;
+    }
+  
+    .icon-badge {
+      font-size: 2.2rem;
+      display: inline-block;
+      margin-bottom: 10px;
+      color: #3E63DD;
+      transition: transform 0.3s ease;
+    }
+  
+    .info-card {
+      padding: 40px 30px;
+      border-radius: 16px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      height: 100%;
+    }
+  
+    .info-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+    }
+  
+    .info-card:hover .icon-badge {
+      transform: scale(1.2);
+    }
+  
+    .info-card::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      width: 0%;
+      background-color: #3E63DD;
+      transition: width 0.3s ease-in-out;
+    }
+  
+    .info-card:hover::before {
+      width: 100%;
+    }
+  
+    .cta-button {
+      font-size: 1.25rem;
+      padding: 12px 32px;
+      border-radius: 50px;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+  
+    .cta-button:hover {
+      background-color: #2b4caa;
+      box-shadow: 0 4px 12px rgba(62, 99, 221, 0.3);
+    }
+  
+    .dashboard-img {
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.08);
+      max-height: 420px;
+      object-fit: cover;
+    }
+</style>
 {% endblock %}
 
+{% block content %}
+<div class="container hero text-center mb-5" data-aos="fade-up">
+  <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Creovue Logo" width="140" class="mb-4">
+
+  <h1 class="display-4 fw-bold fade-in">Welcome to <span>Creovue</span></h1>
+  <p class="lead text-muted mb-4">Smart content insights. Seamless growth. Built for creators.</p>
+
+  <a href="{{ url_for('dashboard') }}" class="btn btn-primary cta-button shadow-sm">
+    🚀 Launch Dashboard
+  </a>
+</div>
+
+<div class="container">
+  <div class="row text-center">
+    <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+      <div class="info-card">
+        <div class="icon-badge">🎯</div>
+        <h5 class="section-title">Philosophy</h5>
+        <p class="text-muted text-start">
+            We fundamentally believe in empowering individual creators and small business enterprises to flourish in the digital landscape through accessible, actionable data intelligence. Our comprehensive analytics platform transforms complex metrics into simplified, digestible insights that drive meaningful growth and strategic decision-making, ensuring that creators of all sizes can harness powerful analytical capabilities previously available only to large corporations.
+        </p>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+      <div class="info-card">
+        <div class="icon-badge">📊</div>
+        <h5 class="section-title">What We Do</h5>
+        <p class="text-muted text-end">
+            Our sophisticated yet intuitive platform meticulously monitors your channel's performance across multiple dimensions, instantly identifying significant view spikes and engagement patterns that might otherwise go unnoticed. Through advanced algorithmic analysis, we provide real-time tracking of key performance indicators, comprehensive engagement monitoring, and predictive trend forecasting while eliminating statistical noise to focus exclusively on metrics that truly matter.
+        </p>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+      <div class="info-card">
+        <div class="icon-badge">🔒</div>
+        <h5 class="section-title">Creator First</h5>
+        <p class="text-muted text-start">
+            We have established our entire business framework around an unwavering commitment to creator priorities: absolute privacy protection, exceptional clarity in data presentation, and complete autonomy over your creative direction. Unlike other analytics platforms that prioritize their own data collection or promote cluttered interfaces, our streamlined approach delivers precisely what creators need without invasive tracking or distracting elements.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-5"  data-aos="fade-up" data-aos-delay="400">
+    <img src="{{ url_for('static', filename='images/dashboard_preview.png') }}"
+         class="dashboard-img img-fluid"
+         alt="Creovue Dashboard Preview">
+  </div>
+</div>
+{% endblock %}
