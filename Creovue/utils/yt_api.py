@@ -245,7 +245,7 @@ def calculate_ctr_metrics(channel_id, days=700):
         if not next_page_token:
             break
     
-    print(f"Found {len(video_ids)} videos in the channel"); time.sleep(300)
+    print(f"Found {len(video_ids)} videos in the channel"); #time.sleep(300)
     
     # Process videos in batches to avoid API limits
     batch_size = 25
@@ -351,7 +351,7 @@ def calculate_ctr_metrics(channel_id, days=700):
             time.sleep(1)
             
         except HttpError as error:
-            #print(f"An error occurred processing batch {batch_num + 1}: {error}")
+            print(f"An error occurred processing batch {batch_num + 1}: {error}"); time.sleep(300)
             # Continue with next batch
             continue
     
