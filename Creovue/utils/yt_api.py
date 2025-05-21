@@ -231,7 +231,7 @@ def calculate_ctr_metrics(channel_id, days=700):
         response_playlist = requests.get(url_playlist_items, params=params_playlist)
         data_playlist = response_playlist.json()
 
-        print("data_playlist: ", data_playlist)
+        print("data_playlist: ", data_playlist); time.sleep(300)
         
         if response_playlist.status_code != 200:
             raise Exception(f"API Error: {response_playlist.status_code} - {data_playlist.get('error', {}).get('message', '')}")
@@ -241,8 +241,8 @@ def calculate_ctr_metrics(channel_id, days=700):
             video_ids.append(video_id)
         
         next_page_token = data_playlist.get('nextPageToken')
-        if not next_page_token:
-            break
+        #if not next_page_token:
+            #break
     
     print(f"Found {len(video_ids)} videos in the channel")
     
