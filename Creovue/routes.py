@@ -277,7 +277,7 @@ def analytics():
         "values": y_values
     }
 
-    ctr_metrics = calculate_ctr_metrics(current_user.channel_id)
+    ctr_metrics = calculate_ctr_metrics(current_user.channel_id, 700)
     print("ctr_metrics: ", ctr_metrics)
     return render_template('analytics.html',
                            analytics=analytics_data,
