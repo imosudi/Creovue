@@ -157,7 +157,7 @@ def calculate_ctr_metrics(channel_id, days=700):
     if not channel_id:
         # If channel_id is not stored in the user model, fetch it using the credentials
         creds = Credentials(**session['youtube_token'])
-        print("creds: ", creds); time.sleep(300)
+        #print("creds: ", creds); time.sleep(300)
         response = requests.get(
             'https://www.googleapis.com/youtube/v3/channels',
             headers={'Authorization': f'Bearer {creds.token}'},
@@ -184,6 +184,8 @@ def calculate_ctr_metrics(channel_id, days=700):
     start_date_str = start_date.strftime('%Y-%m-%d')
     end_date_str = end_date.strftime('%Y-%m-%d')
     
+    creds = Credentials(**session['youtube_token'])
+    print("creds: ", creds); time.sleep(300)
     # Build the YouTube and YouTube Analytics services with session credentials
     youtube = build('youtube', 'v3', credentials=creds)
     youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
