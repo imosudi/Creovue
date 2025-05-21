@@ -351,7 +351,7 @@ def calculate_ctr_metrics(channel_id, days=700):
             time.sleep(1)
             
         except HttpError as error:
-            print(f"An error occurred processing batch {batch_num + 1}: {error}"); time.sleep(300)
+            print(f"An error occurred processing batch {batch_num + 1}: {error}"); time.sleep(30)
             # Continue with next batch
             continue
     
