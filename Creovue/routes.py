@@ -20,6 +20,7 @@ from google.oauth2.credentials import Credentials
 from werkzeug.security import generate_password_hash
 
 from Creovue.utils.youtube_client import ensure_channel_id
+from Creovue.utils.yt_api import calculate_ctr_metrics
 
 # Local application imports
 from . import app, google, oauth
@@ -276,6 +277,8 @@ def analytics():
         "values": y_values
     }
 
+    ctr_metrics = calculate_ctr_metrics(current_user.channel_id)
+    print("ctr_metrics: ", ctr_metrics)
     return render_template('analytics.html',
                            analytics=analytics_data,
                            avg_views_per_video=avg_views_per_video,
