@@ -66,8 +66,10 @@ def fetch_youtube_analytics(channel_id, days=700, max_videos=10):
 
     videos = []
     video_ids = []
-    video_iteme = data_playlist.get("items", [])
-    print("video_iteme: ", video_iteme); time.sleep(300)
+    video_items = data_playlist.get("items", [])
+    for item in video_items:
+        print("video_item: ", item, "\n")
+    time.sleep(300)
     for item in data_playlist.get("items", []):
         video_id = item['snippet']['resourceId']['videoId']
         title = item['snippet']['title']
