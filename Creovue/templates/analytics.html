@@ -1,73 +1,515 @@
-
 {% extends "base.html" %}
 
 {% block title %}Analytics | Creovue{% endblock %}
 
+{% block styles %}
+{{ super() }}
+<style>
+  .analytics-container {
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 1rem;
+    box-shadow: 0 0.3rem 1rem rgba(0, 0, 0, 0.05);
+  }
+
+  .summary-cards-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .summary-card {
+    border-left: 5px solid;
+    border-radius: 10px;
+    padding: 1.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: white;
+    height: 100%;
+  }
+
+  .summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.1);
+  }
+
+  .summary-card h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+
+  .summary-card p {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 0;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 400px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.07);
+  }
+
+  .card-blue { border-left-color: #007bff; }
+  .card-green { border-left-color: #28a745; }
+  .card-purple { border-left-color: #6f42c1; }
+  .card-orange { border-left-color: #fd7e14; }
+  .card-teal { border-left-color: #20c997; }
+
+  /* Per Video Analytics Styles */
+  .video-analytics-table {
+    width: 100%;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.07);
+  }
+
+  .video-analytics-table th {
+    background-color: #f1f5f9;
+    padding: 1rem;
+    font-weight: 600;
+    text-align: left;
+    color: #334155;
+  }
+
+  .video-analytics-table td {
+    padding: 1rem;
+    border-top: 1px solid #e2e8f0;
+    vertical-align: middle;
+  }
+
+  .video-analytics-table tr:hover {
+    background-color: #f8fafc;
+  }
+
+  .video-thumbnail {
+    width: 120px;
+    height: 68px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+
+  .video-title {
+    font-weight: 500;
+    color: #334155;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+  }
+
+  .video-date {
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+
+  .metric-value {
+    font-weight: 600;
+    color: #334155;
+    font-size: 1.1rem;
+  }
+
+  .video-analytics-container {
+    margin-top: 2rem;
+  }
+
+  .video-analytics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .video-analytics-filters {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .filter-select {
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #e2e8f0;
+    background-color: white;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    gap: 0.5rem;
+  }
+
+  .pagination-button {
+    padding: 0.5rem 0.75rem;
+    border-radius: 5px;
+    border: 1px solid #e2e8f0;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .pagination-button:hover {
+    background-color: #f1f5f9;
+  }
+
+  .pagination-button.active {
+    background-color: #3b82f6;
+    color: white;
+    border: 1px solid #3b82f6;
+  }
+
+  .no-videos-message {
+    padding: 2rem;
+    text-align: center;
+    background-color: white;
+    border-radius: 10px;
+    color: #64748b;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .analytics-container {
+      padding: 1rem;
+    }
+    
+    .summary-card h5 {
+      font-size: 1rem;
+    }
+    
+    .summary-card p {
+      font-size: 1.5rem;
+    }
+    
+    .chart-container {
+      height: 300px;
+    }
+
+    .video-analytics-table {
+      display: block;
+      overflow-x: auto;
+    }
+
+    .video-analytics-header {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .video-analytics-filters {
+      flex-wrap: wrap;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <h2 class="mb-4">Video Performance Analytics</h2>
+<div class="container analytics-container">
+  <h2 class="mb-4 text-center">📊 Video Performance Analytics</h2>
 
-    <!-- Summary Cards -->
-    <div class="row text-center mb-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Total Views</h5>
-                    <p class="display-6 fw-bold">{{ analytics.total_views }}</p>
-                </div>
-            </div>
+  <!-- Summary Cards -->
+  <div class="row summary-cards-row">
+    <div class="col-md-4">
+      <div class="card summary-card card-blue shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Total Views</h5>
+          <p class="display-6 fw-bold">{{ analytics.total_views }}</p>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Average Watch Time</h5>
-                    <p class="display-6 fw-bold">{{ analytics.avg_watch_time }} mins</p>
-                </div>
-            </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card summary-card card-green shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Avg. Watch Time</h5>
+          <p class="display-6 fw-bold">{{ analytics.avg_watch_time }} mins</p>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Engagement Rate</h5>
-                    <p class="display-6 fw-bold">{{ analytics.engagement_rate }}%</p>
-                </div>
-            </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card summary-card card-purple shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Engagement Rate</h5>
+          <p class="display-6 fw-bold">{{ analytics.engagement_rate }}%</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card summary-card card-orange shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Total Videos</h5>
+          <p class="display-6 fw-bold">{{ analytics.video_count }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card summary-card card-teal shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Subscribers</h5>
+          <p class="display-6 fw-bold">{{ analytics.subscriber_count }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card summary-card card-teal shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Most viewed:</h5>
+            <p class="fw-bold">{{ analytics.most_viewed_video.title }}</p>
+          </div>
         </div>
     </div>
+  </div>
 
-    <!-- Plot Section -->
-    <div class="my-5">
-        <h4>View Trends This Week</h4>
-        <canvas id="analyticsChart" width="600" height="300" aria-label="View Trends Chart" role="img"></canvas>
+  <!-- Plot Section -->
+  <div class="my-4">
+    <h4 class="text-center mb-3">📈 Weekly View Trends</h4>
+    <div class="chart-container">
+      <canvas id="analyticsChart" aria-label="View Trends Chart" role="img"></canvas>
     </div>
+  </div>
+
+  <!-- Per Video Analytics Section -->
+  <div class="video-analytics-container">
+    <div class="video-analytics-header">
+      <h4 class="mb-0">🎬 Per Video Analytics</h4>
+      <div class="video-analytics-filters">
+        <select class="filter-select" id="sortBy">
+          <option value="views_desc">Sort by: Views (High to Low)</option>
+          <option value="views_asc">Sort by: Views (Low to High)</option>
+          <option value="title">Sort by: Title</option>
+          <option value="video_id">Sort by: Video ID</option>
+        </select>
+        <input type="text" class="filter-select" id="searchVideos" placeholder="Search videos...">
+      </div>
+    </div>
+    
+    <table class="video-analytics-table">
+      <thead>
+        <tr>
+          <th>Video</th>
+          <th>Views</th>
+          <th>  </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for video in analytics.videos %}
+        <tr>
+          <td>
+            <div class="align-items-center gap-3">
+              <img src="https://img.youtube.com/vi/{{ video.video_id }}/mqdefault.jpg" alt="{{ video.title }}" class="video-thumbnail">
+                <div class="video-title">{{ video.title }}</div>
+            </div>
+          </td>
+          <td>
+            <div class="metric-value">{{ video.views }}</div>
+          </td>
+          <td>
+            <div class="metric-value d-none">{{ video.video_id }}</div>
+            <a href="https://www.youtube.com/watch?v={{ video.video_id }}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">View on YouTube</a>
+          </td>
+          <td>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary" onclick="showVideoDetails('{{ video.video_id }}')">Details</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button class="pagination-button">&lt;</button>
+      <button class="pagination-button active">1</button>
+      <button class="pagination-button">2</button>
+      <button class="pagination-button">3</button>
+      <button class="pagination-button">&gt;</button>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" defer></script>
 <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const chartData = {
+      labels: {{ chart_data["labels"] | tojson }},
+      values: {{ chart_data["values"] | tojson }}
+    };
+    
+    initAnalyticsChart(chartData);
+    initPerVideoAnalytics();
+  });
+
+  function initAnalyticsChart(chartData) {
     const ctx = document.getElementById('analyticsChart').getContext('2d');
+    
+    // Calculate gradient fill
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(54, 162, 235, 0.4)');
+    gradient.addColorStop(1, 'rgba(54, 162, 235, 0.05)');
+    
+    // Create chart with optimized settings
     const analyticsChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: {{ chart_data["labels"] | tojson }},
-            datasets: [{
-                label: 'Views',
-                data: {{ chart_data["values"] | tojson }},
-                borderColor: 'rgba(54, 162, 235, 1)',
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                tension: 0.4,
-                fill: true
-            }]
+      type: 'line',
+      data: {
+        labels: chartData.labels,
+        datasets: [{
+          label: 'Views',
+          data: chartData.values,
+          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: gradient,
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true,
+          pointBackgroundColor: 'white',
+          pointBorderColor: 'rgba(54, 162, 235, 1)',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 1000,
+          easing: 'easeOutQuart'
         },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: true },
-                title: { display: true, text: 'Weekly View Count' }
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              drawBorder: false,
+              color: 'rgba(0, 0, 0, 0.05)'
+            },
+            ticks: {
+              font: {
+                size: 12
+              },
+              padding: 10
             }
+          },
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              font: {
+                size: 12
+              },
+              maxRotation: 45,
+              minRotation: 45
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            padding: 10,
+            cornerRadius: 6,
+            displayColors: false,
+            callbacks: {
+              label: function(context) {
+                return `Views: ${context.parsed.y.toLocaleString()}`;
+              }
+            }
+          },
+          title: {
+            display: true,
+            text: 'Daily View Growth',
+            align: 'center',
+            color: '#333',
+            font: {
+              size: 18,
+              weight: 'bold'
+            },
+            padding: {
+              bottom: 20
+            }
+          }
+        },
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        elements: {
+          line: {
+            capBezierPoints: true
+          }
         }
+      }
     });
+    
+    // Cleanup function for potential memory leak prevention
+    return function cleanup() {
+      analyticsChart.destroy();
+    };
+  }
+
+  function initPerVideoAnalytics() {
+    // Sort functionality
+    document.getElementById('sortBy').addEventListener('change', function(e) {
+      const sortValue = e.target.value;
+      // Implementation would fetch sorted data from backend
+      console.log(`Sorting by: ${sortValue}`);
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('searchVideos');
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const videoRows = document.querySelectorAll('.video-analytics-table tbody tr');
+        
+        videoRows.forEach(row => {
+          const title = row.querySelector('.video-title').textContent.toLowerCase();
+          const videoId = row.querySelector('.video-date').textContent.toLowerCase();
+          
+          if (title.includes(searchTerm) || videoId.includes(searchTerm)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    // Pagination functionality
+    const paginationButtons = document.querySelectorAll('.pagination-button');
+    paginationButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        paginationButtons.forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        // Implementation would fetch data for the selected page
+      });
+    });
+  }
+  
+  // Function to show video details modal
+  function showVideoDetails(videoId) {
+    // This would open a modal with detailed stats for the specific video
+    console.log(`Showing details for video: ${videoId}`);
+    // You could implement a Bootstrap modal here
+    alert(`Video details for ${videoId} will be displayed in a modal in the full implementation.`);
+  }
+  
+  // Function to export video stats
+  function exportVideoStats(videoId) {
+    console.log(`Exporting stats for video: ${videoId}`);
+    // In a real implementation, this could generate a CSV or PDF report
+    alert(`Statistics for video ${videoId} would be exported in the full implementation.`);
+  }
 </script>
 {% endblock %}
-

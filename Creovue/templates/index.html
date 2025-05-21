@@ -1,3 +1,4 @@
+Add  scroll reveal effects:
 {% extends "base.html" %}
 
 {% block title %}Welcome | Creovue{% endblock %}
@@ -114,7 +115,7 @@
   <h1 class="display-4 fw-bold fade-in">Welcome to <span>Creovue</span></h1>
   <p class="lead text-muted mb-4">Smart content insights. Seamless growth. Built for creators.</p>
 
-  <a href="{{ url_for('dashboard') }}" class="btn btn-primary cta-button shadow-sm">
+  <a href="/dashboard" class="btn btn-primary cta-button shadow-sm">
     🚀 Launch Dashboard
   </a>
 </div>
@@ -152,10 +153,13 @@
     </div>
   </div>
 
-  <div class="text-center mt-5"  data-aos="fade-up" data-aos-delay="400">
+  <div class="text-center mt-5">
     <img src="{{ url_for('static', filename='images/dashboard_preview.png') }}"
          class="dashboard-img img-fluid"
          alt="Creovue Dashboard Preview">
   </div>
 </div>
 {% endblock %}
+
+
+

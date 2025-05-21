@@ -117,6 +117,7 @@ def dashboard():
 @app.route('/seo', methods=['GET', 'POST'])
 @login_required
 def seo():
+    keyword = None
     recommendations = None
     error = None
     if request.method == 'POST':
@@ -128,7 +129,7 @@ def seo():
                 error = f"Error fetching SEO data: {str(e)}"
         else:
             error = "Please enter a valid keyword."
-    return render_template('seo.html', recommendations=recommendations, error=error)
+    return render_template('seo.html', keyword=keyword, recommendations=recommendations, error=error)
 
 
 """@app.route('/trends')
@@ -235,25 +236,52 @@ def category_age_visual():
     plot_img = visualise_category_age_distribution_base64(default_region)
     return render_template("age_visual.html", plot_img=plot_img, region=default_region)
 
+
+
 @app.route('/analytics')
 @login_required
 def analytics():
-    analytics_data = fetch_youtube_analytics(creo_channel_id)
+    ensure_channel_id()
 
-    def generate_plot(x, y):
-        return {
-            "labels": x,
-            "values": y
+    if not current_user.channel_id:
+        return render_template("dashboard.html", stats=None)  # No data yet
+
+    # Fetch analytics data for the current user channel
+    try:
+        analytics_data = fetch_youtube_analytics(current_user.channel_id)
+    except Exception as e:
+        # Log error and fallback to default or empty data
+        print(f"Error fetching analytics: {e}")
+        analytics_data = {
+            "total_views": 0,
+            "subscriber_count": 0,
+            "video_count": 0,
+            "avg_watch_time": 0,
+            "engagement_rate": 0,
+            "daily_views": [0]*7
         }
 
+    # Prepare last 7 days labels and values for chart
     x_labels = [(datetime.today() - timedelta(days=i)).strftime('%a') for i in reversed(range(7))]
-    y_values = analytics_data["daily_views"]
+    # Use only last 7 days of daily_views for chart
+    y_values = analytics_data.get("daily_views", [0]*7)[-7:]
 
-    chart_data = generate_plot(x_labels, y_values)
+    # Calculate additional metrics
+    avg_views_per_video = 0
+    if analytics_data.get("video_count", 0) > 0:
+        avg_views_per_video = round(analytics_data["total_views"] / analytics_data["video_count"], 2)
+
+    chart_data = {
+        "labels": x_labels,
+        "values": y_values
+    }
 
     return render_template('analytics.html',
                            analytics=analytics_data,
+                           avg_views_per_video=avg_views_per_video,
                            chart_data=chart_data)
+
+
 
 
 

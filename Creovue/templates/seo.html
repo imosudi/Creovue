@@ -1,55 +1,195 @@
-
-
 {% extends "base.html" %}
 
-{% block title %}SEO Recommendations - Creovue{% endblock %}
+{% block title %}SEO Recommendations | Creovue{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+  .seo-hero {
+    background: linear-gradient(120deg, #eef2ff, #f7f9fc);
+    border-radius: 16px;
+    padding: 60px 30px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(62, 99, 221, 0.08);
+    margin-bottom: 40px;
+  }
+
+  .seo-hero h2 {
+    font-weight: 700;
+    color: #3e63dd;
+  }
+
+  .seo-hero p {
+    font-size: 1.1rem;
+    color: #6c757d;
+  }
+
+  .seo-form .input-group input {
+    border-radius: 30px 0 0 30px;
+    padding-left: 20px;
+  }
+
+  .seo-form .input-group .btn {
+    border-radius: 0 30px 30px 0;
+    padding: 10px 24px;
+    font-weight: 600;
+  }
+
+  .seo-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+    padding: 25px 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+    transition: transform 0.3s ease;
+  }
+
+  .seo-card:hover {
+    transform: translateY(-5px);
+  }
+
+  /* Tag List */
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: start;
+  }
+  .tag-badge {
+    background: linear-gradient(135deg, #3e63dd, #a259ff);
+    color: white;
+    border-radius: 30px;
+    padding: 8px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(62, 99, 221, 0.2);
+    user-select: none;
+    transition: transform 0.2s ease;
+  }
+  .tag-badge:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 18px rgba(62, 99, 221, 0.35);
+  }
+
+
+  .tag-badge {
+    background: linear-gradient(to right, #3e63dd, #a259ff);
+    color: white;
+    border-radius: 30px;
+    padding: 6px 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(62, 99, 221, 0.15);
+  }
+
+  .seo-tips li {
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-left: 5px solid #3e63dd;
+    margin-bottom: 10px;
+    border-radius: 6px;
+  }
+
+  .export-options {
+    margin-top: 20px;
+  }
+
+  .fade-in-up {
+    animation: fadeInUp 0.6s ease-in-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
 {% if error %}
-    <div class="alert alert-danger" role="alert">{{ error }}</div>
+  <div class="alert alert-danger fade-in-up" role="alert">{{ error }}</div>
 {% endif %}
 
-<div class="row mb-4">
-    <div class="col">
-        <h2 class="mb-3">Keyword Research & SEO Recommendations</h2>
-        <p class="text-muted">Optimise your content using smart keyword suggestions and video metadata recommendations.</p>
-    </div>
+<!-- Header Section -->
+<div class="seo-hero fade-in-up">
+  <h2>🔍 Smart SEO & Keyword Recommendations</h2>
+  <p>Optimise your video content and titles using AI-powered tags, metadata tips, and export-ready content suggestions.</p>
 </div>
 
-<!-- Keyword Input Section -->
-<div class="row mb-4">
-    <div class="col-md-8">
-        <form method="POST" action="{{ url_for('seo') }}">
-            <div class="input-group">
-                <input type="text" name="keyword" class="form-control" placeholder="Enter keyword..." required>
-                <button class="btn btn-primary" type="submit">Analyse</button>
-            </div>
-        </form>
-    </div>
+<!-- Keyword Input -->
+<div class="row justify-content-center mb-5 fade-in-up">
+  <div class="col-md-8">
+    <form method="POST" action="{{ url_for('seo') }}" class="seo-form">
+      <div class="input-group shadow">
+        <input type="text" name="keyword" class="form-control" placeholder="e.g. How to grow on YouTube..." {% if keyword !=none %} value="{{keyword}}""  {% endif %} required>
+        <button class="btn btn-primary" type="submit">Analyse</button>
+      </div>
+    </form>
+  </div>
 </div>
 
-<!-- Results Section -->
-<div class="row">
-    <div class="col">
-        {% if recommendations %}
-            <h5 class="mt-4">Recommended Tags:</h5>
-            <ul class="list-group list-group-flush mb-4">
-                {% for tag in recommendations.tags %}
-                    <li class="list-group-item">{{ tag }}</li>
-                {% endfor %}
-            </ul>
+<!-- Result Cards -->
+<div class="row fade-in-up">
+  <div class="col-lg-10 offset-lg-1">
+    {% if recommendations %}
+      <div class="seo-card mb-3 py">
+        <h5 class="mb-3 text-primary">Recommended Tags</h5>
+        <div class="tag-list" role="list">
+          {% for tag in recommendations.tags %}
+            <span class="tag-badge" role="listitem" tabindex="0" aria-label="Tag: {{ tag }}">{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </div>
 
-            <h5>SEO Tips:</h5>
-            <ul class="list-group list-group-numbered">
-                {% for tip in recommendations.tips %}
-                    <li class="list-group-item">{{ tip }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p class="text-muted">No recommendations available yet. Enter a keyword to begin analysis.</p>
-        {% endif %}
-    </div>
+      <div class="seo-card mb-3 py3">
+        <h5 class="mb-3 text-primary">SEO Tips</h5>
+        <ul class="seo-tips list-group list-group-numbered">
+          {% for tip in recommendations.tips %}
+            <li class="list-group-item">{{ tip }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="seo-card export-options mb-3 py3">
+        <h6 class="mb-2 text-primary">📁 Export Options</h6>
+        <button class="btn btn-outline-secondary btn-sm me-2" onclick="copyTags()">📋 Copy Tags</button>
+        <button class="btn btn-outline-success btn-sm" onclick="downloadJSON()">⬇️ Download JSON</button>
+        <pre id="tagsJson" class="d-none">{{ recommendations|tojson(indent=2) }}</pre>
+      </div>
+    {% else %}
+      <div class="text-muted text-center">
+        <p>⚠️ No SEO suggestions yet. Try entering a keyword above to see relevant tags and tips.</p>
+      </div>
+    {% endif %}
+  </div>
 </div>
+
+<script>
+  function copyTags() {
+    const tags = {{ recommendations.tags|tojson if recommendations else '[]' }};
+    const clipboard = tags.join(", ");
+    navigator.clipboard.writeText(clipboard).then(() => {
+      alert("Tags copied to clipboard ✅");
+    });
+  }
+
+  function downloadJSON() {
+    const jsonData = document.getElementById('tagsJson').textContent;
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'seo_recommendations.json';
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+</script>
 {% endblock %}
-
-

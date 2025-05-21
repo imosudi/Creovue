@@ -18,7 +18,7 @@
     <li><strong>Videos:</strong> {{ stats.videos }}</li>
     <li><strong>Sudden Spike Detected?</strong> {{ "Yes 🚀" if stats.spike_detected else "No" }}</li>
   </ul>
-
+{{stats}}
   <h3>📈 Recent Views Plot</h3>
   <img src="{{ stats.plot_url }}" alt="Views Graph" style="max-width: 100%; border: 1px solid #ccc;">
 {% endif %}
