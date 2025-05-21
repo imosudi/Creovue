@@ -258,7 +258,38 @@ def calculate_ctr_metrics(channel_id, days=700):
         
         # Create a filter string for this batch of videos
         video_filter = ';'.join(video_batch)
-        
+        if 1==1:
+            # 1. Basic video metrics
+            ctr_response = youtube_analytics.reports().query(
+                ids=f'channel=={channel_id}',
+                startDate=start_date_str,
+                endDate=end_date_str,
+                metrics='views,estimatedMinutesWatched,averageViewDuration',
+                dimensions='video',
+                filters=f'video=={video_filter}',
+                sort='-views'
+            ).execute()
+
+            # 2. Retention metrics (these are valid)
+            retention_response = youtube_analytics.reports().query(
+                ids=f'channel=={channel_id}',
+                startDate=start_date_str,
+                endDate=end_date_str,
+                metrics='averageViewDuration,averageViewPercentage,estimatedMinutesWatched',
+                dimensions='video',
+                filters=f'video=={video_filter}'
+            ).execute()
+
+            # 3. Engagement metrics (these are valid)
+            engagement_response = youtube_analytics.reports().query(
+                ids=f'channel=={channel_id}',
+                startDate=start_date_str,
+                endDate=end_date_str,
+                metrics='likes,dislikes,comments,shares,subscribersGained',
+                dimensions='video',
+                filters=f'video=={video_filter}'
+            ).execute()
+            
         try:
             # 1. Get CTR and Impressions metrics
             ctr_response = youtube_analytics.reports().query(
@@ -290,6 +321,7 @@ def calculate_ctr_metrics(channel_id, days=700):
                 dimensions='video',
                 filters=f'video=={video_filter}'
             ).execute()
+            
             
             # Create dictionaries to map videos to their data
             ctr_data = {row[0]: {'impressions': row[1], 'ctr': row[2], 'views': row[3]} 
