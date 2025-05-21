@@ -153,6 +153,7 @@ def calculate_ctr_metrics(channel_id, days=700):
     
     # Get channel_id from the current user
     channel_id = current_user.channel_id
+    print("channel_id: ", channel_id)
     if not channel_id:
         # If channel_id is not stored in the user model, fetch it using the credentials
         creds = Credentials(**session['youtube_token'])
