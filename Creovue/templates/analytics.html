@@ -64,30 +64,41 @@
 
   /* Per Video Analytics Styles */
   .video-analytics-table {
-    width: 100%;
-    background-color: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.07);
-  }
+  width: 100%;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.07);
+  border-collapse: separate;
+  border-spacing: 0 0.6rem;
+}
 
-  .video-analytics-table th {
-    background-color: #f1f5f9;
-    padding: 1rem;
-    font-weight: 600;
-    text-align: left;
-    color: #334155;
-  }
+.video-analytics-table thead th {
+  background-color: #f1f5f9;
+  padding: 1rem 1.2rem;
+  font-weight: 600;
+  text-align: left;
+  color: #334155;
+  border-bottom: 1px solid #e2e8f0;
+}
+.video-analytics-table tbody td {
+  background-color: #ffffff;
+  padding: 1rem 1.2rem;
+  vertical-align: middle;
+  border-top: none;
+}
 
-  .video-analytics-table td {
-    padding: 1rem;
-    border-top: 1px solid #e2e8f0;
-    vertical-align: middle;
-  }
+.video-analytics-table tbody tr {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  margin-bottom: 1rem; /* Add this for extra space */
+  display: table-row;
+}
 
-  .video-analytics-table tr:hover {
-    background-color: #f8fafc;
-  }
+.video-analytics-table tbody tr:hover {
+  background-color: #f8f9fc;
+}
+
 
   .video-thumbnail {
     width: 120px;
@@ -174,6 +185,8 @@
     border-radius: 10px;
     color: #64748b;
   }
+
+  
 
   /* Responsive adjustments */
   @media (max-width: 768px) {
@@ -292,7 +305,7 @@
     <table class="video-analytics-table">
       <thead>
         <tr>
-          <th>Video</th>
+          <th>Thumbnail</th>
           <th>Views</th>
           <th>  </th>
           <th>Actions</th>
@@ -300,11 +313,11 @@
       </thead>
       <tbody>
         {% for video in analytics.videos %}
-        <tr>
+        <tr class="mb-4 mt-5">
           <td>
             <div class="align-items-center gap-3">
               <img src="https://img.youtube.com/vi/{{ video.video_id }}/mqdefault.jpg" alt="{{ video.title }}" class="video-thumbnail">
-                <div class="video-title">{{ video.title }}</div>
+                <p class="video-title">Title: {{ video.title }}</p>
             </div>
           </td>
           <td>
@@ -334,6 +347,30 @@
     </div>
   </div>
 </div>
+
+
+<!-- Video Detail Modal -->
+<div class="modal fade" id="videoDetailModal" tabindex="-1" aria-labelledby="videoDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="videoDetailModalLabel">Video Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="videoDetailContent">
+          <!-- JS will populate this -->
+          <div class="text-center text-muted">Loading...</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" id="videoDetailLink" target="_blank" class="btn btn-outline-primary">Watch on YouTube</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -348,6 +385,30 @@
     initAnalyticsChart(chartData);
     initPerVideoAnalytics();
   });
+
+  function showVideoDetails(videoId) {
+    const video = {{ analytics.videos | tojson | safe }}.find(v => v.video_id === videoId);
+    
+    if (!video) return;
+
+    const html = `
+      <div class="d-flex gap-4 align-items-start mb-3">
+        <img src="https://img.youtube.com/vi/${video.video_id}/mqdefault.jpg" alt="${video.title}" class="img-thumbnail" style="width: 180px; height: 100px; object-fit: cover;">
+        <div>
+          <h5 class="fw-bold">${video.title}</h5>
+          <p class="mb-1"><strong>Views:</strong> ${video.views.toLocaleString()}</p>
+          <p class="mb-1"><strong>Video ID:</strong> ${video.video_id}</p>
+          <p class="mb-1 text-muted small">More metrics could be displayed here...</p>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('videoDetailContent').innerHTML = html;
+    document.getElementById('videoDetailLink').href = `https://www.youtube.com/watch?v=${video.video_id}`;
+    const modal = new bootstrap.Modal(document.getElementById('videoDetailModal'));
+    modal.show();
+  }
+
 
   function initAnalyticsChart(chartData) {
     const ctx = document.getElementById('analyticsChart').getContext('2d');
@@ -497,14 +558,6 @@
     });
   }
   
-  // Function to show video details modal
-  function showVideoDetails(videoId) {
-    // This would open a modal with detailed stats for the specific video
-    console.log(`Showing details for video: ${videoId}`);
-    // You could implement a Bootstrap modal here
-    alert(`Video details for ${videoId} will be displayed in a modal in the full implementation.`);
-  }
-  
   // Function to export video stats
   function exportVideoStats(videoId) {
     console.log(`Exporting stats for video: ${videoId}`);
@@ -512,4 +565,5 @@
     alert(`Statistics for video ${videoId} would be exported in the full implementation.`);
   }
 </script>
+
 {% endblock %}
