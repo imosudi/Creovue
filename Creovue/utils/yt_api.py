@@ -200,7 +200,7 @@ def calculate_ctr_metrics(channel_id, days=700):
     
     response_channel = requests.get(url_channel, params=params_channel)
     data_channel = response_channel.json()
-    print("data_channel: ",data_channel); time.sleep(300)
+    #print("data_channel: ",data_channel); time.sleep(300)
     
     if response_channel.status_code != 200:
         raise Exception(f"API Error: {response_channel.status_code} - {data_channel.get('error', {}).get('message', '')}")
@@ -229,6 +229,8 @@ def calculate_ctr_metrics(channel_id, days=700):
         
         response_playlist = requests.get(url_playlist_items, params=params_playlist)
         data_playlist = response_playlist.json()
+
+        print("data_playlist: ", data_playlist)
         
         if response_playlist.status_code != 200:
             raise Exception(f"API Error: {response_playlist.status_code} - {data_playlist.get('error', {}).get('message', '')}")
