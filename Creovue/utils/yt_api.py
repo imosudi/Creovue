@@ -215,8 +215,8 @@ def calculate_ctr_metrics(channel_id, days=700):
     video_ids = []
     next_page_token = None
     
-    if 1==1:
-    #while True:
+    #if 1==1:
+    while True:
         url_playlist_items = f'{cre_base_url}/playlistItems'
         params_playlist = {
             'part': 'snippet',
