@@ -184,8 +184,8 @@ def calculate_ctr_metrics(channel_id, days=700):
     start_date_str = start_date.strftime('%Y-%m-%d')
     end_date_str = end_date.strftime('%Y-%m-%d')
     
-    #creds = Credentials(**session['youtube_token'])
-    print("creds: ", creds); time.sleep(300)
+    creds = Credentials(**session['youtube_token'])
+    #print("creds: ", creds); time.sleep(300)
     # Build the YouTube and YouTube Analytics services with session credentials
     youtube = build('youtube', 'v3', credentials=creds)
     youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
@@ -199,6 +199,7 @@ def calculate_ctr_metrics(channel_id, days=700):
     }
     
     response_channel = requests.get(url_channel, params=params_channel)
+    print("response_channel: ",response_channel); time.sleep(300)
     data_channel = response_channel.json()
     
     if response_channel.status_code != 200:
