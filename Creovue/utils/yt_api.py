@@ -241,11 +241,11 @@ def calculate_ctr_metrics(channel_id, days=700):
             video_ids.append(video_id)
         
         next_page_token = data_playlist.get('nextPageToken')
-        print("next_page_token: ", next_page_token); time.sleep(300)
-        #if not next_page_token:
-            #break
+        print("next_page_token: ", next_page_token); #time.sleep(300)
+        if not next_page_token:
+            break
     
-    print(f"Found {len(video_ids)} videos in the channel")
+    print(f"Found {len(video_ids)} videos in the channel"); time.sleep(300)
     
     # Process videos in batches to avoid API limits
     batch_size = 25
