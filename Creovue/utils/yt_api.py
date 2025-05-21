@@ -199,8 +199,8 @@ def calculate_ctr_metrics(channel_id, days=700):
     }
     
     response_channel = requests.get(url_channel, params=params_channel)
-    print("response_channel: ",response_channel); time.sleep(300)
     data_channel = response_channel.json()
+    print("data_channel: ",data_channel); time.sleep(300)
     
     if response_channel.status_code != 200:
         raise Exception(f"API Error: {response_channel.status_code} - {data_channel.get('error', {}).get('message', '')}")
