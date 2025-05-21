@@ -66,12 +66,18 @@ def fetch_youtube_analytics(channel_id, days=700, max_videos=10):
 
     videos = []
     video_ids = []
-
+    video_iteme = data_playlist.get("items", [])
+    print("video_iteme: ", video_iteme); time.sleep(300)
     for item in data_playlist.get("items", []):
         video_id = item['snippet']['resourceId']['videoId']
         title = item['snippet']['title']
+        #video["ctr"] #= round(random.uniform(2, 10), 2)
+        #video["impressions"] #= random.randint(5000, 25000)
+        #video["retention"] #= round(random.uniform(20, 60), 1)
         video_ids.append(video_id)
         videos.append({'video_id': video_id, 'title': title, 'views': 0})  # placeholder for views
+        
+
 
     # Fetch video statistics in batch
     if video_ids:
@@ -104,6 +110,9 @@ def fetch_youtube_analytics(channel_id, days=700, max_videos=10):
 
     views_per_video = round(total_views / video_count, 2)
     watch_time_per_video = round(avg_watch_time / video_count, 2)
+
+        
+
 
     # Simulated daily views (simple linear growth for demonstration)
     daily_views = [int(total_views / days * (0.9 + 0.2 * i / days)) for i in range(1, days + 1)]
