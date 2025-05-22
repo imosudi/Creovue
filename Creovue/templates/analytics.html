@@ -279,6 +279,7 @@
     </div>
   </div>
 
+
   <!-- Plot Section -->
   <div class="my-4">
     <h4 class="text-center mb-3">📈 Weekly View Trends</h4>
@@ -286,11 +287,15 @@
       <canvas id="analyticsChart" aria-label="View Trends Chart" role="img"></canvas>
     </div>
   </div>
+{{ctr_metrics}}
+<p>
+  {{analytics.videos}}
+</p>
 
   <!-- Per Video Analytics Section -->
   <div class="video-analytics-container">
     <div class="video-analytics-header">
-      <h4 class="mb-0">🎬 Per Video Analytics</h4>
+      <h4>🎬 Per Video Analytics</h4>
       <div class="video-analytics-filters">
         <select class="filter-select" id="sortBy">
           <option value="views_desc">Sort by: Views (High to Low)</option>
@@ -305,34 +310,26 @@
     <table class="video-analytics-table">
       <thead>
         <tr>
-          <th>Thumbnail</th>
+          <th>Thumbnail & Title</th>
           <th>Views</th>
-          <th>  </th>
+          <th>Video ID</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        {{ctr_metrics}}
-        {{analytics.videos}}
         {% for video in analytics.videos %}
-        <tr class="mb-4 mt-5">
+        <tr>
           <td>
-            <div class="align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3">
               <img src="https://img.youtube.com/vi/{{ video.video_id }}/mqdefault.jpg" alt="{{ video.title }}" class="video-thumbnail">
-                <p class="video-title">Title: {{ video.title }}</p>
+              <div class="video-title">{{ video.title }}</div>
             </div>
           </td>
+          <td class="metric-value">{{ video.views }}</td>
+          <td class="metric-value">{{ video.video_id }}</td>
           <td>
-            <div class="metric-value">{{ video.views }}</div>
-          </td>
-          <td>
-            <div class="metric-value d-none">{{ video.video_id }}</div>
-            <a href="https://www.youtube.com/watch?v={{ video.video_id }}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">View on YouTube</a>
-          </td>
-          <td>
-            <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-outline-primary" onclick="showVideoDetails('{{ video.video_id }}')">Details</button>
-            </div>
+            <a href="https://www.youtube.com/watch?v={{ video.video_id }}" target="_blank" class="btn btn-sm btn-outline-primary">View on YouTube</a>
+            <button class="btn btn-sm btn-outline-secondary" onclick="showVideoDetails('{{ video.video_id }}')">Details</button>
           </td>
         </tr>
         {% endfor %}
@@ -350,7 +347,6 @@
   </div>
 </div>
 
-
 <!-- Video Detail Modal -->
 <div class="modal fade" id="videoDetailModal" tabindex="-1" aria-labelledby="videoDetailModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -359,11 +355,8 @@
         <h5 class="modal-title" id="videoDetailModalLabel">Video Details</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        <div id="videoDetailContent">
-          <!-- JS will populate this -->
-          <div class="text-center text-muted">Loading...</div>
-        </div>
+      <div class="modal-body" id="videoDetailContent">
+        <div class="text-center text-muted">Loading...</div>
       </div>
       <div class="modal-footer">
         <a href="#" id="videoDetailLink" target="_blank" class="btn btn-outline-primary">Watch on YouTube</a>
@@ -372,11 +365,11 @@
     </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const chartData = {
@@ -388,40 +381,47 @@
     initPerVideoAnalytics();
   });
 
-  function showVideoDetails(videoId) {
-    const video = {{ analytics.videos | tojson | safe }}.find(v => v.video_id === videoId);
-    
-    if (!video) return;
+function showVideoDetails(videoId) {
+  const videos = {{ ctr_metrics.video_data | tojson | safe  }};
+  const video = videos.find(v => v.video_id === videoId);
 
-    const html = `
-      <div class="d-flex gap-4 align-items-start mb-3">
-        <img src="https://img.youtube.com/vi/${video.video_id}/mqdefault.jpg" alt="${video.title}" class="img-thumbnail" style="width: 180px; height: 100px; object-fit: cover;">
-        <div>
-          <h5 class="fw-bold">${video.title}</h5>
-          <p class="mb-1"><strong>Views:</strong> ${video.views.toLocaleString()}</p>
-          <p class="mb-1"><strong>Video ID:</strong> ${video.video_id}</p>
-          <p class="mb-1 text-muted small">More metrics could be displayed here...</p>
-        </div>
+  if (!video) return;
+
+  const html = `
+  
+    <div class="d-flex gap-4 align-items-start mb-4">
+      <img src="https://img.youtube.com/vi/${video.video_id}/mqdefault.jpg" alt="${video.title}" class="img-thumbnail" style="width: 200px; height: 112px;">
+      <div>
+        <h5 class="fw-bold">${video.title || 'Untitled Video'}</h5>
+        <p><strong>Video ID:</strong> ${video.video_id}</p>
+        <p><strong>Views:</strong> ${video.views.toLocaleString()}</p>
+        <p><strong>Impressions:</strong> ${video.impressions.toLocaleString()}</p>
+        <p><strong>CTR:</strong> ${video.ctr.toFixed(2)}%</p>
+        <p><strong>Avg View Duration:</strong> ${video.avg_view_duration_seconds} secs</p>
+        <p><strong>Estimated Watch Time:</strong> ${video.watchTime} mins</p>
+        <p><strong>Retention Rate:</strong> ${video.retention.toFixed(2)}%</p>
+        <p><strong>Engagements:</strong> ${video.total_engagements}</p>
+        <p><strong>Engagement CTR:</strong> ${video.engagement_ctr.toFixed(2)}%</p>
+        <p><strong>New Subscribers:</strong> ${video.subscribers_gained}</p>
       </div>
-    `;
+    </div>
+  `;
 
-    document.getElementById('videoDetailContent').innerHTML = html;
-    document.getElementById('videoDetailLink').href = `https://www.youtube.com/watch?v=${video.video_id}`;
-    const modal = new bootstrap.Modal(document.getElementById('videoDetailModal'));
-    modal.show();
-  }
+  document.getElementById('videoDetailContent').innerHTML = html;
+  document.getElementById('videoDetailLink').href = `https://www.youtube.com/watch?v=${video.video_id}`;
+  const modal = new bootstrap.Modal(document.getElementById('videoDetailModal'));
+  modal.show();
+}
+
 
 
   function initAnalyticsChart(chartData) {
     const ctx = document.getElementById('analyticsChart').getContext('2d');
-    
-    // Calculate gradient fill
     const gradient = ctx.createLinearGradient(0, 0, 0, 400);
     gradient.addColorStop(0, 'rgba(54, 162, 235, 0.4)');
     gradient.addColorStop(1, 'rgba(54, 162, 235, 0.05)');
-    
-    // Create chart with optimized settings
-    const analyticsChart = new Chart(ctx, {
+
+    new Chart(ctx, {
       type: 'line',
       data: {
         labels: chartData.labels,
@@ -443,129 +443,73 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: {
-          duration: 1000,
-          easing: 'easeOutQuart'
-        },
         scales: {
           y: {
             beginAtZero: true,
-            grid: {
-              drawBorder: false,
-              color: 'rgba(0, 0, 0, 0.05)'
-            },
-            ticks: {
-              font: {
-                size: 12
-              },
-              padding: 10
-            }
+            grid: { color: 'rgba(0,0,0,0.05)' }
           },
           x: {
-            grid: {
-              display: false
-            },
-            ticks: {
-              font: {
-                size: 12
-              },
-              maxRotation: 45,
-              minRotation: 45
-            }
+            grid: { display: false },
+            ticks: { maxRotation: 45, minRotation: 45 }
           }
         },
         plugins: {
-          legend: {
-            display: false
-          },
+          legend: { display: false },
           tooltip: {
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backgroundColor: 'rgba(0,0,0,0.7)',
             padding: 10,
             cornerRadius: 6,
             displayColors: false,
             callbacks: {
-              label: function(context) {
-                return `Views: ${context.parsed.y.toLocaleString()}`;
-              }
+              label: ctx => `Views: ${ctx.parsed.y.toLocaleString()}`
             }
           },
           title: {
             display: true,
             text: 'Daily View Growth',
             align: 'center',
-            color: '#333',
-            font: {
-              size: 18,
-              weight: 'bold'
-            },
-            padding: {
-              bottom: 20
-            }
+            font: { size: 18, weight: 'bold' },
+            padding: { bottom: 20 }
           }
         },
-        interaction: {
-          mode: 'index',
-          intersect: false
-        },
-        elements: {
-          line: {
-            capBezierPoints: true
-          }
-        }
+        interaction: { mode: 'index', intersect: false },
+        elements: { line: { capBezierPoints: true } }
       }
     });
-    
-    // Cleanup function for potential memory leak prevention
-    return function cleanup() {
-      analyticsChart.destroy();
-    };
   }
 
   function initPerVideoAnalytics() {
-    // Sort functionality
-    document.getElementById('sortBy').addEventListener('change', function(e) {
-      const sortValue = e.target.value;
-      // Implementation would fetch sorted data from backend
-      console.log(`Sorting by: ${sortValue}`);
-    });
-
-    // Search functionality
+    const sortSelect = document.getElementById('sortBy');
     const searchInput = document.getElementById('searchVideos');
-    if (searchInput) {
-      searchInput.addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const videoRows = document.querySelectorAll('.video-analytics-table tbody tr');
-        
-        videoRows.forEach(row => {
-          const title = row.querySelector('.video-title').textContent.toLowerCase();
-          const videoId = row.querySelector('.video-date').textContent.toLowerCase();
-          
-          if (title.includes(searchTerm) || videoId.includes(searchTerm)) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
-        });
-      });
-    }
+    const tableBody = document.querySelector('.video-analytics-table tbody');
+    const rows = Array.from(tableBody.querySelectorAll('tr'));
 
-    // Pagination functionality
-    const paginationButtons = document.querySelectorAll('.pagination-button');
-    paginationButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        paginationButtons.forEach(btn => btn.classList.remove('active'));
-        this.classList.add('active');
-        // Implementation would fetch data for the selected page
+    // Sort videos
+    sortSelect.addEventListener('change', () => {
+      const val = sortSelect.value;
+      let sortedRows = [...rows];
+      if (val === 'views_desc') {
+        sortedRows.sort((a,b) => parseInt(b.querySelector('.metric-value').textContent) - parseInt(a.querySelector('.metric-value').textContent));
+      } else if (val === 'views_asc') {
+        sortedRows.sort((a,b) => parseInt(a.querySelector('.metric-value').textContent) - parseInt(b.querySelector('.metric-value').textContent));
+      } else if (val === 'title') {
+        sortedRows.sort((a,b) => a.querySelector('.video-title').textContent.localeCompare(b.querySelector('.video-title').textContent));
+      } else if (val === 'video_id') {
+        sortedRows.sort((a,b) => a.cells[2].textContent.localeCompare(b.cells[2].textContent));
+      }
+      tableBody.innerHTML = '';
+      sortedRows.forEach(row => tableBody.appendChild(row));
+    });
+
+    // Search videos
+    searchInput.addEventListener('input', () => {
+      const term = searchInput.value.toLowerCase();
+      rows.forEach(row => {
+        const title = row.querySelector('.video-title').textContent.toLowerCase();
+        const videoId = row.cells[2].textContent.toLowerCase();
+        row.style.display = (title.includes(term) || videoId.includes(term)) ? '' : 'none';
       });
     });
-  }
-  
-  // Function to export video stats
-  function exportVideoStats(videoId) {
-    console.log(`Exporting stats for video: ${videoId}`);
-    // In a real implementation, this could generate a CSV or PDF report
-    alert(`Statistics for video ${videoId} would be exported in the full implementation.`);
   }
 </script>
-
 {% endblock %}
