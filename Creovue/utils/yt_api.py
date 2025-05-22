@@ -18,6 +18,12 @@ from Creovue.config import creo_api_key, cre_base_url
 
 import datetime
 import requests
+import re
+
+def is_valid_video_id(video_id):
+    return bool(re.match(r'^[a-zA-Z0-9_-]{11}$', video_id))
+
+
 
 def fetch_youtube_analytics(channel_id, days=700, max_videos=10):
     """
@@ -147,34 +153,21 @@ def calculate_ctr_metrics(channel_id, days=700):
     Returns:
         dict: Dictionary containing CTR metrics, impressions, and retention data for all videos
     """
-    # First check if user is authenticated and has credentials
+    # Validate session and token
     if not current_user.is_authenticated:
         raise Exception("User not authenticated")
+
+    if 'youtube_token' not in session:
+        raise Exception("YouTube credentials not found in session")
+
+    # Session-based credentials
+    creds = Credentials(**session['youtube_token'])
+
     
     # Get channel_id from the current user
     channel_id = current_user.channel_id
     #print("channel_id: ", channel_id); time.sleep(300)
-    if not channel_id:
-        # If channel_id is not stored in the user model, fetch it using the credentials
-        creds = Credentials(**session['youtube_token'])
-        #print("creds: ", creds); time.sleep(300)
-        response = requests.get(
-            'https://www.googleapis.com/youtube/v3/channels',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={'part': 'snippet', 'mine': 'true'}
-        )
-        
-        if response.status_code != 200:
-            raise Exception(f"Failed to fetch channel ID: {response.status_code}")
-            
-        channel_data = response.json()
-        if not channel_data.get('items'):
-            raise Exception("No channels found for this user")
-            
-        channel_id = channel_data['items'][0]['id']
-    else:
-        # Use credentials from session
-        creds = Credentials(**session['youtube_token'])
+    
     
     # Set up dates for the query
     end_date = datetime.date.today()
@@ -183,9 +176,18 @@ def calculate_ctr_metrics(channel_id, days=700):
     # Convert dates to strings in YYYY-MM-DD format for the API
     start_date_str = start_date.strftime('%Y-%m-%d')
     end_date_str = end_date.strftime('%Y-%m-%d')
-    
-    creds = Credentials(**session['youtube_token'])
-    #print("creds: ", creds); time.sleep(300)
+
+    print("start_date_str: ", start_date_str, "\n", "end_date_str: ", end_date_str)
+
+    # Calculate date range
+    #end_date = datetime.now()
+    #start_date = end_date - timedelta(days=days_back)
+    #start_date_str = start_date.strftime('%Y-%m-%d')
+    #end_date_str = end_date.strftime('%Y-%m-%d')
+
+        
+
+        
     # Build the YouTube and YouTube Analytics services with session credentials
     youtube = build('youtube', 'v3', credentials=creds)
     youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
@@ -211,6 +213,8 @@ def calculate_ctr_metrics(channel_id, days=700):
     content_details = data_channel['items'][0]['contentDetails']
     uploads_playlist_id = content_details['relatedPlaylists']['uploads']
     
+    #print("uploads_playlist_id: ", uploads_playlist_id); time.sleep(300)
+
     # Fetch all video IDs from the uploads playlist
     video_ids = []
     next_page_token = None
@@ -238,6 +242,7 @@ def calculate_ctr_metrics(channel_id, days=700):
         
         for item in data_playlist.get("items", []):
             video_id = item['snippet']['resourceId']['videoId']
+            #print("video_id: ", video_id); time.sleep(30)
             video_ids.append(video_id)
         
         next_page_token = data_playlist.get('nextPageToken')
@@ -253,42 +258,191 @@ def calculate_ctr_metrics(channel_id, days=700):
     
     all_video_data = []
     
-    for batch_num, video_batch in enumerate(video_batches):
-        print(f"Processing batch {batch_num + 1} of {len(video_batches)}")
+    batch_size = 5
+    video_batches = [video_ids[i:i + batch_size] for i in range(0, len(video_ids), batch_size)]
+    
+    #print("video_batches: ", video_batches); time.sleep(300)
+    
+    all_video_data = []
+    
+    """for batch_num, video_batch in enumerate(video_batches):
+        print(f"Processing batch {batch_num + 1} of {len(video_batches)}")"""
+    print("video_batches: ", video_batches)
+    for batch in video_batches:
+        #print("batch: ", batch); time.sleep(30)
+        # Reduce batch size significantly
+        batch = batch[:3]  # Test with just 3 video IDs
+
+        #print("batch: ", batch); time.sleep(30)
+        # Use the simplest filter format
+        video_filter = f"video=={';'.join(batch)}"
+
+        print("video_filter: ", video_filter); #time.sleep(30)
         
-        # Create a filter string for this batch of videos
-        video_filter = ';'.join(video_batch)
-        if 1==1:
-            # 1. Basic video metrics
+        # Step 1: Get basic video performance metrics
+        print(f"Fetching video performance data from {start_date_str} to {end_date_str}")
+            
+        video_performance = youtube_analytics.reports().query(
+                ids=f'channel=={channel_id}',
+                startDate=start_date_str,
+                endDate=end_date_str,
+                metrics='views,estimatedMinutesWatched,averageViewDuration,likes,comments,shares',
+                dimensions='video',
+                sort='-views',  # Sort by views descending
+                maxResults=50   # Limit to top 50 videos
+            ).execute()
+        
+        # Step 2: Get subscriber acquisition data
+        print("Fetching subscriber data...")
+            
+        subscriber_data = youtube_analytics.reports().query(
+                ids=f'channel=={channel_id}',
+                startDate=start_date_str,
+                endDate=end_date_str,
+                metrics='subscribersGained,subscribersLost',
+                dimensions='video',
+                sort='-subscribersGained',
+                maxResults=50
+            ).execute()
+        
+        # Step 3: Get traffic source data (if available)
+        print("Fetching traffic source data...")
+            
+        traffic_sources = youtube_analytics.reports().query(
+                    ids=f'channel=={channel_id}',
+                    startDate=start_date_str,
+                    endDate=end_date_str,
+                    metrics='views',
+                    dimensions='insightTrafficSourceType',
+                    sort='-views'
+                ).execute()
+        
+        print("video_performance, subscriber_data, and 3 gone!"); #time.sleep(300)
+        print("video_performance: ", video_performance);
+        print("subscriber_data: ", subscriber_data);
+        print("traffic_sources: ", traffic_sources); #time.sleep(300)
+
+        # Extract video performance data
+        video_rows = video_performance.get('rows', [])
+        video_headers = video_performance.get('columnHeaders', [])
+        
+        # Extract subscriber data
+        subscriber_rows = subscriber_data.get('rows', [])
+        subscriber_headers = subscriber_data.get('columnHeaders', [])
+        
+        # Create lookup dictionaries
+        video_metrics = {}
+        subscriber_metrics = {}
+        
+        # Process video performance data
+        for row in video_rows:
+            video_id = row[0]  # First column is video ID
+            video_metrics[video_id] = {
+                'views': row[1] if len(row) > 1 else 0,
+                'estimatedMinutesWatched': row[2] if len(row) > 2 else 0,
+                'averageViewDuration': row[3] if len(row) > 3 else 0,
+                'likes': row[4] if len(row) > 4 else 0,
+                'comments': row[5] if len(row) > 5 else 0,
+                'shares': row[6] if len(row) > 6 else 0
+            }
+        
+        # Process subscriber data
+        for row in subscriber_rows:
+            video_id = row[0]
+            subscriber_metrics[video_id] = {
+                'subscribersGained': row[1] if len(row) > 1 else 0,
+                'subscribersLost': row[2] if len(row) > 2 else 0
+            }
+
+        print("subscriber_rows: ", subscriber_rows);
+        print("subscriber_rows: ", subscriber_rows); time.sleep(300)
+
+        # Add error handling
+        try:
+            '''ctr_response = youtube_analytics.reports().query(
+                ids='channel==MINE',
+                startDate='2024-01-01',
+                endDate='2024-12-31',
+                metrics='views',
+                dimensions='day'
+            ).execute()'''
+            '''ctr_response = youtube_analytics.reports().query(
+                ids=f'channel=={channel_id}',
+                startDate=start_date_str,
+                endDate=end_date_str,
+                metrics='impressions', # ,impressionClickRate',
+                dimensions='video',
+                filters=f'{video_filter}'
+            ).execute()'''
+
             ctr_response = youtube_analytics.reports().query(
                 ids=f'channel=={channel_id}',
                 startDate=start_date_str,
                 endDate=end_date_str,
                 metrics='views,estimatedMinutesWatched,averageViewDuration',
                 dimensions='video',
-                filters=f'video=={video_filter}',
-                sort='-views'
+                filters=f'{video_filter}'
             ).execute()
 
+            
+
+        except Exception as e:
+            print(f"API Error: {e}")
+            print(f"Filter used: {video_filter}")
+            raise
+        print("ctr_response: ", ctr_response); time.sleep(300)
+        # Create dictionaries to map videos to their data
+        ctr_data = {row[0]: {'impressions': row[1], 'ctr': row[2], 'views': row[3]} 
+                        for row in ctr_response.get('rows', [])}
+
+        print ("ctr_data: ", ctr_data); time.sleep(300)  
+
+        '''retention_data = {row[0]: {'avgViewDuration': row[1], 'retention': row[2], 'watchTime': row[3]} 
+                             for row in retention_response.get('rows', [])}
+            
+        engagement_data = {row[0]: {'likes': row[1], 'dislikes': row[2], 'comments': row[3], 
+                                        'shares': row[4], 'newSubs': row[5]} 
+                              for row in engagement_response.get('rows', [])}'''
+
+            
+        if 1==2:
+        
+            # Process response
+            for row in response.get('rows', []):
+                video_data = {
+                    'video_id': row[0],
+                    'views': row[1],
+                    'minutes_watched': row[2],
+                    'avg_duration': row[3]
+                }
+                all_video_data.append(video_data)
+            
+            # Process response
+            for row in response.get('rows', []):
+                video_id = row[0]
+                views = row[1]
+                minutes_watched = row[2]
+                avg_duration = row[3]
+
             # 2. Retention metrics (these are valid)
-            retention_response = youtube_analytics.reports().query(
+            """retention_response = youtube_analytics.reports().query(
                 ids=f'channel=={channel_id}',
                 startDate=start_date_str,
                 endDate=end_date_str,
                 metrics='averageViewDuration,averageViewPercentage,estimatedMinutesWatched',
                 dimensions='video',
                 filters=f'video=={video_filter}'
-            ).execute()
+            ).execute()"""
 
             # 3. Engagement metrics (these are valid)
-            engagement_response = youtube_analytics.reports().query(
+            """engagement_response = youtube_analytics.reports().query(
                 ids=f'channel=={channel_id}',
                 startDate=start_date_str,
                 endDate=end_date_str,
                 metrics='likes,dislikes,comments,shares,subscribersGained',
                 dimensions='video',
                 filters=f'video=={video_filter}'
-            ).execute()
+            ).execute()"""
             
         try:
             # 1. Get CTR and Impressions metrics
@@ -383,7 +537,10 @@ def calculate_ctr_metrics(channel_id, days=700):
             time.sleep(1)
             
         except HttpError as error:
-            print(f"An error occurred processing batch {batch_num + 1}: {error}"); time.sleep(30)
+            #print(f"An error occurred processing batch {batch_num + 1}: {error}"); time.sleep(30)
+            #print(f"[ERROR] Batch {batch_num + 1} failed: {error}")
+            print(f"[ERROR] Batch {batch + 1} failed: {error}")
+
             # Continue with next batch
             continue
     
