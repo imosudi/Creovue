@@ -77,7 +77,7 @@ def fetch_youtube_analytics(channel_id, days=3700, max_videos=10):
     videos = []
     video_ids = []
     video_items = data_playlist.get("items", [])
-    for item in video_items:
+    #for item in video_items:
         #print("video_item: ", item, "\n\n")
     #time.sleep(300)
     for item in data_playlist.get("items", []):
@@ -464,7 +464,7 @@ def process_ctr_data(video_performance, subscriber_data, traffic_sources, video_
         video_ctr_data.append(video_entry)
         all_video_data.append(video_entry)
     
-    #print("video_ctr_data: ", video_ctr_data)
+    ##print("video_ctr_data: ", video_ctr_data)
     
     # Sort by engagement CTR
     video_ctr_data.sort(key=lambda x: x['engagement_ctr'], reverse=True)
