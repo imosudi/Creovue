@@ -287,7 +287,7 @@ def calculate_ctr_metrics(channel_id, days):
                     startDate=start_date_str,
                     endDate=end_date_str,
                     metrics='views,estimatedMinutesWatched,averageViewDuration,likes,comments,shares',
-                    dimensions='video',
+                    dimensions='channel,video',
                     sort='-views',  # Sort by views descending
                     maxResults=50   # Limit to top 50 videos
                 ).execute()
