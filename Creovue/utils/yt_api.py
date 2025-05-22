@@ -271,7 +271,7 @@ def calculate_ctr_metrics(channel_id, days=700):
     for batch in video_batches:
         #print("batch: ", batch); time.sleep(30)
         # Reduce batch size significantly
-        batch = batch[:3]  # Test with just 3 video IDs
+        #batch = batch[:3]  # Test with just 3 video IDs
 
         #print("batch: ", batch); time.sleep(30)
         # Use the simplest filter format
