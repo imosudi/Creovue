@@ -355,7 +355,59 @@ def calculate_ctr_metrics(channel_id, days=700):
             }
 
         print("video_rows: ", video_rows, "video_headers: ", video_headers);
-        print("subscriber_rows: ", subscriber_rows, "subscriber_headers: ", subscriber_headers); time.sleep(300)
+        print("subscriber_rows: ", subscriber_rows, "subscriber_headers: ", subscriber_headers); #time.sleep(300)
+
+        # Calculate CTR-like metrics for each video
+        video_ctr_data = []
+        
+        for video_id, metrics in video_metrics.items():
+            subscriber_data_for_video = subscriber_metrics.get(video_id, {
+                'subscribersGained': 0, 
+                'subscribersLost': 0
+            })
+            
+            # Calculate various CTR-like ratios
+            views = metrics['views']
+            likes = metrics['likes']
+            comments = metrics['comments']
+            shares = metrics['shares']
+            subscribers_gained = subscriber_data_for_video['subscribersGained']
+            
+            # Engagement CTR: (Total Engagements / Views) * 100
+            total_engagements = likes + comments + shares
+            engagement_ctr = (total_engagements / views * 100) if views > 0 else 0
+            
+            # Subscriber CTR: (Subscribers Gained / Views) * 100
+            subscriber_ctr = (subscribers_gained / views * 100) if views > 0 else 0
+            
+            # Like CTR: (Likes / Views) * 100
+            like_ctr = (likes / views * 100) if views > 0 else 0
+            
+            # Comment CTR: (Comments / Views) * 100
+            comment_ctr = (comments / views * 100) if views > 0 else 0
+            
+            # Retention rate (using average view duration)
+            avg_duration = metrics['averageViewDuration']
+            estimated_total_duration = metrics['estimatedMinutesWatched'] * 60 / views if views > 0 else 0
+            retention_rate = (avg_duration / estimated_total_duration * 100) if estimated_total_duration > 0 else 0
+            
+            video_ctr_data.append({
+                'video_id': video_id,
+                'views': views,
+                'likes': likes,
+                'comments': comments,
+                'shares': shares,
+                'subscribers_gained': subscribers_gained,
+                'total_engagements': total_engagements,
+                'engagement_ctr': round(engagement_ctr, 2),
+                'subscriber_ctr': round(subscriber_ctr, 4),
+                'like_ctr': round(like_ctr, 2),
+                'comment_ctr': round(comment_ctr, 2),
+                'retention_rate': round(retention_rate, 2),
+                'avg_view_duration_seconds': avg_duration
+            })
+
+        print("video_ctr_data: ", video_ctr_data); time.sleep(300)
 
         # Add error handling
         try:
