@@ -2,7 +2,7 @@
 
 """Module: yt_api.py."""
 # utils/yt_api.py
-from flask import session
+from flask import logging, session
 from flask_security import current_user
 import requests
 import datetime
@@ -142,7 +142,7 @@ def fetch_youtube_analytics(channel_id, days=3700, max_videos=10):
         "most_viewed_video": most_viewed_video  # dict with title, views, video_id
     }
  
-def calculate_ctr_metrics(channel_id, days=700):
+def calculate_ctr_metrics(channel_id, days):
     """
     Fetches comprehensive CTR metrics, impressions, and retention data for all videos
     in a YouTube channel using the YouTube Analytics API.
@@ -279,335 +279,189 @@ def calculate_ctr_metrics(channel_id, days=700):
 
         print("video_filter: ", video_filter); #time.sleep(30)
         
-        # Step 1: Get basic video performance metrics
-        print(f"Fetching video performance data from {start_date_str} to {end_date_str}")
-            
-        video_performance = youtube_analytics.reports().query(
-                ids=f'channel=={channel_id}',
-                startDate=start_date_str,
-                endDate=end_date_str,
-                metrics='views,estimatedMinutesWatched,averageViewDuration,likes,comments,shares',
-                dimensions='video',
-                sort='-views',  # Sort by views descending
-                maxResults=50   # Limit to top 50 videos
-            ).execute()
-        
-        # Step 2: Get subscriber acquisition data
-        print("Fetching subscriber data...")
-            
-        subscriber_data = youtube_analytics.reports().query(
-                ids=f'channel=={channel_id}',
-                startDate=start_date_str,
-                endDate=end_date_str,
-                metrics='subscribersGained,subscribersLost',
-                dimensions='video',
-                sort='-subscribersGained',
-                maxResults=50
-            ).execute()
-        
-        # Step 3: Get traffic source data (if available)
-        print("Fetching traffic source data...")
-            
-        traffic_sources = youtube_analytics.reports().query(
+        try:
+            # Step 1: Get basic video performance metrics
+            print(f"Fetching video performance data from {start_date_str} to {end_date_str}")    
+            video_performance = youtube_analytics.reports().query(
                     ids=f'channel=={channel_id}',
                     startDate=start_date_str,
                     endDate=end_date_str,
-                    metrics='views',
-                    dimensions='insightTrafficSourceType',
-                    sort='-views'
+                    metrics='views,estimatedMinutesWatched,averageViewDuration,likes,comments,shares',
+                    dimensions='video',
+                    sort='-views',  # Sort by views descending
+                    maxResults=50   # Limit to top 50 videos
                 ).execute()
+            
+
+            # Step 2: Get subscriber acquisition data
+            print("Fetching subscriber data...")
+            subscriber_data = youtube_analytics.reports().query(
+                    ids=f'channel=={channel_id}',
+                    startDate=start_date_str,
+                    endDate=end_date_str,
+                    metrics='subscribersGained,subscribersLost',
+                    dimensions='video',
+                    sort='-subscribersGained',
+                    maxResults=50
+                ).execute()
+            
+            try:
+                # Step 3: Get traffic source data (if available)
+                print("Fetching traffic source data...")   
+                traffic_sources = youtube_analytics.reports().query(
+                            ids=f'channel=={channel_id}',
+                            startDate=start_date_str,
+                            endDate=end_date_str,
+                            metrics='views',
+                            dimensions='insightTrafficSourceType',
+                            sort='-views'
+                        ).execute()
+            except HttpError as e:
+                print(f"Traffic source data not available: {e}")
+                traffic_sources = None
         
-        print("video_performance, subscriber_data, and 3 traffic_sources!"); #time.sleep(300)
-        print("video_performance: ", video_performance);
-        print("subscriber_data: ", subscriber_data);
-        print("traffic_sources: ", traffic_sources); #time.sleep(300)
-
-        # Extract video performance data
-        video_rows = video_performance.get('rows', [])
-        video_headers = video_performance.get('columnHeaders', [])
+            print("video_performance, subscriber_data, and 3 traffic_sources!"); #time.sleep(300)
+            print("video_performance: ", video_performance);
+            print("subscriber_data: ", subscriber_data);
+            print("traffic_sources: ", traffic_sources); #time.sleep(300)
         
-        # Extract subscriber data
-        subscriber_rows = subscriber_data.get('rows', [])
-        subscriber_headers = subscriber_data.get('columnHeaders', [])
-        
-        # Create lookup dictionaries
-        video_metrics = {}
-        subscriber_metrics = {}
-        
-        # Process video performance data
-        for row in video_rows:
-            video_id = row[0]  # First column is video ID
-            video_metrics[video_id] = {
-                'views': row[1] if len(row) > 1 else 0,
-                'estimatedMinutesWatched': row[2] if len(row) > 2 else 0,
-                'averageViewDuration': row[3] if len(row) > 3 else 0,
-                'likes': row[4] if len(row) > 4 else 0,
-                'comments': row[5] if len(row) > 5 else 0,
-                'shares': row[6] if len(row) > 6 else 0
-            }
-        
-        # Process subscriber data
-        for row in subscriber_rows:
-            video_id = row[0]
-            subscriber_metrics[video_id] = {
-                'subscribersGained': row[1] if len(row) > 1 else 0,
-                'subscribersLost': row[2] if len(row) > 2 else 0
-            }
-
-        print("video_rows: ", video_rows, "video_headers: ", video_headers);
-        print("subscriber_rows: ", subscriber_rows, "subscriber_headers: ", subscriber_headers); #time.sleep(300)
-
-        # Calculate CTR-like metrics for each video
-        video_ctr_data = []
-        
-        for video_id, metrics in video_metrics.items():
-            subscriber_data_for_video = subscriber_metrics.get(video_id, {
-                'subscribersGained': 0, 
-                'subscribersLost': 0
-            })
+            # Step 4: Process and calculate CTR-like metrics
+            ctr_results = process_ctr_data(video_performance, subscriber_data, traffic_sources)
             
-            # Calculate various CTR-like ratios
-            views = metrics['views']
-            likes = metrics['likes']
-            comments = metrics['comments']
-            shares = metrics['shares']
-            subscribers_gained = subscriber_data_for_video['subscribersGained']
-            
-            # Engagement CTR: (Total Engagements / Views) * 100
-            total_engagements = likes + comments + shares
-            engagement_ctr = (total_engagements / views * 100) if views > 0 else 0
-            
-            # Subscriber CTR: (Subscribers Gained / Views) * 100
-            subscriber_ctr = (subscribers_gained / views * 100) if views > 0 else 0
-            
-            # Like CTR: (Likes / Views) * 100
-            like_ctr = (likes / views * 100) if views > 0 else 0
-            
-            # Comment CTR: (Comments / Views) * 100
-            comment_ctr = (comments / views * 100) if views > 0 else 0
-            
-            # Retention rate (using average view duration)
-            avg_duration = metrics['averageViewDuration']
-            estimated_total_duration = metrics['estimatedMinutesWatched'] * 60 / views if views > 0 else 0
-            retention_rate = (avg_duration / estimated_total_duration * 100) if estimated_total_duration > 0 else 0
-            
-            video_ctr_data.append({
-                'video_id': video_id,
-                'views': views,
-                'likes': likes,
-                'comments': comments,
-                'shares': shares,
-                'subscribers_gained': subscribers_gained,
-                'total_engagements': total_engagements,
-                'engagement_ctr': round(engagement_ctr, 2),
-                'subscriber_ctr': round(subscriber_ctr, 4),
-                'like_ctr': round(like_ctr, 2),
-                'comment_ctr': round(comment_ctr, 2),
-                'retention_rate': round(retention_rate, 2),
-                'avg_view_duration_seconds': avg_duration
-            })
-
-        print("video_ctr_data: ", video_ctr_data); time.sleep(300)
-
-        # Add error handling
-        try:
-            '''ctr_response = youtube_analytics.reports().query(
-                ids='channel==MINE',
-                startDate='2024-01-01',
-                endDate='2024-12-31',
-                metrics='views',
-                dimensions='day'
-            ).execute()'''
-            '''ctr_response = youtube_analytics.reports().query(
-                ids=f'channel=={channel_id}',
-                startDate=start_date_str,
-                endDate=end_date_str,
-                metrics='impressions', # ,impressionClickRate',
-                dimensions='video',
-                filters=f'{video_filter}'
-            ).execute()'''
-
-            ctr_response = youtube_analytics.reports().query(
-                ids=f'channel=={channel_id}',
-                startDate=start_date_str,
-                endDate=end_date_str,
-                metrics='views,estimatedMinutesWatched,averageViewDuration',
-                dimensions='video',
-                filters=f'{video_filter}'
-            ).execute()
-
-            
-
-        except Exception as e:
-            print(f"API Error: {e}")
-            print(f"Filter used: {video_filter}")
-            raise
-        print("ctr_response: ", ctr_response); time.sleep(300)
-        # Create dictionaries to map videos to their data
-        ctr_data = {row[0]: {'impressions': row[1], 'ctr': row[2], 'views': row[3]} 
-                        for row in ctr_response.get('rows', [])}
-
-        print ("ctr_data: ", ctr_data); time.sleep(300)  
-
-        '''retention_data = {row[0]: {'avgViewDuration': row[1], 'retention': row[2], 'watchTime': row[3]} 
-                             for row in retention_response.get('rows', [])}
-            
-        engagement_data = {row[0]: {'likes': row[1], 'dislikes': row[2], 'comments': row[3], 
-                                        'shares': row[4], 'newSubs': row[5]} 
-                              for row in engagement_response.get('rows', [])}'''
-
-            
-        if 1==2:
-        
-            # Process response
-            for row in response.get('rows', []):
-                video_data = {
-                    'video_id': row[0],
-                    'views': row[1],
-                    'minutes_watched': row[2],
-                    'avg_duration': row[3]
-                }
-                all_video_data.append(video_data)
-            
-            # Process response
-            for row in response.get('rows', []):
-                video_id = row[0]
-                views = row[1]
-                minutes_watched = row[2]
-                avg_duration = row[3]
-
-            # 2. Retention metrics (these are valid)
-            """retention_response = youtube_analytics.reports().query(
-                ids=f'channel=={channel_id}',
-                startDate=start_date_str,
-                endDate=end_date_str,
-                metrics='averageViewDuration,averageViewPercentage,estimatedMinutesWatched',
-                dimensions='video',
-                filters=f'video=={video_filter}'
-            ).execute()"""
-
-            # 3. Engagement metrics (these are valid)
-            """engagement_response = youtube_analytics.reports().query(
-                ids=f'channel=={channel_id}',
-                startDate=start_date_str,
-                endDate=end_date_str,
-                metrics='likes,dislikes,comments,shares,subscribersGained',
-                dimensions='video',
-                filters=f'video=={video_filter}'
-            ).execute()"""
-            
-        try:
-            # 1. Get CTR and Impressions metrics
-            ctr_response = youtube_analytics.reports().query(
-                ids=f'channel=={channel_id}',
-                startDate=start_date_str,
-                endDate=end_date_str,
-                metrics='impressions,impressionClickRate,views',
-                dimensions='video',
-                filters=f'video=={video_filter}',
-                sort='-impressions'
-            ).execute()
-            
-            # 2. Get Retention and Watch Time metrics
-            retention_response = youtube_analytics.reports().query(
-                ids=f'channel=={channel_id}',
-                startDate=start_date_str,
-                endDate=end_date_str,
-                metrics='averageViewDuration,averageViewPercentage,estimatedMinutesWatched',
-                dimensions='video',
-                filters=f'video=={video_filter}'
-            ).execute()
-            
-            # 3. Get Engagement metrics
-            engagement_response = youtube_analytics.reports().query(
-                ids=f'channel=={channel_id}',
-                startDate=start_date_str,
-                endDate=end_date_str,
-                metrics='likes,dislikes,comments,shares,subscribersGained',
-                dimensions='video',
-                filters=f'video=={video_filter}'
-            ).execute()
-            
-            
-            # Create dictionaries to map videos to their data
-            ctr_data = {row[0]: {'impressions': row[1], 'ctr': row[2], 'views': row[3]} 
-                        for row in ctr_response.get('rows', [])}
-            
-            retention_data = {row[0]: {'avgViewDuration': row[1], 'retention': row[2], 'watchTime': row[3]} 
-                             for row in retention_response.get('rows', [])}
-            
-            engagement_data = {row[0]: {'likes': row[1], 'dislikes': row[2], 'comments': row[3], 
-                                        'shares': row[4], 'newSubs': row[5]} 
-                              for row in engagement_response.get('rows', [])}
-            
-            # Get video metadata for this batch
-            url_videos = f'{cre_base_url}/videos'
-            params_videos = {
-                'part': 'snippet,statistics,contentDetails',
-                'id': ','.join(video_batch),
-                'key': creo_api_key
-            }
-            
-            response_videos = requests.get(url_videos, params=params_videos)
-            data_videos = response_videos.json()
-            
-            if response_videos.status_code != 200:
-                raise Exception(f"API Error: {response_videos.status_code} - {data_videos.get('error', {}).get('message', '')}")
-            
-            # Combine all data
-            for item in data_videos.get('items', []):
-                video_id = item['id']
-                
-                video_data = {
-                    'video_id': video_id,
-                    'title': item['snippet']['title'],
-                    'publishedAt': item['snippet']['publishedAt'],
-                    'duration': item['contentDetails']['duration'],
-                    'totalViews': int(item['statistics'].get('viewCount', 0)),
-                    'likeCount': int(item['statistics'].get('likeCount', 0)),
-                    'dislikeCount': int(item['statistics'].get('dislikeCount', 0)),
-                    'commentCount': int(item['statistics'].get('commentCount', 0)),
-                    # Add CTR data
-                    'impressions': int(ctr_data.get(video_id, {}).get('impressions', 0)),
-                    'ctr': float(ctr_data.get(video_id, {}).get('ctr', 0)) * 100,  # Convert to percentage
-                    'periodViews': int(ctr_data.get(video_id, {}).get('views', 0)),
-                    # Add retention data
-                    'avgViewDuration': float(retention_data.get(video_id, {}).get('avgViewDuration', 0)),
-                    'retention': float(retention_data.get(video_id, {}).get('retention', 0)),
-                    'watchTime': float(retention_data.get(video_id, {}).get('watchTime', 0)),
-                    # Add engagement data from period
-                    'periodLikes': int(engagement_data.get(video_id, {}).get('likes', 0)),
-                    'periodDislikes': int(engagement_data.get(video_id, {}).get('dislikes', 0)),
-                    'periodComments': int(engagement_data.get(video_id, {}).get('comments', 0)),
-                    'periodShares': int(engagement_data.get(video_id, {}).get('shares', 0)),
-                    'newSubscribers': int(engagement_data.get(video_id, {}).get('newSubs', 0))
-                }
-                
-                all_video_data.append(video_data)
-            
-            # Prevent hitting rate limits
-            time.sleep(1)
+            return ctr_results
             
         except HttpError as error:
-            #print(f"An error occurred processing batch {batch_num + 1}: {error}"); time.sleep(30)
-            #print(f"[ERROR] Batch {batch_num + 1} failed: {error}")
-            print(f"[ERROR] Batch {batch + 1} failed: {error}")
+            logging.error(f"YouTube Analytics API Error: {error}")
+            raise error
+        except Exception as e:
+            logging.error(f"Unexpected error in CTR calculation: {e}")
+            raise e
 
-            # Continue with next batch
-            continue
+def process_ctr_data(video_performance, subscriber_data, traffic_sources):
+    """
+    Process raw YouTube Analytics data to calculate CTR-like metrics.
+    """
     
-    # Sort videos by impressions (descending)
+    # Extract video performance data
+    video_rows = video_performance.get('rows', [])
+    video_headers = video_performance.get('columnHeaders', [])
+    
+    # Extract subscriber data
+    subscriber_rows = subscriber_data.get('rows', [])
+    subscriber_headers = subscriber_data.get('columnHeaders', [])
+    
+    # Debug prints
+    print("video_rows: ", video_rows, "video_headers: ", video_headers)
+    print("subscriber_rows: ", subscriber_rows, "subscriber_headers: ", subscriber_headers)
+    
+    # Create lookup dictionaries
+    video_metrics = {}
+    subscriber_metrics = {}
+    
+    # Process video performance data
+    for row in video_rows:
+        video_id = row[0]  # First column is video ID
+        video_metrics[video_id] = {
+            'views': row[1] if len(row) > 1 else 0,
+            'estimatedMinutesWatched': row[2] if len(row) > 2 else 0,
+            'averageViewDuration': row[3] if len(row) > 3 else 0,
+            'likes': row[4] if len(row) > 4 else 0,
+            'comments': row[5] if len(row) > 5 else 0,
+            'shares': row[6] if len(row) > 6 else 0
+        }
+    
+    # Process subscriber data
+    for row in subscriber_rows:
+        video_id = row[0]
+        subscriber_metrics[video_id] = {
+            'subscribersGained': row[1] if len(row) > 1 else 0,
+            'subscribersLost': row[2] if len(row) > 2 else 0
+        }
+    
+    # Calculate CTR-like metrics for each video
+    video_ctr_data = []
+    all_video_data = []  # For ctr_details structure
+    
+    for video_id, metrics in video_metrics.items():
+        subscriber_data_for_video = subscriber_metrics.get(video_id, {
+            'subscribersGained': 0, 
+            'subscribersLost': 0
+        })
+        
+        # Calculate various CTR-like ratios
+        views = metrics['views']
+        likes = metrics['likes']
+        comments = metrics['comments']
+        shares = metrics['shares']
+        subscribers_gained = subscriber_data_for_video['subscribersGained']
+        estimated_minutes_watched = metrics['estimatedMinutesWatched']
+        avg_duration = metrics['averageViewDuration']
+        
+        # Engagement CTR: (Total Engagements / Views) * 100
+        total_engagements = likes + comments + shares
+        engagement_ctr = (total_engagements / views * 100) if views > 0 else 0
+        
+        # Subscriber CTR: (Subscribers Gained / Views) * 100
+        subscriber_ctr = (subscribers_gained / views * 100) if views > 0 else 0
+        
+        # Like CTR: (Likes / Views) * 100
+        like_ctr = (likes / views * 100) if views > 0 else 0
+        
+        # Comment CTR: (Comments / Views) * 100
+        comment_ctr = (comments / views * 100) if views > 0 else 0
+        
+        # Retention rate (using average view duration)
+        # Since we don't have video duration, we'll use estimated duration from watch time
+        estimated_total_duration = estimated_minutes_watched * 60 / views if views > 0 else 0
+        retention_rate = (avg_duration / estimated_total_duration * 100) if estimated_total_duration > 0 else 0
+        
+        # For impressions, we'll use views as a proxy since real impressions aren't available
+        impressions = views  # This is an approximation
+        ctr = engagement_ctr  # Use engagement CTR as our main CTR metric
+        
+        video_entry = {
+            'video_id': video_id,
+            'views': views,
+            'likes': likes,
+            'comments': comments,
+            'shares': shares,
+            'subscribers_gained': subscribers_gained,
+            'total_engagements': total_engagements,
+            'engagement_ctr': round(engagement_ctr, 2),
+            'subscriber_ctr': round(subscriber_ctr, 4),
+            'like_ctr': round(like_ctr, 2),
+            'comment_ctr': round(comment_ctr, 2),
+            'retention_rate': round(retention_rate, 2),
+            'avg_view_duration_seconds': avg_duration,
+            'estimated_minutes_watched': estimated_minutes_watched,
+            # Additional fields for ctr_details structure
+            'impressions': impressions,
+            'ctr': round(ctr, 2),
+            'watchTime': estimated_minutes_watched,
+            'retention': round(retention_rate, 2)
+        }
+        
+        video_ctr_data.append(video_entry)
+        all_video_data.append(video_entry)
+    
+    print("video_ctr_data: ", video_ctr_data)
+    
+    # Sort by engagement CTR
+    video_ctr_data.sort(key=lambda x: x['engagement_ctr'], reverse=True)
     all_video_data.sort(key=lambda x: x['impressions'], reverse=True)
     
-    # Calculate channel-level metrics
+    # Calculate overall channel metrics
+    total_views = sum(video['views'] for video in video_ctr_data)
+    total_engagements = sum(video['total_engagements'] for video in video_ctr_data)
+    total_subscribers_gained = sum(video['subscribers_gained'] for video in video_ctr_data)
+    
+    # Calculate metrics for ctr_details
     total_impressions = sum(video['impressions'] for video in all_video_data)
-    total_views = sum(video['periodViews'] for video in all_video_data)
     total_watch_time = sum(video['watchTime'] for video in all_video_data)
     
-    # Calculate overall CTR
+    overall_engagement_ctr = (total_engagements / total_views * 100) if total_views > 0 else 0
+    overall_subscriber_ctr = (total_subscribers_gained / total_views * 100) if total_views > 0 else 0
     overall_ctr = (total_views / total_impressions * 100) if total_impressions > 0 else 0
-    
-    # Calculate average retention
     avg_retention = sum(video['retention'] for video in all_video_data) / len(all_video_data) if all_video_data else 0
     
     # Find best performing videos
@@ -615,7 +469,8 @@ def calculate_ctr_metrics(channel_id, days=700):
     best_retention_video = max(all_video_data, key=lambda x: x['retention']) if all_video_data else None
     most_impressions_video = max(all_video_data, key=lambda x: x['impressions']) if all_video_data else None
     
-    return {
+    # Create ctr_details structure as required
+    ctr_details = {
         "overall_metrics": {
             "total_impressions": total_impressions,
             "total_views": total_views,
@@ -629,6 +484,19 @@ def calculate_ctr_metrics(channel_id, days=700):
             "most_impressions_video": most_impressions_video
         },
         "all_videos": all_video_data
+    }
+    
+    return {
+        'video_data': video_ctr_data,
+        'channel_summary': {
+            'total_views': total_views,
+            'total_engagements': total_engagements,
+            'total_subscribers_gained': total_subscribers_gained,
+            'overall_engagement_ctr': round(overall_engagement_ctr, 2),
+            'overall_subscriber_ctr': round(overall_subscriber_ctr, 4),
+            'top_performing_videos': video_ctr_data[:10]  # Top 10 by engagement CTR
+        },
+        'ctr_details': ctr_details  # Add the required ctr_details structure
     }
 
 

@@ -280,6 +280,7 @@ def analytics():
     ctr_metrics = calculate_ctr_metrics(current_user.channel_id, 700)
     print("ctr_metrics: ", ctr_metrics)
     return render_template('analytics.html',
+                           ctr_metrics=ctr_metrics,
                            analytics=analytics_data,
                            avg_views_per_video=avg_views_per_video,
                            chart_data=chart_data)
