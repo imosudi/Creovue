@@ -245,6 +245,8 @@ def calculate_ctr_metrics(channel_id, days):
             #print("video_id: ", video_id); time.sleep(30)
             video_ids.append(video_id)
         
+        
+
         next_page_token = data_playlist.get('nextPageToken')
         print("next_page_token: ", next_page_token); #time.sleep(300)
         if not next_page_token:
@@ -265,6 +267,23 @@ def calculate_ctr_metrics(channel_id, days):
     
     all_video_data = []
     
+    # Map video_id to title
+    video_titles = {}
+    for i in range(0, len(video_ids), 50):
+        batch = video_ids[i:i+50]
+        url = f'{cre_base_url}/videos'
+        params = {
+            'part': 'snippet',
+            'id': ','.join(batch),
+            'key': creo_api_key
+        }
+        response = requests.get(url, params=params)
+        data = response.json()
+        for item in data.get('items', []):
+            vid = item['id']
+            title = item['snippet']['title']
+            video_titles[vid] = title
+
     """for batch_num, video_batch in enumerate(video_batches):
         print(f"Processing batch {batch_num + 1} of {len(video_batches)}")"""
     print("video_batches: ", video_batches)
@@ -326,7 +345,7 @@ def calculate_ctr_metrics(channel_id, days):
             print("traffic_sources: ", traffic_sources); #time.sleep(300)
         
             # Step 4: Process and calculate CTR-like metrics
-            ctr_results = process_ctr_data(video_performance, subscriber_data, traffic_sources)
+            ctr_results = process_ctr_data(video_performance, subscriber_data, traffic_sources, video_titles)
             
             return ctr_results
             
@@ -337,7 +356,7 @@ def calculate_ctr_metrics(channel_id, days):
             logging.error(f"Unexpected error in CTR calculation: {e}")
             raise e
 
-def process_ctr_data(video_performance, subscriber_data, traffic_sources):
+def process_ctr_data(video_performance, subscriber_data, traffic_sources, video_titles):
     """
     Process raw YouTube Analytics data to calculate CTR-like metrics.
     """
@@ -421,6 +440,7 @@ def process_ctr_data(video_performance, subscriber_data, traffic_sources):
         
         video_entry = {
             'video_id': video_id,
+            'title': video_titles.get(video_id, 'Untitled'),  # ← Add this line
             'views': views,
             'likes': likes,
             'comments': comments,
