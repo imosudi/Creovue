@@ -354,8 +354,8 @@ def calculate_ctr_metrics(channel_id, days=700):
                 'subscribersLost': row[2] if len(row) > 2 else 0
             }
 
-        print("subscriber_rows: ", subscriber_rows);
-        print("subscriber_rows: ", subscriber_rows); time.sleep(300)
+        print("video_rows: ", video_rows, "video_headers: ", video_headers);
+        print("subscriber_rows: ", subscriber_rows, "subscriber_headers: ", subscriber_headers); time.sleep(300)
 
         # Add error handling
         try:
