@@ -359,24 +359,25 @@
 </div>
 
 <!-- Video Detail Modal -->
-<!-- Modern Futuristic Video Detail Modal -->
-<div class="modal fade" data-bs-backdrop="static" id="videoDetailModal" tabindex="-1" aria-labelledby="videoDetailModalLabel" aria-hidden="true">
+<!-- Light-Themed Video Detail Modal -->
+<div class="modal fade" id="videoDetailModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="videoDetailModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content border-0" style="background: linear-gradient(135deg, #0f172a, #1e293b); color: #e2e8f0; box-shadow: 0 0 30px rgba(0, 255, 255, 0.2); border-radius: 1rem;">
-      <div class="modal-header border-0">
-        <h5 class="modal-title fw-bold text-info" id="videoDetailModalLabel">📹 Video Performance Breakdown</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-content border-0 shadow-sm rounded-4" style="background-color: #ffffff;">
+      <div class="modal-header border-0 bg-light">
+        <h5 class="modal-title fw-semibold text-primary" id="videoDetailModalLabel">📊 Video Performance Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" id="videoDetailContent">
         <div class="text-center text-muted">Loading...</div>
       </div>
-      <div class="modal-footer border-0">
-        <a href="#" id="videoDetailLink" target="_blank" class="btn btn-info text-white shadow-sm">🔗 Watch on YouTube</a>
-        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+      <div class="modal-footer border-0 bg-light">
+        <a href="#" id="videoDetailLink" target="_blank" class="btn btn-outline-primary">🔗 Watch on YouTube</a>
+        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
 </div>
+
 
 {% endblock %}
 
