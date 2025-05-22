@@ -25,7 +25,7 @@ def is_valid_video_id(video_id):
 
 
 
-def fetch_youtube_analytics(channel_id, days=700, max_videos=10):
+def fetch_youtube_analytics(channel_id, days=2700, max_videos=10):
     """
     Fetches YouTube analytics including channel stats and a list of recent videos with their view counts,
     and identifies the most viewed video.
