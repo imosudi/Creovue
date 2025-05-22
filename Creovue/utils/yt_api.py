@@ -317,7 +317,7 @@ def calculate_ctr_metrics(channel_id, days=700):
                     sort='-views'
                 ).execute()
         
-        print("video_performance, subscriber_data, and 3 gone!"); #time.sleep(300)
+        print("video_performance, subscriber_data, and 3 traffic_sources!"); #time.sleep(300)
         print("video_performance: ", video_performance);
         print("subscriber_data: ", subscriber_data);
         print("traffic_sources: ", traffic_sources); #time.sleep(300)
