@@ -279,50 +279,98 @@
     <ul class="nav flex-column sidebar-nav">
       <li class="nav-item">
         <a class="nav-link active" href="#dashboard">
-          <i class="bi bi-speedometer2"></i>Dashboard
+          <i class="bi bi-speedometer2"></i> Dashboard
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#analytics">
-          <i class="bi bi-graph-up"></i>Analytics
+        <a class="nav-link" href="{{url_for('analytics')}}">
+          <i class="bi bi-graph-up"></i> Channel Analytics
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#seo">
-          <i class="bi bi-search"></i>SEO Tools
+        <a class="nav-link" href="{{url_for('trends')}}">
+          <i class="bi bi-bar-chart-line"></i> Trends
+        </a>
+      </li>
+      <!-- Thumbnail Tools Collapsible -->
+      <li class="nav-item">
+        <a class="nav-link d-flex justify-content-between align-items-center {% if request.endpoint in ['face_detection.face_detect', 'colour_heatmap.colour_heatmap', 'text_density.text_density', 'ctr_predict.ctr_score', 'thumbnail_summary.thumbnail_summary'] %} active{% endif %}"
+          data-bs-toggle="collapse"
+          href="#thumbToolsCollapse"
+          role="button"
+          aria-expanded="{{ 'true' if request.endpoint in ['face_detection.face_detect', 'colour_heatmap.colour_heatmap', 'text_density.text_density', 'ctr_predict.ctr_score', 'thumbnail_summary.thumbnail_summary'] else 'false' }}"
+          aria-controls="thumbToolsCollapse">
+          <span><i class="bi bi-images me-2"></i>Thumbnail Tools</span>
+          <i class="bi bi-chevron-down small"></i>
+        </a>
+        <div class="collapse {% if request.endpoint in ['face_detection.face_detect', 'colour_heatmap.colour_heatmap', 'text_density.text_density', 'ctr_predict.ctr_score', 'thumbnail_summary.thumbnail_summary'] %} show{% endif %}" id="thumbToolsCollapse">
+          <ul class="nav flex-column ms-3">
+            <li class="nav-item">
+              <a class="nav-link {% if request.endpoint == 'face_detection.face_detect' %} active text-primary{% endif %}" href="{{ url_for('face_detection.face_detect') }}">
+                <i class="bi bi-person-square me-2"></i>Face Detection
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.endpoint == 'colour_heatmap.colour_heatmap' %} active text-primary{% endif %}" href="{{ url_for('colour_heatmap.colour_heatmap') }}">
+                <i class="bi bi-palette2 me-2"></i>Colour Heatmap
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.endpoint == 'text_density.text_density' %} active text-primary{% endif %}" href="{{ url_for('text_density.text_density') }}">
+                <i class="bi bi-text-paragraph me-2"></i>Text Density
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.endpoint == 'ctr_predict.ctr_score' %} active text-primary{% endif %}" href="{{ url_for('ctr_predict.ctr_score') }}">
+                <i class="bi bi-graph-up-arrow me-2"></i>CTR Prediction
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.endpoint == 'thumbnail_summary.thumbnail_summary' %} active text-primary{% endif %}" href="{{ url_for('thumbnail_summary.thumbnail_summary') }}">
+                <i class="bi bi-pie-chart me-2"></i>Evaluation Summary
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="{{url_for('seo')}}">
+          <i class="bi bi-search"></i> SEO Tools
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#competitors">
-          <i class="bi bi-people"></i>Competitors
+          <i class="bi bi-people"></i> Competitors
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#audience">
-          <i class="bi bi-person-check"></i>Audience
+          <i class="bi bi-person-check"></i> Audience
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#content">
-          <i class="bi bi-journal-text"></i>Content Planning
+          <i class="bi bi-journal-text"></i> Content Planning
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#tools">
-          <i class="bi bi-tools"></i>Tools
+          <i class="bi bi-tools"></i> Creator Tools
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#goals">
-          <i class="bi bi-bullseye"></i>Goals
+          <i class="bi bi-bullseye"></i> Goals
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="#alerts">
-          <i class="bi bi-bell"></i>Alerts
+          <i class="bi bi-bell"></i> Alerts
         </a>
       </li>
     </ul>
+    
   </nav>
 
   <!-- Main Content -->
@@ -335,7 +383,12 @@
           <span class="text-muted me-3">Welcome back!</span>
           <div class="dropdown">
             <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-              <i class="bi bi-person-circle me-1"></i>Profile
+              {% if current_user.profile_pic %}
+                <img src="{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}" alt="Profile" width="32" height="32" class="rounded-circle me-2">
+              {% else %}
+                  <i class="bi bi-person-circle me-1"></i>
+                  <span class="me-2">{{ current_user.username }}</span>
+              {% endif %}
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
@@ -365,53 +418,28 @@
       </div>
       {% else %}
 
-      <!-- Stats Overview -->
-      <div class="row g-4 mb-4">
-        <div class="col-xl-3 col-md-6">
-          <div class="stats-card primary">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <div class="stats-number text-primary">{{ stats.subscribers }}</div>
-                <div class="stats-label">Subscribers</div>
-              </div>
-              <i class="bi bi-people-fill stats-icon text-primary"></i>
-            </div>
+      
+  <!-- Channel Overview & Health -->
+  <section class="mb-5">
+    <div class="card card-custom">
+      <div class="card-body">
+        <div class="row text-center text-md-start g-3">
+          <div class="col-6 col-md-3">
+            <strong>👥 Subscribers:</strong> <span class="d-block fs-5">{{ stats.subscribers }}</span>
           </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-          <div class="stats-card success">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <div class="stats-number text-success">{{ stats.views }}</div>
-                <div class="stats-label">Total Views</div>
-              </div>
-              <i class="bi bi-eye-fill stats-icon text-success"></i>
-            </div>
+          <div class="col-6 col-md-3">
+            <strong>👁️ Views:</strong> <span class="d-block fs-5">{{ stats.views }}</span>
           </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-          <div class="stats-card warning">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <div class="stats-number text-warning">{{ stats.videos }}</div>
-                <div class="stats-label">Videos</div>
-              </div>
-              <i class="bi bi-play-btn-fill stats-icon text-warning"></i>
-            </div>
+          <div class="col-6 col-md-3">
+            <strong>📺 Videos:</strong> <span class="d-block fs-5">{{ stats.videos }}</span>
           </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-          <div class="stats-card info">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <div class="stats-number text-info">{{ "🚀" if stats.spike_detected else "📊" }}</div>
-                <div class="stats-label">Growth Status</div>
-              </div>
-              <i class="bi bi-graph-up-arrow stats-icon text-info"></i>
-            </div>
+          <div class="col-6 col-md-3">
+            <strong>🚨 Sudden Spike Detected:</strong> <span class="d-block fs-5">{{ "Yes 🚀" if stats.spike_detected else "No" }}</span>
           </div>
         </div>
       </div>
+    </div>
+  </section>
 
       <!-- Analytics Section -->
       <div class="row g-4 mb-4">
