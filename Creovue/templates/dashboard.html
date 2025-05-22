@@ -1,26 +1,238 @@
 {% extends "base.html" %}
 {% block title %}Dashboard | Creovue{% endblock %}
 
+{% block styles %}
+{{ super() }}
+<style>
+  .dashboard-container {
+    padding: 2rem 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-title {
+    font-weight: 700;
+    color: #003566;
+    margin-bottom: 1rem;
+    border-bottom: 3px solid #3e63dd;
+    padding-bottom: 0.25rem;
+  }
+
+  .card-custom {
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(62, 99, 221, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .card-custom:hover {
+    box-shadow: 0 12px 30px rgba(62, 99, 221, 0.2);
+  }
+
+  .card-header {
+    background-color: #3e63dd;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .card-body {
+    padding: 1rem 1.5rem;
+  }
+
+  .alert-custom {
+    background-color: #ffecb3;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    color: #665c00;
+  }
+
+  /* Responsive grid for dashboard sections */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* Smaller lists */
+  ul.dashboard-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  ul.dashboard-list li {
+    padding: 0.25rem 0;
+    font-weight: 500;
+  }
+
+  /* Button style for Connect YouTube */
+  .btn-connect {
+    background-color: #db4437;
+    border: none;
+  }
+
+  .btn-connect:hover {
+    background-color: #b3362c;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<h2>📊 Channel Overview</h2>
+<div class="dashboard-container">
 
-{% if not stats %}
-  <p class="text-warning">
-    You have not connected a YouTube channel yet.
-    <a href="{{ url_for('youtube_dashboard') }}" class="btn btn-danger">
-      <i class="bi bi-google"></i> Connect YouTube
-    </a>
-  </p>
-{% else %}
-  <ul>
-    <li><strong>Subscribers:</strong> {{ stats.subscribers }}</li>
-    <li><strong>Views:</strong> {{ stats.views }}</li>
-    <li><strong>Videos:</strong> {{ stats.videos }}</li>
-    <li><strong>Sudden Spike Detected?</strong> {{ "Yes 🚀" if stats.spike_detected else "No" }}</li>
-  </ul>
-{#{stats}#}
-  <h3>📈 Recent Views Plot</h3>
-  <img src="{{ stats.plot_url }}" alt="Views Graph" style="max-width: 100%; border: 1px solid #ccc;">
-{% endif %}
+  <h1 class="mb-4 text-center">Welcome to Your Creovue Dashboard</h1>
 
+  {% if not stats %}
+    <div class="alert alert-warning text-center">
+      <p>You have not connected a YouTube channel yet.</p>
+      <a href="{{ url_for('youtube_dashboard') }}" class="btn btn-connect btn-lg">
+        <i class="bi bi-google"></i> Connect YouTube
+      </a>
+    </div>
+  {% else %}
+
+  <!-- Channel Overview & Health -->
+  <section class="mb-5">
+    <h2 class="section-title">📊 Channel Overview & Health</h2>
+    <div class="card card-custom">
+      <div class="card-body">
+        <ul class="dashboard-list row g-3">
+          <li class="col-6 col-md-3"><strong>Subscribers:</strong> {{ stats.subscribers }}</li>
+          <li class="col-6 col-md-3"><strong>Views:</strong> {{ stats.views }}</li>
+          <li class="col-6 col-md-3"><strong>Videos:</strong> {{ stats.videos }}</li>
+          <li class="col-6 col-md-3"><strong>Sudden Spike Detected:</strong> {{ "Yes 🚀" if stats.spike_detected else "No" }}</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video Analytics & Performance -->
+  <section class="mb-5">
+    <h2 class="section-title">🎥 Video Analytics & Performance</h2>
+    <div class="card card-custom">
+      <div class="card-body">
+        <h5>Recent Views</h5>
+        <img src="{{ stats.plot_url }}" alt="Views Graph" class="img-fluid rounded" style="max-height: 300px; width: 100%; object-fit: contain;">
+        <!-- You can replace the above with a Chart.js canvas for interactivity -->
+      </div>
+    </div>
+  </section>
+
+  <!-- SEO & Discovery Tools -->
+  <section class="mb-5">
+    <h2 class="section-title">🔍 SEO & Discovery Tools</h2>
+    <div class="card card-custom">
+      <div class="card-body">
+        <p>Optimize your video titles, descriptions, and tags to boost discoverability.</p>
+        <ul>
+          <li>Keyword suggestions and trends</li>
+          <li>Tag recommendations</li>
+          <li>Metadata optimization tips</li>
+        </ul>
+        <a href="{{ url_for('seo') }}" class="btn btn-primary mt-3">Go to SEO Tools</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Competitor Analysis -->
+  <section class="mb-5">
+    <h2 class="section-title">🤼 Competitor Analysis</h2>
+    <div class="card card-custom">
+      <div class="card-body">
+        <p>Track your competitors’ performance and benchmark your growth.</p>
+        <ul>
+          <li>Compare channel stats</li>
+          <li>Monitor trending videos</li>
+          <li>Identify content gaps</li>
+        </ul>
+        <a href="/competitor_analysis" class="btn btn-primary mt-3">Explore Competitors</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Audience Insights -->
+  <section class="mb-5">
+    <h2 class="section-title">👥 Audience Insights</h2>
+    <div class="card card-custom">
+      <div class="card-body">
+        <p>Understand your audience demographics, behavior, and preferences.</p>
+        <ul>
+          <li>Age and gender distribution</li>
+          <li>Geographic locations</li>
+          <li>Watch time and engagement patterns</li>
+        </ul>
+        <a href="{{ url_for('audience_insights') }}" class="btn btn-primary mt-3">View Audience Data</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Planning & Optimisation -->
+  <section class="mb-5">
+    <h2 class="section-title">📝 Content Planning & Optimisation</h2>
+    <div class="card card-custom">
+      <div class="card-body">
+        <p>Plan your content calendar and optimize publishing schedule for maximum impact.</p>
+        <ul>
+          <li>Content calendar and reminders</li>
+          <li>Best time to publish</li>
+          <li>Performance forecasting</li>
+        </ul>
+        <a href="/content_planning" class="btn btn-primary mt-3">Plan Content</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Alerts & Notifications -->
+  <section class="mb-5">
+    <h2 class="section-title">🔔 Alerts & Notifications</h2>
+    <div class="card card-custom">
+      <div class="card-body">
+        <p>Stay informed with real-time alerts on channel performance and important events.</p>
+        <ul>
+          <li>Subscriber milestones</li>
+          <li>Sudden spikes or drops</li>
+          <li>Comments and engagement alerts</li>
+        </ul>
+        <a href="/alerts" class="btn btn-primary mt-3">Manage Alerts</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tools & Utilities -->
+  <section class="mb-5">
+    <h2 class="section-title">🛠️ Tools & Utilities</h2>
+    <div class="card card-custom">
+      <div class="card-body">
+        <p>Access a suite of powerful tools to enhance your content creation and channel management.</p>
+        <ul>
+          <li>Thumbnail generator</li>
+          <li>Video tag analyzer</li>
+          <li>Bulk metadata editor</li>
+        </ul>
+        <a href="/tools" class="btn btn-primary mt-3">Explore Tools</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Goals & Progress Tracking -->
+  <section class="mb-5">
+    <h2 class="section-title">🎯 Goals & Progress Tracking</h2>
+    <div class="card card-custom">
+      <div class="card-body">
+        <p>Set channel goals and track your progress over time to stay motivated and focused.</p>
+        <ul>
+          <li>Subscriber growth targets</li>
+          <li>View count milestones</li>
+          <li>Custom KPIs and reports</li>
+        </ul>
+        <a href="/goals" class="btn btn-primary mt-3">Set Your Goals</a>
+      </div>
+    </div>
+  </section>
+
+  {% endif %}
+</div>
 {% endblock %}

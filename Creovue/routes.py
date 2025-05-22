@@ -1,7 +1,14 @@
+
 # Standard library imports
 import os
 import time
 from datetime import datetime, timedelta, date
+
+# Additional imports needed
+from datetime import datetime, timedelta
+from collections import defaultdict, Counter
+import json
+import statistics
 
 # Third-party imports
 import requests
@@ -18,6 +25,17 @@ from flask_security.utils import login_user
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from werkzeug.security import generate_password_hash
+
+
+
+from flask import abort
+from sqlalchemy import desc, func
+
+# Add these model imports (you'll need to create these models)
+from .models.channel_health import ChannelHealth, VideoPerformance, CompetitorAnalysis
+from .models.audience import AudienceInsight, ContentPlan, Alert, Goal
+from .models.notifications import NotificationPreference
+
 
 from Creovue.utils.youtube_client import ensure_channel_id
 from Creovue.utils.yt_api import calculate_ctr_metrics
@@ -96,6 +114,8 @@ def home():
     return render_template("index.html")
 
 # Dashboard route – personalised analytics
+"""
+# Dashboard route – personalised analytics
 @app.route("/dashboard")
 @login_required
 def dashboard():
@@ -112,6 +132,22 @@ def dashboard():
         # Log error and show dashboard without stats
         print(f"[Dashboard Error] {e}")
         return render_template("dashboard.html", stats=None)
+
+
+"""
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    # ✅ Ensure channel_id is up to date
+    ensure_channel_id()
+
+   
+
+    if 1==1:
+        analytics = process_channel_analytics(current_user.channel_id)
+        return render_template("dashboard.html", stats=analytics)
+   
 
 
 
@@ -489,4 +525,606 @@ def youtube_dashboard():
 
 
 
+# =============================================================================
+# CHANNEL OVERVIEW & HEALTH
+# =============================================================================
 
+@app.route('/channel/overview')
+@login_required
+def channel_overview():
+    """Comprehensive channel health overview"""
+    ensure_channel_id()
+    
+    if not current_user.channel_id:
+        return render_template('channel_overview.html', error="No channel connected")
+    
+    try:
+        # Get comprehensive channel health data
+        health_data = get_channel_health_overview(current_user.channel_id)
+        return render_template('channel_overview.html', health=health_data)
+    except Exception as e:
+        print(f"[Channel Overview Error] {e}")
+        return render_template('channel_overview.html', error=str(e))
+
+@app.route('/api/channel/health')
+@login_required
+def api_channel_health():
+    """API endpoint for channel health metrics"""
+    ensure_channel_id()
+    
+    if not current_user.channel_id:
+        return jsonify({"error": "No channel connected"}), 400
+    
+    try:
+        health_score = calculate_channel_health_score(current_user.channel_id)
+        recommendations = get_health_recommendations(current_user.channel_id)
+        
+        return jsonify({
+            "health_score": health_score,
+            "recommendations": recommendations,
+            "last_updated": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/channel/growth-analysis')
+@login_required
+def channel_growth_analysis():
+    """Detailed growth analysis with predictions"""
+    ensure_channel_id()
+    
+    if not current_user.channel_id:
+        return render_template('growth_analysis.html', error="No channel connected")
+    
+    try:
+        growth_data = analyze_channel_growth(current_user.channel_id)
+        predictions = predict_channel_growth(current_user.channel_id)
+        
+        return render_template('growth_analysis.html', 
+                             growth=growth_data, 
+                             predictions=predictions)
+    except Exception as e:
+        return render_template('growth_analysis.html', error=str(e))
+
+# =============================================================================
+# VIDEO ANALYTICS & PERFORMANCE
+# =============================================================================
+
+@app.route('/videos/performance')
+@login_required
+def video_performance():
+    """Individual video performance analysis"""
+    ensure_channel_id()
+    
+    if not current_user.channel_id:
+        return render_template('video_performance.html', error="No channel connected")
+    
+    page = request.args.get('page', 1, type=int)
+    sort_by = request.args.get('sort', 'upload_date')
+    
+    try:
+        videos = get_video_performance_data(current_user.channel_id, page, sort_by)
+        return render_template('video_performance.html', videos=videos)
+    except Exception as e:
+        return render_template('video_performance.html', error=str(e))
+
+@app.route('/api/video/<video_id>/analytics')
+@login_required
+def api_video_analytics(video_id):
+    """Detailed analytics for a specific video"""
+    try:
+        analytics = get_detailed_video_analytics(video_id, current_user.channel_id)
+        return jsonify(analytics)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/videos/batch-analysis', methods=['POST'])
+@login_required
+def batch_video_analysis():
+    """Analyze multiple videos at once"""
+    video_ids = request.json.get('video_ids', [])
+    
+    if not video_ids:
+        return jsonify({"error": "No video IDs provided"}), 400
+    
+    try:
+        analysis = analyze_videos_batch(video_ids, current_user.channel_id)
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/videos/performance-trends')
+@login_required
+def video_performance_trends():
+    """Video performance trends over time"""
+    ensure_channel_id()
+    
+    timeframe = request.args.get('timeframe', '30d')
+    metric = request.args.get('metric', 'views')
+    
+    try:
+        trends = get_video_performance_trends(current_user.channel_id, timeframe, metric)
+        return render_template('performance_trends.html', trends=trends)
+    except Exception as e:
+        return render_template('performance_trends.html', error=str(e))
+
+# =============================================================================
+# SEO & DISCOVERY TOOLS (Enhanced)
+# =============================================================================
+
+@app.route('/seo/optimization')
+@login_required
+def seo_optimization():
+    """SEO optimization dashboard"""
+    return render_template('seo_optimization.html')
+
+@app.route('/api/seo/video-optimization', methods=['POST'])
+@login_required
+def api_video_seo_optimization():
+    """Optimize SEO for a specific video"""
+    data = request.json
+    video_id = data.get('video_id')
+    target_keywords = data.get('keywords', [])
+    
+    try:
+        optimization = optimize_video_seo(video_id, target_keywords, current_user.channel_id)
+        return jsonify(optimization)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/seo/tag-generator', methods=['POST'])
+@login_required
+def tag_generator():
+    """Generate optimized tags for video content"""
+    data = request.json
+    title = data.get('title', '')
+    description = data.get('description', '')
+    category = data.get('category', '')
+    
+    try:
+        tags = generate_optimized_tags(title, description, category)
+        return jsonify({"tags": tags})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/seo/title-optimizer', methods=['POST'])
+@login_required
+def title_optimizer():
+    """Optimize video titles for better discovery"""
+    data = request.json
+    original_title = data.get('title', '')
+    target_audience = data.get('audience', 'general')
+    
+    try:
+        optimized_titles = optimize_video_title(original_title, target_audience)
+        return jsonify({"optimized_titles": optimized_titles})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# =============================================================================
+# COMPETITOR ANALYSIS
+# =============================================================================
+
+@app.route('/competitors')
+@login_required
+def competitor_dashboard():
+    """Competitor analysis dashboard"""
+    competitors = get_user_competitors(current_user.id)
+    return render_template('competitor_dashboard.html', competitors=competitors)
+
+@app.route('/api/competitors/add', methods=['POST'])
+@login_required
+def add_competitor():
+    """Add a competitor for tracking"""
+    data = request.json
+    competitor_channel = data.get('channel_id') or data.get('channel_url')
+    
+    if not competitor_channel:
+        return jsonify({"error": "Channel ID or URL required"}), 400
+    
+    try:
+        competitor = add_competitor_tracking(current_user.id, competitor_channel)
+        return jsonify({"success": True, "competitor": competitor})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/competitors/<competitor_id>/analysis')
+@login_required
+def competitor_analysis(competitor_id):
+    """Get detailed competitor analysis"""
+    try:
+        analysis = analyze_competitor(competitor_id, current_user.channel_id)
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/competitors/benchmarking')
+@login_required
+def competitor_benchmarking():
+    """Compare performance against competitors"""
+    timeframe = request.args.get('timeframe', '30d')
+    
+    try:
+        benchmarks = get_competitor_benchmarks(current_user.id, timeframe)
+        return render_template('competitor_benchmarking.html', benchmarks=benchmarks)
+    except Exception as e:
+        return render_template('competitor_benchmarking.html', error=str(e))
+
+# =============================================================================
+# AUDIENCE INSIGHTS
+# =============================================================================
+
+@app.route('/audience/insights')
+@login_required
+def audience_insights():
+    """Comprehensive audience analysis"""
+    ensure_channel_id()
+    
+    if not current_user.channel_id:
+        return render_template('audience_insights.html', error="No channel connected")
+    
+    try:
+        insights = get_comprehensive_audience_insights(current_user.channel_id)
+        return render_template('audience_insights.html', insights=insights)
+    except Exception as e:
+        return render_template('audience_insights.html', error=str(e))
+
+@app.route('/api/audience/demographics')
+@login_required
+def api_audience_demographics():
+    """Get detailed audience demographics"""
+    ensure_channel_id()
+    
+    try:
+        demographics = get_audience_demographics(current_user.channel_id)
+        return jsonify(demographics)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/audience/engagement-patterns')
+@login_required
+def audience_engagement_patterns():
+    """Analyze audience engagement patterns"""
+    ensure_channel_id()
+    
+    try:
+        patterns = analyze_engagement_patterns(current_user.channel_id)
+        return render_template('engagement_patterns.html', patterns=patterns)
+    except Exception as e:
+        return render_template('engagement_patterns.html', error=str(e))
+
+@app.route('/api/audience/retention-analysis')
+@login_required
+def api_audience_retention():
+    """Analyze audience retention across videos"""
+    video_ids = request.args.getlist('video_ids')
+    
+    try:
+        retention = analyze_audience_retention(video_ids, current_user.channel_id)
+        return jsonify(retention)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# =============================================================================
+# CONTENT PLANNING & OPTIMIZATION
+# =============================================================================
+
+@app.route('/content/planner')
+@login_required
+def content_planner():
+    """Content planning dashboard"""
+    plans = get_user_content_plans(current_user.id)
+    return render_template('content_planner.html', plans=plans)
+
+@app.route('/api/content/ideas', methods=['POST'])
+@login_required
+def generate_content_ideas():
+    """Generate content ideas based on trends and performance"""
+    data = request.json
+    category = data.get('category', '')
+    target_audience = data.get('audience', 'general')
+    
+    try:
+        ideas = generate_content_suggestions(
+            current_user.channel_id, 
+            category, 
+            target_audience
+        )
+        return jsonify({"ideas": ideas})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/content/optimal-timing')
+@login_required
+def optimal_timing():
+    """Find optimal posting times"""
+    ensure_channel_id()
+    
+    try:
+        timing_data = analyze_optimal_posting_times(current_user.channel_id)
+        return render_template('optimal_timing.html', timing=timing_data)
+    except Exception as e:
+        return render_template('optimal_timing.html', error=str(e))
+
+@app.route('/api/content/schedule', methods=['POST'])
+@login_required
+def schedule_content():
+    """Schedule content posting"""
+    data = request.json
+    
+    try:
+        schedule = create_content_schedule(current_user.id, data)
+        return jsonify({"success": True, "schedule": schedule})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# =============================================================================
+# ALERTS & NOTIFICATIONS
+# =============================================================================
+
+@app.route('/alerts')
+@login_required
+def alerts_dashboard():
+    """Alerts and notifications dashboard"""
+    alerts = get_user_alerts(current_user.id)
+    return render_template('alerts_dashboard.html', alerts=alerts)
+
+@app.route('/api/alerts/create', methods=['POST'])
+@login_required
+def create_alert():
+    """Create a new alert"""
+    data = request.json
+    
+    try:
+        alert = create_performance_alert(current_user.id, data)
+        return jsonify({"success": True, "alert": alert})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/alerts/<alert_id>/toggle', methods=['PUT'])
+@login_required
+def toggle_alert(alert_id):
+    """Toggle alert on/off"""
+    try:
+        alert = toggle_alert_status(alert_id, current_user.id)
+        return jsonify({"success": True, "alert": alert})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/notifications/preferences')
+@login_required
+def notification_preferences():
+    """Notification preferences page"""
+    preferences = get_notification_preferences(current_user.id)
+    return render_template('notification_preferences.html', preferences=preferences)
+
+@app.route('/api/notifications/preferences', methods=['PUT'])
+@login_required
+def update_notification_preferences():
+    """Update notification preferences"""
+    data = request.json
+    
+    try:
+        preferences = update_user_notification_preferences(current_user.id, data)
+        return jsonify({"success": True, "preferences": preferences})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# =============================================================================
+# TOOLS & UTILITIES
+# =============================================================================
+
+@app.route('/tools')
+@login_required
+def tools_dashboard():
+    """Tools and utilities dashboard"""
+    return render_template('tools_dashboard.html')
+
+@app.route('/tools/thumbnail-analyzer')
+@login_required
+def thumbnail_analyzer():
+    """Thumbnail analysis tool"""
+    return render_template('thumbnail_analyzer.html')
+
+@app.route('/api/tools/thumbnail/analyze', methods=['POST'])
+@login_required
+def analyze_thumbnail():
+    """Analyze thumbnail effectiveness"""
+    if 'thumbnail' not in request.files:
+        return jsonify({"error": "No thumbnail uploaded"}), 400
+    
+    thumbnail = request.files['thumbnail']
+    
+    try:
+        analysis = analyze_thumbnail_effectiveness(thumbnail)
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/tools/a-b-test')
+@login_required
+def ab_test_manager():
+    """A/B test manager"""
+    tests = get_user_ab_tests(current_user.id)
+    return render_template('ab_test_manager.html', tests=tests)
+
+@app.route('/api/tools/ab-test/create', methods=['POST'])
+@login_required
+def create_ab_test():
+    """Create a new A/B test"""
+    data = request.json
+    
+    try:
+        test = create_new_ab_test(current_user.id, data)
+        return jsonify({"success": True, "test": test})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/tools/keyword-tracker')
+@login_required
+def keyword_tracker():
+    """Keyword ranking tracker"""
+    keywords = get_tracked_keywords(current_user.id)
+    return render_template('keyword_tracker.html', keywords=keywords)
+
+@app.route('/api/tools/keywords/track', methods=['POST'])
+@login_required
+def track_keyword():
+    """Start tracking a keyword"""
+    data = request.json
+    keyword = data.get('keyword', '').strip()
+    
+    if not keyword:
+        return jsonify({"error": "Keyword required"}), 400
+    
+    try:
+        tracking = start_keyword_tracking(current_user.id, keyword)
+        return jsonify({"success": True, "tracking": tracking})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# =============================================================================
+# GOALS & PROGRESS TRACKING
+# =============================================================================
+
+@app.route('/goals')
+@login_required
+def goals_dashboard():
+    """Goals and progress tracking dashboard"""
+    goals = get_user_goals(current_user.id)
+    return render_template('goals_dashboard.html', goals=goals)
+
+@app.route('/api/goals/create', methods=['POST'])
+@login_required
+def create_goal():
+    """Create a new goal"""
+    data = request.json
+    
+    try:
+        goal = create_user_goal(current_user.id, data)
+        return jsonify({"success": True, "goal": goal})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/goals/<goal_id>/progress')
+@login_required
+def goal_progress(goal_id):
+    """Get goal progress"""
+    try:
+        progress = calculate_goal_progress(goal_id, current_user.id)
+        return jsonify(progress)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/goals/milestones')
+@login_required
+def milestones():
+    """View achieved milestones"""
+    milestones = get_user_milestones(current_user.id)
+    return render_template('milestones.html', milestones=milestones)
+
+# =============================================================================
+# REPORTING & EXPORTS
+# =============================================================================
+
+@app.route('/reports')
+@login_required
+def reports_dashboard():
+    """Reports dashboard"""
+    reports = get_user_reports(current_user.id)
+    return render_template('reports_dashboard.html', reports=reports)
+
+@app.route('/api/reports/generate', methods=['POST'])
+@login_required
+def generate_report():
+    """Generate a custom report"""
+    data = request.json
+    
+    try:
+        report = generate_analytics_report(current_user.id, data)
+        return jsonify({"success": True, "report": report})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/export/<export_type>')
+@login_required
+def export_data(export_type):
+    """Export data in various formats"""
+    format_type = request.args.get('format', 'csv')
+    
+    try:
+        export_data = export_analytics_data(
+            current_user.id, 
+            export_type, 
+            format_type
+        )
+        return jsonify(export_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# =============================================================================
+# HELPER FUNCTIONS (You'll need to implement these)
+# =============================================================================
+
+def get_channel_health_overview(channel_id):
+    """Get comprehensive channel health data"""
+    # Implementation needed
+    pass
+
+def calculate_channel_health_score(channel_id):
+    """Calculate overall channel health score"""
+    # Implementation needed
+    pass
+
+def get_health_recommendations(channel_id):
+    """Get health improvement recommendations"""
+    # Implementation needed
+    pass
+
+def analyze_channel_growth(channel_id):
+    """Analyze historical growth patterns"""
+    # Implementation needed
+    pass
+
+def predict_channel_growth(channel_id):
+    """Predict future growth based on current trends"""
+    # Implementation needed
+    pass
+
+def get_video_performance_data(channel_id, page, sort_by):
+    """Get paginated video performance data"""
+    # Implementation needed
+    pass
+
+def get_detailed_video_analytics(video_id, channel_id):
+    """Get detailed analytics for a specific video"""
+    # Implementation needed
+    pass
+
+def analyze_videos_batch(video_ids, channel_id):
+    """Analyze multiple videos at once"""
+    # Implementation needed
+    pass
+
+def get_video_performance_trends(channel_id, timeframe, metric):
+    """Get video performance trends over time"""
+    # Implementation needed
+    pass
+
+def optimize_video_seo(video_id, keywords, channel_id):
+    """Optimize video SEO"""
+    # Implementation needed
+    pass
+
+def generate_optimized_tags(title, description, category):
+    """Generate optimized tags"""
+    # Implementation needed
+    pass
+
+def optimize_video_title(title, audience):
+    """Optimize video title"""
+    # Implementation needed
+    pass
+
+# Additional helper functions would continue here...
+# Each function would contain the specific logic for that feature
