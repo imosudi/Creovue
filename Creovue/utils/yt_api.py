@@ -78,7 +78,7 @@ def fetch_youtube_analytics(channel_id, days=3700, max_videos=10):
     video_ids = []
     video_items = data_playlist.get("items", [])
     for item in video_items:
-        print("video_item: ", item, "\n\n")
+        #print("video_item: ", item, "\n\n")
     #time.sleep(300)
     for item in data_playlist.get("items", []):
         video_id = item['snippet']['resourceId']['videoId']
@@ -166,7 +166,7 @@ def calculate_ctr_metrics(channel_id, days):
     
     # Get channel_id from the current user
     channel_id = current_user.channel_id
-    #print("channel_id: ", channel_id); time.sleep(300)
+    ##print("channel_id: ", channel_id); time.sleep(300)
     
     
     # Set up dates for the query
@@ -177,7 +177,7 @@ def calculate_ctr_metrics(channel_id, days):
     start_date_str = start_date.strftime('%Y-%m-%d')
     end_date_str = end_date.strftime('%Y-%m-%d')
 
-    print("start_date_str: ", start_date_str, "\n", "end_date_str: ", end_date_str)
+    #print("start_date_str: ", start_date_str, "\n", "end_date_str: ", end_date_str)
 
     # Calculate date range
     #end_date = datetime.now()
@@ -202,7 +202,7 @@ def calculate_ctr_metrics(channel_id, days):
     
     response_channel = requests.get(url_channel, params=params_channel)
     data_channel = response_channel.json()
-    #print("data_channel: ",data_channel); time.sleep(300)
+    ##print("data_channel: ",data_channel); time.sleep(300)
     
     if response_channel.status_code != 200:
         raise Exception(f"API Error: {response_channel.status_code} - {data_channel.get('error', {}).get('message', '')}")
@@ -213,7 +213,7 @@ def calculate_ctr_metrics(channel_id, days):
     content_details = data_channel['items'][0]['contentDetails']
     uploads_playlist_id = content_details['relatedPlaylists']['uploads']
     
-    #print("uploads_playlist_id: ", uploads_playlist_id); time.sleep(300)
+    ##print("uploads_playlist_id: ", uploads_playlist_id); time.sleep(300)
 
     # Fetch all video IDs from the uploads playlist
     video_ids = []
@@ -235,20 +235,20 @@ def calculate_ctr_metrics(channel_id, days):
         response_playlist = requests.get(url_playlist_items, params=params_playlist)
         data_playlist = response_playlist.json()
 
-        #print("data_playlist: ", data_playlist); time.sleep(300)
+        ##print("data_playlist: ", data_playlist); time.sleep(300)
         
         if response_playlist.status_code != 200:
             raise Exception(f"API Error: {response_playlist.status_code} - {data_playlist.get('error', {}).get('message', '')}")
         
         for item in data_playlist.get("items", []):
             video_id = item['snippet']['resourceId']['videoId']
-            #print("video_id: ", video_id); time.sleep(30)
+            ##print("video_id: ", video_id); time.sleep(30)
             video_ids.append(video_id)
         
         
 
         next_page_token = data_playlist.get('nextPageToken')
-        print("next_page_token: ", next_page_token); #time.sleep(300)
+        #print("next_page_token: ", next_page_token); #time.sleep(300)
         if not next_page_token:
             break
     
@@ -263,7 +263,7 @@ def calculate_ctr_metrics(channel_id, days):
     batch_size = 5
     video_batches = [video_ids[i:i + batch_size] for i in range(0, len(video_ids), batch_size)]
     
-    #print("video_batches: ", video_batches); time.sleep(300)
+    ##print("video_batches: ", video_batches); time.sleep(300)
     
     all_video_data = []
     
@@ -286,17 +286,17 @@ def calculate_ctr_metrics(channel_id, days):
 
     """for batch_num, video_batch in enumerate(video_batches):
         print(f"Processing batch {batch_num + 1} of {len(video_batches)}")"""
-    print("video_batches: ", video_batches)
+    #print("video_batches: ", video_batches)
     for batch in video_batches:
-        #print("batch: ", batch); time.sleep(30)
+        ##print("batch: ", batch); time.sleep(30)
         # Reduce batch size significantly
         #batch = batch[:3]  # Test with just 3 video IDs
 
-        #print("batch: ", batch); time.sleep(30)
+        ##print("batch: ", batch); time.sleep(30)
         # Use the simplest filter format
         video_filter = f"video=={';'.join(batch)}"
 
-        print("video_filter: ", video_filter); #time.sleep(30)
+        #print("video_filter: ", video_filter); #time.sleep(30)
         
         try:
             # Step 1: Get basic video performance metrics
@@ -313,7 +313,7 @@ def calculate_ctr_metrics(channel_id, days):
             
 
             # Step 2: Get subscriber acquisition data
-            print("Fetching subscriber data...")
+            #print("Fetching subscriber data...")
             subscriber_data = youtube_analytics.reports().query(
                     ids=f'channel=={channel_id}',
                     startDate=start_date_str,
@@ -326,7 +326,7 @@ def calculate_ctr_metrics(channel_id, days):
             
             try:
                 # Step 3: Get traffic source data (if available)
-                print("Fetching traffic source data...")   
+                #print("Fetching traffic source data...")   
                 traffic_sources = youtube_analytics.reports().query(
                             ids=f'channel=={channel_id}',
                             startDate=start_date_str,
@@ -339,10 +339,10 @@ def calculate_ctr_metrics(channel_id, days):
                 print(f"Traffic source data not available: {e}")
                 traffic_sources = None
         
-            print("video_performance, subscriber_data, and 3 traffic_sources!"); #time.sleep(300)
-            print("video_performance: ", video_performance);
-            print("subscriber_data: ", subscriber_data);
-            print("traffic_sources: ", traffic_sources); #time.sleep(300)
+            #print("video_performance, subscriber_data, and 3 traffic_sources!"); #time.sleep(300)
+            #print("video_performance: ", video_performance);
+            #print("subscriber_data: ", subscriber_data);
+            #print("traffic_sources: ", traffic_sources); #time.sleep(300)
         
             # Step 4: Process and calculate CTR-like metrics
             ctr_results = process_ctr_data(video_performance, subscriber_data, traffic_sources, video_titles)
@@ -370,8 +370,8 @@ def process_ctr_data(video_performance, subscriber_data, traffic_sources, video_
     subscriber_headers = subscriber_data.get('columnHeaders', [])
     
     # Debug prints
-    print("video_rows: ", video_rows, "video_headers: ", video_headers)
-    print("subscriber_rows: ", subscriber_rows, "subscriber_headers: ", subscriber_headers)
+    #print("video_rows: ", video_rows, "video_headers: ", video_headers)
+    #print("subscriber_rows: ", subscriber_rows, "subscriber_headers: ", subscriber_headers)
     
     # Create lookup dictionaries
     video_metrics = {}
@@ -464,7 +464,7 @@ def process_ctr_data(video_performance, subscriber_data, traffic_sources, video_
         video_ctr_data.append(video_entry)
         all_video_data.append(video_entry)
     
-    print("video_ctr_data: ", video_ctr_data)
+    #print("video_ctr_data: ", video_ctr_data)
     
     # Sort by engagement CTR
     video_ctr_data.sort(key=lambda x: x['engagement_ctr'], reverse=True)

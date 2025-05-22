@@ -150,7 +150,7 @@ def trends():
         pass
     regions = get_all_regions()
     default_region = get_default_region(client_ip)
-    print("default_region: ", default_region); #time.sleep(300)
+    #print("default_region: ", default_region); #time.sleep(300)
     categories = get_available_categories(creo_api_key, default_region)
 
     # Initial display uses default_region
@@ -278,7 +278,7 @@ def analytics():
     }
 
     ctr_metrics = calculate_ctr_metrics(current_user.channel_id, 700)
-    print("ctr_metrics: ", ctr_metrics)
+    #print("ctr_metrics: ", ctr_metrics)
     return render_template('analytics.html',
                            ctr_metrics=ctr_metrics,
                            analytics=analytics_data,
