@@ -3,236 +3,611 @@
 
 {% block styles %}
 {{ super() }}
+
 <style>
-  .dashboard-container {
-    padding: 2rem 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
+  :root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+    --dark-color: #212529;
+    --light-color: #f8f9fa;
+    --sidebar-width: 280px;
+  }
+
+  body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  /* Sidebar Styles */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: var(--sidebar-width);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  }
+
+  .sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .sidebar-brand {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .sidebar-nav {
+    padding: 1rem 0;
+  }
+
+  .nav-link {
+    color: rgba(255,255,255,0.8);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: white;
+    background-color: rgba(255,255,255,0.1);
+    border-left-color: #ffc107;
+  }
+
+  .nav-link i {
+    width: 20px;
+    margin-right: 0.75rem;
+  }
+
+  /* Main Content */
+  .main-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+  }
+
+  .topbar {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+  }
+
+  .content-wrapper {
+    padding: 2rem;
+  }
+
+  /* Dashboard Cards */
+  .dashboard-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+
+  .dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  .card-header-custom {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 1.25rem;
+    font-weight: 600;
+  }
+
+  /* Stats Cards */
+  .stats-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border-left: 4px solid;
+  }
+
+  .stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  .stats-card.primary { border-left-color: var(--primary-color); }
+  .stats-card.success { border-left-color: var(--success-color); }
+  .stats-card.warning { border-left-color: var(--warning-color); }
+  .stats-card.info { border-left-color: var(--info-color); }
+
+  .stats-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .stats-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stats-icon {
+    font-size: 2.5rem;
+    opacity: 0.7;
+  }
+
+  /* Alert Styles */
+  .alert-custom {
+    border: none;
+    border-radius: 12px;
+    border-left: 4px solid;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .alert-youtube {
+    background-color: #fff3cd;
+    border-left-color: #ff0000;
+    color: #856404;
+  }
+
+  /* Button Styles */
+  .btn-youtube {
+    background-color: #ff0000;
+    border-color: #ff0000;
+    color: white;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-youtube:hover {
+    background-color: #cc0000;
+    border-color: #cc0000;
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .btn-action {
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-action:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Chart Container */
+  .chart-container {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  }
+
+  /* Feature List */
+  .feature-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .feature-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f3f4;
+    display: flex;
+    align-items: center;
+  }
+
+  .feature-list li:last-child {
+    border-bottom: none;
+  }
+
+  .feature-list li i {
+    color: var(--success-color);
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+    }
+    
+    .main-content {
+      margin-left: 0;
+    }
+    
+    .stats-number {
+      font-size: 2rem;
+    }
+  }
+
+  /* Progress Bar */
+  .progress-custom {
+    height: 8px;
+    border-radius: 10px;
+    background-color: #f1f3f4;
+  }
+
+  .progress-bar-custom {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+  }
+
+  /* Section Headers */
+  .section-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e9ecef;
   }
 
   .section-title {
-    font-weight: 700;
-    color: #003566;
-    margin-bottom: 1rem;
-    border-bottom: 3px solid #3e63dd;
-    padding-bottom: 0.25rem;
-  }
-
-  .card-custom {
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(62, 99, 221, 0.1);
-    transition: box-shadow 0.3s ease;
-  }
-
-  .card-custom:hover {
-    box-shadow: 0 12px 30px rgba(62, 99, 221, 0.2);
-  }
-
-  .card-header {
-    background-color: #3e63dd;
-    color: white;
+    color: #495057;
     font-weight: 600;
-    font-size: 1.1rem;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    padding: 0.75rem 1.25rem;
-  }
-
-  .card-body {
-    padding: 1rem 1.5rem;
-  }
-
-  .alert-custom {
-    background-color: #ffecb3;
-    border-radius: 8px;
-    padding: 1rem 1.5rem;
-    margin-bottom: 1rem;
-    color: #665c00;
-  }
-
-  /* Responsive grid for dashboard sections */
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.5rem;
-  }
-
-  /* Smaller lists */
-  ul.dashboard-list {
-    list-style: none;
-    padding-left: 0;
-  }
-
-  ul.dashboard-list li {
-    padding: 0.25rem 0;
-    font-weight: 500;
-  }
-
-  /* Button style for Connect YouTube */
-  .btn-connect {
-    background-color: #db4437;
-    border: none;
-  }
-
-  .btn-connect:hover {
-    background-color: #b3362c;
+    font-size: 1.25rem;
+    margin: 0;
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-
-  <h1 class="mb-4 text-center">Welcome to Your Creovue Dashboard</h1>
-
-  {% if not stats %}
-    <div class="alert alert-warning text-center">
-      <p>You have not connected a YouTube channel yet.</p>
-      <a href="{{ url_for('youtube_dashboard') }}" class="btn btn-connect btn-lg">
-        <i class="bi bi-google"></i> Connect YouTube
+<div class="d-flex">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="sidebar-brand">
+        <i class="bi bi-camera-video-fill me-2"></i>Creovue
       </a>
     </div>
-  {% else %}
+    <ul class="nav flex-column sidebar-nav">
+      <li class="nav-item">
+        <a class="nav-link active" href="#dashboard">
+          <i class="bi bi-speedometer2"></i>Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#analytics">
+          <i class="bi bi-graph-up"></i>Analytics
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#seo">
+          <i class="bi bi-search"></i>SEO Tools
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#competitors">
+          <i class="bi bi-people"></i>Competitors
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#audience">
+          <i class="bi bi-person-check"></i>Audience
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#content">
+          <i class="bi bi-journal-text"></i>Content Planning
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#tools">
+          <i class="bi bi-tools"></i>Tools
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#goals">
+          <i class="bi bi-bullseye"></i>Goals
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#alerts">
+          <i class="bi bi-bell"></i>Alerts
+        </a>
+      </li>
+    </ul>
+  </nav>
 
-  <!-- Channel Overview & Health -->
-  <section class="mb-5">
-    <h2 class="section-title">📊 Channel Overview & Health</h2>
-    <div class="card card-custom">
-      <div class="card-body">
-        <ul class="dashboard-list row g-3">
-          <li class="col-6 col-md-3"><strong>Subscribers:</strong> {{ stats.subscribers }}</li>
-          <li class="col-6 col-md-3"><strong>Views:</strong> {{ stats.views }}</li>
-          <li class="col-6 col-md-3"><strong>Videos:</strong> {{ stats.videos }}</li>
-          <li class="col-6 col-md-3"><strong>Sudden Spike Detected:</strong> {{ "Yes 🚀" if stats.spike_detected else "No" }}</li>
-        </ul>
+  <!-- Main Content -->
+  <main class="main-content flex-grow-1">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1 class="h4 mb-0 text-gray-800">Dashboard Overview</h1>
+        <div class="d-flex align-items-center">
+          <span class="text-muted me-3">Welcome back!</span>
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle me-1"></i>Profile
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+              <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+            </ul>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+    </header>
 
-  <!-- Video Analytics & Performance -->
-  <section class="mb-5">
-    <h2 class="section-title">🎥 Video Analytics & Performance</h2>
-    <div class="card card-custom">
-      <div class="card-body">
-        <h5>Recent Views</h5>
-        <img src="{{ stats.plot_url }}" alt="Views Graph" class="img-fluid rounded" style="max-height: 300px; width: 100%; object-fit: contain;">
-        <!-- You can replace the above with a Chart.js canvas for interactivity -->
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+      
+      {% if not stats %}
+      <!-- YouTube Connection Alert -->
+      <div class="alert alert-custom alert-youtube" role="alert">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-youtube fs-1 me-3"></i>
+          <div class="flex-grow-1">
+            <h5 class="alert-heading mb-1">Connect Your YouTube Channel</h5>
+            <p class="mb-3">Get started by connecting your YouTube channel to unlock powerful analytics and insights.</p>
+            <a href="{{ url_for('youtube_dashboard') }}" class="btn btn-youtube">
+              <i class="bi bi-google me-2"></i>Connect YouTube Channel
+            </a>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+      {% else %}
 
-  <!-- SEO & Discovery Tools -->
-  <section class="mb-5">
-    <h2 class="section-title">🔍 SEO & Discovery Tools</h2>
-    <div class="card card-custom">
-      <div class="card-body">
-        <p>Optimize your video titles, descriptions, and tags to boost discoverability.</p>
-        <ul>
-          <li>Keyword suggestions and trends</li>
-          <li>Tag recommendations</li>
-          <li>Metadata optimization tips</li>
-        </ul>
-        <a href="{{ url_for('seo') }}" class="btn btn-primary mt-3">Go to SEO Tools</a>
+      <!-- Stats Overview -->
+      <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+          <div class="stats-card primary">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="stats-number text-primary">{{ stats.subscribers }}</div>
+                <div class="stats-label">Subscribers</div>
+              </div>
+              <i class="bi bi-people-fill stats-icon text-primary"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="stats-card success">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="stats-number text-success">{{ stats.views }}</div>
+                <div class="stats-label">Total Views</div>
+              </div>
+              <i class="bi bi-eye-fill stats-icon text-success"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="stats-card warning">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="stats-number text-warning">{{ stats.videos }}</div>
+                <div class="stats-label">Videos</div>
+              </div>
+              <i class="bi bi-play-btn-fill stats-icon text-warning"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="stats-card info">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="stats-number text-info">{{ "🚀" if stats.spike_detected else "📊" }}</div>
+                <div class="stats-label">Growth Status</div>
+              </div>
+              <i class="bi bi-graph-up-arrow stats-icon text-info"></i>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Competitor Analysis -->
-  <section class="mb-5">
-    <h2 class="section-title">🤼 Competitor Analysis</h2>
-    <div class="card card-custom">
-      <div class="card-body">
-        <p>Track your competitors’ performance and benchmark your growth.</p>
-        <ul>
-          <li>Compare channel stats</li>
-          <li>Monitor trending videos</li>
-          <li>Identify content gaps</li>
-        </ul>
-        <a href="/competitor_analysis" class="btn btn-primary mt-3">Explore Competitors</a>
+      <!-- Analytics Section -->
+      <div class="row g-4 mb-4">
+        <div class="col-12">
+          <div class="card dashboard-card">
+            <div class="card-header card-header-custom">
+              <i class="bi bi-graph-up me-2"></i>Video Performance Analytics
+            </div>
+            <div class="card-body">
+              <div class="chart-container">
+                <h6 class="text-muted mb-3">Recent Views Trend</h6>
+                <img src="{{ stats.plot_url }}" alt="Views Graph" class="img-fluid rounded" style="max-height: 400px; width: 100%; object-fit: contain;">
+                <div class="mt-3">
+                  <small class="text-muted">Track your video performance over time and identify trending content.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Audience Insights -->
-  <section class="mb-5">
-    <h2 class="section-title">👥 Audience Insights</h2>
-    <div class="card card-custom">
-      <div class="card-body">
-        <p>Understand your audience demographics, behavior, and preferences.</p>
-        <ul>
-          <li>Age and gender distribution</li>
-          <li>Geographic locations</li>
-          <li>Watch time and engagement patterns</li>
-        </ul>
-        <a href="{{ url_for('audience_insights') }}" class="btn btn-primary mt-3">View Audience Data</a>
+      <!-- Feature Sections -->
+      <div class="row g-4">
+        <!-- SEO Tools -->
+        <div class="col-lg-4 col-md-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-header card-header-custom">
+              <i class="bi bi-search me-2"></i>SEO & Discovery
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Optimize your content for better discoverability and reach.</p>
+              <ul class="feature-list">
+                <li><i class="bi bi-check-circle-fill"></i>Keyword suggestions</li>
+                <li><i class="bi bi-check-circle-fill"></i>Tag recommendations</li>
+                <li><i class="bi bi-check-circle-fill"></i>Metadata optimization</li>
+              </ul>
+              <a href="{{ url_for('seo') }}" class="btn btn-primary btn-action mt-3">
+                <i class="bi bi-arrow-right me-1"></i>Explore SEO Tools
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Competitor Analysis -->
+        <div class="col-lg-4 col-md-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-header card-header-custom">
+              <i class="bi bi-people me-2"></i>Competitor Analysis
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Stay ahead of the competition with detailed insights.</p>
+              <ul class="feature-list">
+                <li><i class="bi bi-check-circle-fill"></i>Channel comparisons</li>
+                <li><i class="bi bi-check-circle-fill"></i>Trending videos</li>
+                <li><i class="bi bi-check-circle-fill"></i>Content gap analysis</li>
+              </ul>
+              <a href="/competitor_analysis" class="btn btn-primary btn-action mt-3">
+                <i class="bi bi-arrow-right me-1"></i>Analyze Competitors
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audience Insights -->
+        <div class="col-lg-4 col-md-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-header card-header-custom">
+              <i class="bi bi-person-check me-2"></i>Audience Insights
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Understand your audience better to create targeted content.</p>
+              <ul class="feature-list">
+                <li><i class="bi bi-check-circle-fill"></i>Demographics</li>
+                <li><i class="bi bi-check-circle-fill"></i>Geographic data</li>
+                <li><i class="bi bi-check-circle-fill"></i>Engagement patterns</li>
+              </ul>
+              <a href="{{ url_for('audience_insights') }}" class="btn btn-primary btn-action mt-3">
+                <i class="bi bi-arrow-right me-1"></i>View Insights
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Planning -->
+        <div class="col-lg-4 col-md-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-header card-header-custom">
+              <i class="bi bi-journal-text me-2"></i>Content Planning
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Plan and schedule your content for maximum impact.</p>
+              <ul class="feature-list">
+                <li><i class="bi bi-check-circle-fill"></i>Content calendar</li>
+                <li><i class="bi bi-check-circle-fill"></i>Best posting times</li>
+                <li><i class="bi bi-check-circle-fill"></i>Performance forecasting</li>
+              </ul>
+              <a href="/content_planning" class="btn btn-primary btn-action mt-3">
+                <i class="bi bi-arrow-right me-1"></i>Plan Content
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tools & Utilities -->
+        <div class="col-lg-4 col-md-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-header card-header-custom">
+              <i class="bi bi-tools me-2"></i>Creator Tools
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Powerful tools to enhance your content creation workflow.</p>
+              <ul class="feature-list">
+                <li><i class="bi bi-check-circle-fill"></i>Thumbnail generator</li>
+                <li><i class="bi bi-check-circle-fill"></i>Tag analyzer</li>
+                <li><i class="bi bi-check-circle-fill"></i>Bulk editor</li>
+              </ul>
+              <a href="/tools" class="btn btn-primary btn-action mt-3">
+                <i class="bi bi-arrow-right me-1"></i>Explore Tools
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Goals Tracking -->
+        <div class="col-lg-4 col-md-6">
+          <div class="card dashboard-card h-100">
+            <div class="card-header card-header-custom">
+              <i class="bi bi-bullseye me-2"></i>Goals & Progress
+            </div>
+            <div class="card-body">
+              <p class="text-muted">Set targets and track your channel's growth progress.</p>
+              <ul class="feature-list">
+                <li><i class="bi bi-check-circle-fill"></i>Growth targets</li>
+                <li><i class="bi bi-check-circle-fill"></i>Milestone tracking</li>
+                <li><i class="bi bi-check-circle-fill"></i>Custom KPIs</li>
+              </ul>
+              <a href="/goals" class="btn btn-primary btn-action mt-3">
+                <i class="bi bi-arrow-right me-1"></i>Set Goals
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Content Planning & Optimisation -->
-  <section class="mb-5">
-    <h2 class="section-title">📝 Content Planning & Optimisation</h2>
-    <div class="card card-custom">
-      <div class="card-body">
-        <p>Plan your content calendar and optimize publishing schedule for maximum impact.</p>
-        <ul>
-          <li>Content calendar and reminders</li>
-          <li>Best time to publish</li>
-          <li>Performance forecasting</li>
-        </ul>
-        <a href="/content_planning" class="btn btn-primary mt-3">Plan Content</a>
+      <!-- Alerts Section -->
+      <div class="row g-4 mt-2">
+        <div class="col-12">
+          <div class="card dashboard-card">
+            <div class="card-header card-header-custom">
+              <i class="bi bi-bell me-2"></i>Alerts & Notifications
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-8">
+                  <p class="text-muted mb-3">Stay informed with real-time alerts about your channel performance.</p>
+                  <ul class="feature-list">
+                    <li><i class="bi bi-check-circle-fill"></i>Subscriber milestones and growth alerts</li>
+                    <li><i class="bi bi-check-circle-fill"></i>Sudden performance spikes or drops</li>
+                    <li><i class="bi bi-check-circle-fill"></i>Comment and engagement notifications</li>
+                  </ul>
+                </div>
+                <div class="col-md-4 text-md-end">
+                  <a href="/alerts" class="btn btn-primary btn-action">
+                    <i class="bi bi-gear me-1"></i>Manage Alerts
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Alerts & Notifications -->
-  <section class="mb-5">
-    <h2 class="section-title">🔔 Alerts & Notifications</h2>
-    <div class="card card-custom">
-      <div class="card-body">
-        <p>Stay informed with real-time alerts on channel performance and important events.</p>
-        <ul>
-          <li>Subscriber milestones</li>
-          <li>Sudden spikes or drops</li>
-          <li>Comments and engagement alerts</li>
-        </ul>
-        <a href="/alerts" class="btn btn-primary mt-3">Manage Alerts</a>
-      </div>
+      {% endif %}
     </div>
-  </section>
-
-  <!-- Tools & Utilities -->
-  <section class="mb-5">
-    <h2 class="section-title">🛠️ Tools & Utilities</h2>
-    <div class="card card-custom">
-      <div class="card-body">
-        <p>Access a suite of powerful tools to enhance your content creation and channel management.</p>
-        <ul>
-          <li>Thumbnail generator</li>
-          <li>Video tag analyzer</li>
-          <li>Bulk metadata editor</li>
-        </ul>
-        <a href="/tools" class="btn btn-primary mt-3">Explore Tools</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Goals & Progress Tracking -->
-  <section class="mb-5">
-    <h2 class="section-title">🎯 Goals & Progress Tracking</h2>
-    <div class="card card-custom">
-      <div class="card-body">
-        <p>Set channel goals and track your progress over time to stay motivated and focused.</p>
-        <ul>
-          <li>Subscriber growth targets</li>
-          <li>View count milestones</li>
-          <li>Custom KPIs and reports</li>
-        </ul>
-        <a href="/goals" class="btn btn-primary mt-3">Set Your Goals</a>
-      </div>
-    </div>
-  </section>
-
-  {% endif %}
+  </main>
 </div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Initialize tooltips
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  });
+
+  // Sidebar toggle for mobile
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('show');
+  }
+
+  // Add click handler for mobile menu if needed
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add any additional JavaScript functionality here
+    console.log('Creovue Dashboard Loaded');
+  });
+</script>
 {% endblock %}
