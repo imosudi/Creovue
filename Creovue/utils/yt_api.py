@@ -278,8 +278,8 @@ def calculate_ctr_metrics(channel_id, days):
         video_filter = f"video=={';'.join(batch)}"
 
         print("video_filter: ", video_filter); #time.sleep(30)
-        
-        try:
+        if 1==1:
+        #try:
             # Step 1: Get basic video performance metrics
             print(f"Fetching video performance data from {start_date_str} to {end_date_str}")    
             video_performance = youtube_analytics.reports().query(
@@ -330,12 +330,14 @@ def calculate_ctr_metrics(channel_id, days):
             
             return ctr_results
             
-        except HttpError as error:
-            logging.error(f"YouTube Analytics API Error: {error}")
-            raise error
-        except Exception as e:
-            logging.error(f"Unexpected error in CTR calculation: {e}")
-            raise e
+        elif 1==2: ##except HttpError as error:
+            #logging.error(f"YouTube Analytics API Error: {error}")
+            #raise error
+            pass 
+        else: #except Exception as e:
+            pass
+            #logging.error(f"Unexpected error in CTR calculation: {e}")
+            #raise e
 
 def process_ctr_data(video_performance, subscriber_data, traffic_sources):
     """
