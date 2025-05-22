@@ -221,6 +221,8 @@
     }
   }
 </style>
+
+
 {% endblock %}
 
 {% block content %}
@@ -348,23 +350,25 @@
 </div>
 
 <!-- Video Detail Modal -->
+<!-- Modern Futuristic Video Detail Modal -->
 <div class="modal fade" data-bs-backdrop="static" id="videoDetailModal" tabindex="-1" aria-labelledby="videoDetailModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="videoDetailModalLabel">Video Details</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-content border-0" style="background: linear-gradient(135deg, #0f172a, #1e293b); color: #e2e8f0; box-shadow: 0 0 30px rgba(0, 255, 255, 0.2); border-radius: 1rem;">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold text-info" id="videoDetailModalLabel">📹 Video Performance Breakdown</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" id="videoDetailContent">
         <div class="text-center text-muted">Loading...</div>
       </div>
-      <div class="modal-footer">
-        <a href="#" id="videoDetailLink" target="_blank" class="btn btn-outline-primary">Watch on YouTube</a>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      <div class="modal-footer border-0">
+        <a href="#" id="videoDetailLink" target="_blank" class="btn btn-info text-white shadow-sm">🔗 Watch on YouTube</a>
+        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -381,28 +385,32 @@
     initPerVideoAnalytics();
   });
 
-function showVideoDetails(videoId) {
-  const videos = {{ ctr_metrics.video_data | tojson | safe  }};
+  function showVideoDetails(videoId) {
+  const videos = {{ ctr_metrics.video_data | tojson | safe }};
   const video = videos.find(v => v.video_id === videoId);
 
   if (!video) return;
 
   const html = `
-  
-    <div class="d-flex gap-4 align-items-start mb-4">
-      <img src="https://img.youtube.com/vi/${video.video_id}/mqdefault.jpg" alt="${video.title}" class="img-thumbnail" style="width: 200px; height: 112px;">
-      <div>
-        <h5 class="fw-bold">${video.title || 'Untitled Video'}</h5>
-        <p><strong>Video ID:</strong> ${video.video_id}</p>
-        <p><strong>Views:</strong> ${video.views.toLocaleString()}</p>
-        <p><strong>Impressions:</strong> ${video.impressions.toLocaleString()}</p>
-        <p><strong>CTR:</strong> ${video.ctr.toFixed(2)}%</p>
-        <p><strong>Avg View Duration:</strong> ${video.avg_view_duration_seconds} secs</p>
-        <p><strong>Estimated Watch Time:</strong> ${video.watchTime} mins</p>
-        <p><strong>Retention Rate:</strong> ${video.retention.toFixed(2)}%</p>
-        <p><strong>Engagements:</strong> ${video.total_engagements}</p>
-        <p><strong>Engagement CTR:</strong> ${video.engagement_ctr.toFixed(2)}%</p>
-        <p><strong>New Subscribers:</strong> ${video.subscribers_gained}</p>
+    <div class="d-flex flex-column flex-md-row gap-4 align-items-start mb-4">
+      <img src="https://img.youtube.com/vi/${video.video_id}/mqdefault.jpg" 
+           alt="${video.title}" 
+           class="rounded shadow" 
+           style="width: 240px; height: 135px; object-fit: cover; border: 2px solid #0ea5e9;">
+      <div style="flex: 1;">
+        <h5 class="fw-bold text-info mb-3">${video.title || 'Untitled Video'}</h5>
+        <ul class="list-unstyled small" style="line-height: 1.6;">
+          <li><strong>📽️ Video ID:</strong> <code>${video.video_id}</code></li>
+          <li><strong>👁️ Views:</strong> ${video.views.toLocaleString()}</li>
+          <li><strong>🎯 Impressions:</strong> ${video.impressions.toLocaleString()}</li>
+          <li><strong>⚡ CTR:</strong> ${video.ctr.toFixed(2)}%</li>
+          <li><strong>⏱️ Avg View Duration:</strong> ${video.avg_view_duration_seconds}s</li>
+          <li><strong>🕒 Watch Time:</strong> ${video.watchTime} mins</li>
+          <li><strong>🧠 Retention Rate:</strong> ${video.retention.toFixed(2)}%</li>
+          <li><strong>💬 Engagements:</strong> ${video.total_engagements}</li>
+          <li><strong>🔥 Engagement CTR:</strong> ${video.engagement_ctr.toFixed(2)}%</li>
+          <li><strong>📈 New Subscribers:</strong> ${video.subscribers_gained}</li>
+        </ul>
       </div>
     </div>
   `;
