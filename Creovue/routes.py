@@ -1,4 +1,4 @@
-
+#Review the routes and update the relevant url_for() in the dashboard.html: 
 # Standard library imports
 import os
 import time
@@ -114,7 +114,7 @@ def home():
     return render_template("index.html")
 
 # Dashboard route – personalised analytics
-"""
+
 # Dashboard route – personalised analytics
 @app.route("/dashboard")
 @login_required
@@ -134,9 +134,9 @@ def dashboard():
         return render_template("dashboard.html", stats=None)
 
 
-"""
 
-@app.route("/dashboard")
+
+"""@app.route("/dashboard")
 @login_required
 def dashboard():
     # ✅ Ensure channel_id is up to date
@@ -146,9 +146,8 @@ def dashboard():
 
     if 1==1:
         analytics = process_channel_analytics(current_user.channel_id)
-        return render_template("dashboard.html", stats=analytics)
+        return render_template("dashboard.html", stats=analytics)"""
    
-
 
 
 @app.route('/seo', methods=['GET', 'POST'])
@@ -1325,7 +1324,7 @@ def  generate_content_suggestions(
         ):
     pass
 
-def process_channel_analytics(channel_id):
+def process_channel_analytics_test(channel_id):
     # Stub: Replace with real analytics processing logic
     return {
         "total_views": 123456,
@@ -1336,7 +1335,7 @@ def process_channel_analytics(channel_id):
         "daily_views": [100, 200, 150, 300, 250, 400, 350]
     }
 
-def fetch_youtube_analytics(channel_id):
+def fetch_youtube_analytics_test(channel_id):
     # Stub: Replace with real YouTube Analytics API call
     return {
         "total_views": 123456,
@@ -1347,7 +1346,7 @@ def fetch_youtube_analytics(channel_id):
         "daily_views": [100, 200, 150, 300, 250, 400, 350]
     }
 
-def calculate_ctr_metrics(channel_id, days):
+def calculate_ctr_metrics_test(channel_id, days):
     # Stub: Replace with real CTR calculation
     return {
         "avg_ctr": 0.045,
@@ -1356,7 +1355,7 @@ def calculate_ctr_metrics(channel_id, days):
         "period_days": days
     }
 
-def get_seo_recommendations(keyword):
+def get_seo_recommendations_test(keyword):
     # Stub: Replace with real SEO recommendation logic
     return [
         {"keyword": f"{keyword} tutorial", "score": 85},
@@ -1378,25 +1377,25 @@ def ensure_channel_id():
         # For testing, assign a dummy channel ID
         current_user.channel_id = "UC1234567890abcdef"
 
-def fetch_trending_keywords(region):
+def fetch_trending_keywords_test(region):
     # Stub: Replace with real trending keywords fetch
     return [f"trend_{region}_1", f"trend_{region}_2", f"trend_{region}_3"]
 
-def get_trending_keywords(region, categories):
+def get_trending_keywords_test(region, categories):
     # Stub: Returns trending keywords and their "age"
     keywords = [f"{region}_cat_{cat}_trend" for cat in categories[:3]]
     keyword_age = 2  # hours
     return keywords, keyword_age
 
-def get_category_distribution(region):
+def get_category_distribution_test(region):
     # Stub: Replace with real category distribution logic
     return {"Music": 25, "Gaming": 15, "Education": 10}
 
-def get_category_age_distribution(region):
+def get_category_age_distribution_test(region):
     # Stub: Replace with real category age distribution logic
     return {"Music": 2.5, "Gaming": 1.8, "Education": 3.0}
 
-def get_top_channels(region):
+def get_top_channels_test(region):
     # Stub: Replace with real top channels fetch
     channels = [
         {"channel_id": "UC1", "name": "TopChannel1", "subs": 1000000},
@@ -1405,15 +1404,15 @@ def get_top_channels(region):
     channel_data_age = 1  # hours
     return channels, channel_data_age
 
-def get_all_regions():
+def get_all_regions_test():
     # Stub: Replace with real region list
     return ["US", "GB", "IN", "NG"]
 
-def get_default_region(client_ip):
+def get_default_region_test(client_ip):
     # Stub: Use IP to guess region (always returns 'US' here)
     return "US"
 
-def get_available_categories(api_key, region):
+def get_available_categories_test(api_key, region):
     # Stub: Replace with real category fetch
     return ["Music", "Gaming", "Education"]
 
@@ -1535,3 +1534,4 @@ def generate_analytics_report(user_id, report_type):
 def export_analytics_data(user_id, format="csv"):
     # Stub: Export analytics data in the requested format
     return {"status": "success", "download_url": f"/exports/{user_id}/analytics.{format}"}
+
