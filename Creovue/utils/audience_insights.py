@@ -1,33 +1,39 @@
+import time
 import requests
 from datetime import datetime, timedelta
 from collections import defaultdict, Counter
 import statistics
 from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
 from flask import session
 import json
+from Creovue.config import creo_api_key
 
-def get_comprehensive_audience_insights(channel_id):
+def get_comprehensive_audience_insights(channel_id, days):
     """Get comprehensive audience insights including demographics, behavior, and growth patterns"""
+    #print("channel_id: ", channel_id); time.sleep(30)
     try:
         creds = Credentials(**session['youtube_token'])
         if not creds:
             return {}
         
         end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
-        
+        start_date = (datetime.now() - timedelta(days)).strftime('%Y-%m-%d')
+        #print("creds: ", creds); time.sleep(30)
         insights = {
-            'demographics': get_audience_demographics(channel_id),
+            'demographics': get_audience_demographics(creds, channel_id, start_date, end_date),
             'geographic_data': get_geographic_insights(creds, start_date, end_date),
             'viewing_behavior': get_viewing_behavior_insights(creds, start_date, end_date),
             'subscription_trends': get_subscription_trends(creds, start_date, end_date),
             'engagement_overview': get_engagement_overview(creds, start_date, end_date),
             'device_preferences': get_device_preferences(creds, start_date, end_date),
-            'traffic_sources': get_traffic_sources(creds, start_date, end_date),
+            #'traffic_sources': get_traffic_sources(creds, start_date, end_date),
             'content_preferences': get_content_preferences(creds, start_date, end_date),
             'summary': {},
             'last_updated': datetime.now().isoformat()
         }
+
         
         # Generate summary insights
         insights['summary'] = generate_audience_summary(insights)
@@ -38,16 +44,20 @@ def get_comprehensive_audience_insights(channel_id):
         print(f"Error getting comprehensive audience insights: {e}")
         return {'error': str(e)}
 
-def get_audience_demographics(channel_id):
+def get_audience_demographics(creds, channel_id, start_date, end_date):
     """Get detailed audience demographics including age, gender, and geographic data"""
     try:
         creds = Credentials(**session['youtube_token'])
         if not creds:
             return {}
+        #print("creds: ", creds); time.sleep(30)
+        #end_date = datetime.now().strftime('%Y-%m-%d')
+        #start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
         
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
-        
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+
+        print("creds: ", creds); #time.sleep(30)
         demographics = {
             'age_groups': {},
             'gender': {},
@@ -55,49 +65,44 @@ def get_audience_demographics(channel_id):
             'last_updated': datetime.now().isoformat()
         }
         
+        youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
+
+        
+        #print("youtube_analytics: ", youtube_analytics); time.sleep(30)
         # Age demographics
-        age_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'viewerPercentage',
-                'dimensions': 'ageGroup',
-                'sort': '-viewerPercentage'
-            }
-        )
-        
+        age_response = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='viewerPercentage',
+            dimensions='ageGroup',
+            sort='-viewerPercentage'
+        ).execute()
+
+        print("age_response: ", age_response); time.sleep(30)
+
         # Gender demographics
-        gender_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'viewerPercentage',
-                'dimensions': 'gender',
-                'sort': '-viewerPercentage'
-            }
-        )
-        
+        gender_response = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='viewerPercentage',
+            dimensions='gender',
+            sort='-viewerPercentage'
+        ).execute()
+
         # Geographic demographics
-        geo_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'viewerPercentage',
-                'dimensions': 'country',
-                'sort': '-viewerPercentage',
-                'maxResults': 20
-            }
-        )
-        
+        geo_response = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='viewerPercentage',
+            dimensions='country',
+            sort='-viewerPercentage',
+            maxResults=20
+        ).execute()
+
+        print("gender_response: ", gender_response.text, "\n", "geo_response: ", geo_response.text); time.sleep(300)
         # Process age data
         if age_response.status_code == 200:
             age_data = age_response.json()
@@ -700,7 +705,7 @@ def generate_engagement_recommendations(patterns):
 
 # Helper functions for comprehensive analysis
 
-def get_geographic_insights(creds, start_date, end_date):
+def get_geographic_insights_tes(creds, start_date, end_date):
     """Get detailed geographic audience insights"""
     try:
         response = requests.get(

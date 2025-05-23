@@ -766,10 +766,11 @@ def audience_insights():
     if not current_user.channel_id:
         return render_template('audience_insights.html', error="No channel connected")
     channel_id = current_user.channel_id
-    print("channel_id: ", channel_id); time.sleep(30)
-    insights = get_comprehensive_audience_insights(channel_id)
+    days = 5900
+    #print("channel_id: ", channel_id); time.sleep(30)
+    insights = get_comprehensive_audience_insights(channel_id, days)
     try:
-        insights = get_comprehensive_audience_insights(channel_id)
+        #insights = get_comprehensive_audience_insights(channel_id, days)
         return render_template('audience_insights.html', insights=insights)
     except Exception as e:
         return render_template('audience_insights.html', error=str(e))
