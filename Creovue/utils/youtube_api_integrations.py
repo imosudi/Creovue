@@ -1,9 +1,14 @@
 # utils/youtube_api_integrations.py
+from flask_security import current_user
 import requests
 from datetime import datetime, timedelta
 from google.oauth2.credentials import Credentials
 from flask import session
 import json
+
+from Creovue import db
+from Creovue.models.audience import Goal 
+from Creovue.config import creo_api_key
 
 def get_youtube_credentials():
     """Get YouTube API credentials from session"""
@@ -521,7 +526,7 @@ def add_competitor_tracking(user_id, competitor_channel):
         print(f"Error adding competitor: {e}")
         return None
 
-def analyze_competitor(competitor_id, user_channel_id):
+def analyse_competitor(competitor_id, user_channel_id):
     """Analyze competitor performance"""
     try:
         competitor = CompetitorAnalysis.query.get(competitor_id)
@@ -539,7 +544,7 @@ def analyze_competitor(competitor_id, user_channel_id):
             'subscriber_difference': competitor.subscriber_count - get_user_subscriber_count(user_channel_id),
             'avg_views_difference': competitor.avg_views - calculate_user_avg_views(user_channel_id),
             'engagement_difference': competitor.engagement_rate - calculate_user_avg_engagement(user_channel_id),
-            'content_analysis': analyze_competitor_content(competitor_videos),
+            'content_analysis': analyse_competitor_content(competitor_videos),
             'opportunity_keywords': find_competitor_keywords(competitor_videos)
         }
         
@@ -750,14 +755,7 @@ def get_channel_info(channel_id):
     except Exception as e:
         print(f"Error getting channel info: {e}")
         return {}
-            age_data = age_response.json()
-            demographics['age'] = {row[0]: row[1] for row in age_data.get('rows', [])}
-        
-        if gender_response.status_code == 200:
-            gender_data = gender_response.json()
-            demographics['gender'] = {row[0]: row[1] for row in gender_data.get('rows', [])}
-        
-        return demographics
+            
     except Exception as e:
         print(f"Error fetching demographics: {e}")
         return {}
@@ -922,6 +920,11 @@ def get_video_demographics(video_id):
     
 def get_audience_demographics(channel_id):
     """Get overall channel audience demographics"""
+    demographics = {
+            'age_groups': {},
+            'gender': {},
+            'last_updated': datetime.now().isoformat()
+        }
     try:
         creds = get_youtube_credentials()
         if not creds:
@@ -956,13 +959,174 @@ def get_audience_demographics(channel_id):
             }
         )
         
-        demographics = {
-            'age_groups': {},
-            'gender': {},
-            'last_updated': datetime.now().isoformat()
-        }
+        
         
         if age_response.status_code == 200:
-            pass
+            age_data = age_response.json()
+            demographics['age'] = {row[0]: row[1] for row in age_data.get('rows', [])}
+                    
+            if gender_response.status_code == 200:
+                gender_data = gender_response.json()
+                demographics['gender'] = {row[0]: row[1] for row in gender_data.get('rows', [])}
+    except:
+        pass
 
+    return demographics
 
+# 1. VideoPerformance class stub
+class VideoPerformance:
+    def __init__(self, video_id=None, views=0, likes=0, comments=0, engagement_rate=0.0):
+        self.video_id = video_id
+        self.views = views
+        self.likes = likes
+        self.comments = comments
+        self.engagement_rate = engagement_rate
+
+    def to_dict(self):
+        return {
+            "video_id": self.video_id,
+            "views": self.views,
+            "likes": self.likes,
+            "comments": self.comments,
+            "engagement_rate": self.engagement_rate
+        }
+
+# 2. defaultdict (from collections)
+from collections import defaultdict
+
+# 3. CompetitorAnalysis class stub
+class CompetitorAnalysis:
+    def __init__(self, channel_id, metrics=None):
+        self.channel_id = channel_id
+        self.metrics = metrics or {}
+
+    def add_metric(self, key, value):
+        self.metrics[key] = value
+
+    def to_dict(self):
+        return {
+            "channel_id": self.channel_id,
+            "metrics": self.metrics
+        }
+
+# 4. get_competitor_videos
+def get_competitor_videos(competitor_channel_id):
+    # Stub: Return a list of video IDs for a competitor
+    return [f"{competitor_channel_id}_vid_{i}" for i in range(1, 6)]
+
+# 5. get_user_subscriber_count
+def get_user_subscriber_count(user_id):
+    # Stub: Return a dummy subscriber count
+    return 1234
+
+# 6. calculate_user_avg_views
+def calculate_user_avg_views(user_id):
+    # Stub: Return a dummy average views per video
+    return 567
+
+# 7. calculate_user_avg_engagement
+def calculate_user_avg_engagement(user_id):
+    # Stub: Return a dummy engagement rate
+    return 0.075
+
+# 8. analyse_competitor_content
+def analyse_competitor_content(competitor_channel_id):
+    # Stub: Return dummy content analysis
+    return {
+        "most_common_topics": ["python", "flask", "api"],
+        "avg_views": 1200,
+        "avg_engagement": 0.08
+    }
+
+# 9. find_competitor_keywords
+def find_competitor_keywords(competitor_channel_id):
+    # Stub: Return dummy keywords used by competitor
+    return ["youtube growth", "seo", "tutorial"]
+
+# 10. generate_competitor_recommendations
+def generate_competitor_recommendations(user_id, competitor_channel_id):
+    # Stub: Return dummy recommendations based on competitor
+    return [
+        "Post more tutorials on trending topics.",
+        "Increase video upload frequency.",
+        "Optimize thumbnails for higher CTR."
+    ]
+
+# 11. get_user_metrics
+def get_user_metrics(user_id):
+    # Stub: Return dummy user metrics
+    return {
+        "total_views": 100000,
+        "subscribers": 2000,
+        "videos": 50,
+        "avg_watch_time": 5.2
+    }
+
+# 12. get_competitor_metrics
+def get_competitor_metrics(competitor_channel_id):
+    # Stub: Return dummy competitor metrics
+    return {
+        "total_views": 150000,
+        "subscribers": 3500,
+        "videos": 60,
+        "avg_watch_time": 6.1
+    }
+
+# 13. Alert class stub
+class Alert:
+    def __init__(self, alert_id, user_id, message, active=True):
+        self.alert_id = alert_id
+        self.user_id = user_id
+        self.message = message
+        self.active = active
+
+    def to_dict(self):
+        return {
+            "alert_id": self.alert_id,
+            "user_id": self.user_id,
+            "message": self.message,
+            "active": self.active
+        }
+
+def get_user_total_views(channel_id):
+    """
+    Returns the total number of views for the given channel.
+    Replace this stub with your database or YouTube API logic.
+    """
+    # Example: Query your VideoPerformance model or YouTube API
+    # total_views = db.session.query(func.sum(VideoPerformance.views)).filter_by(channel_id=channel_id).scalar()
+    # return total_views or 0
+    return 123456  # Dummy value for demonstration
+
+def get_user_video_count(channel_id):
+    """
+    Returns the total number of videos for the given channel.
+    Replace this stub with your database or YouTube API logic.
+    """
+    # Example: Query your VideoPerformance model or YouTube API
+    # video_count = db.session.query(VideoPerformance).filter_by(channel_id=channel_id).count()
+    # return video_count
+    return 42  # Dummy value for demonstration
+
+def resolve_custom_url_to_channel_id(channel_input):
+    """
+    Resolves a YouTube custom URL or username to a channel ID.
+    Replace this stub with a real API call to YouTube Data API.
+    """
+    # If the input is already a channel ID, return as is
+    if channel_input.startswith("UC") and len(channel_input) >= 24:
+        return channel_input
+
+    # Otherwise, try to resolve using YouTube Data API
+    # Example API call (requires API key):
+    # url = f"https://www.googleapis.com/youtube/v3/channels?part=id&forUsername={channel_input}&key={creo_api_key}"
+    # resp = requests.get(url)
+    # data = resp.json()
+    # if data.get("items"):
+    #     return data["items"][0]["id"]
+    # else:
+    #     # Try resolving as a custom URL (not username)
+    #     # You may need to scrape or use a different endpoint
+
+    # For demonstration, return a dummy channel ID
+    return "UCxxxxxxxxxxxxxxxxxxxxxx"

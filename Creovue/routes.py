@@ -577,7 +577,7 @@ def channel_growth_analysis():
         return render_template('growth_analysis.html', error="No channel connected")
     
     try:
-        growth_data = analyze_channel_growth(current_user.channel_id)
+        growth_data = analyse_channel_growth(current_user.channel_id)
         predictions = predict_channel_growth(current_user.channel_id)
         
         return render_template('growth_analysis.html', 
@@ -621,14 +621,14 @@ def api_video_analytics(video_id):
 @app.route('/videos/batch-analysis', methods=['POST'])
 @login_required
 def batch_video_analysis():
-    """Analyze multiple videos at once"""
+    """Analyse multiple videos at once"""
     video_ids = request.json.get('video_ids', [])
     
     if not video_ids:
         return jsonify({"error": "No video IDs provided"}), 400
     
     try:
-        analysis = analyze_videos_batch(video_ids, current_user.channel_id)
+        analysis = analyse_videos_batch(video_ids, current_user.channel_id)
         return jsonify(analysis)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -652,52 +652,52 @@ def video_performance_trends():
 # SEO & DISCOVERY TOOLS (Enhanced)
 # =============================================================================
 
-@app.route('/seo/optimization')
+@app.route('/seo/optimisation')
 @login_required
-def seo_optimization():
-    """SEO optimization dashboard"""
-    return render_template('seo_optimization.html')
+def seo_optimisation():
+    """SEO optimisation dashboard"""
+    return render_template('seo_optimisation.html')
 
-@app.route('/api/seo/video-optimization', methods=['POST'])
+@app.route('/api/seo/video-optimisation', methods=['POST'])
 @login_required
-def api_video_seo_optimization():
-    """Optimize SEO for a specific video"""
+def api_video_seo_optimisation():
+    """Optimise SEO for a specific video"""
     data = request.json
     video_id = data.get('video_id')
     target_keywords = data.get('keywords', [])
     
     try:
-        optimization = optimize_video_seo(video_id, target_keywords, current_user.channel_id)
-        return jsonify(optimization)
+        optimisation = optimise_video_seo(video_id, target_keywords, current_user.channel_id)
+        return jsonify(optimisation)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/seo/tag-generator', methods=['POST'])
 @login_required
 def tag_generator():
-    """Generate optimized tags for video content"""
+    """Generate optimised tags for video content"""
     data = request.json
     title = data.get('title', '')
     description = data.get('description', '')
     category = data.get('category', '')
     
     try:
-        tags = generate_optimized_tags(title, description, category)
+        tags = generate_optimised_tags(title, description, category)
         return jsonify({"tags": tags})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/seo/title-optimizer', methods=['POST'])
+@app.route('/seo/title-optimiser', methods=['POST'])
 @login_required
-def title_optimizer():
-    """Optimize video titles for better discovery"""
+def title_optimiser():
+    """Optimise video titles for better discovery"""
     data = request.json
     original_title = data.get('title', '')
     target_audience = data.get('audience', 'general')
     
     try:
-        optimized_titles = optimize_video_title(original_title, target_audience)
-        return jsonify({"optimized_titles": optimized_titles})
+        optimised_titles = optimise_video_title(original_title, target_audience)
+        return jsonify({"optimised_titles": optimised_titles})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -733,7 +733,7 @@ def add_competitor():
 def competitor_analysis(competitor_id):
     """Get detailed competitor analysis"""
     try:
-        analysis = analyze_competitor(competitor_id, current_user.channel_id)
+        analysis = analyse_competitor(competitor_id, current_user.channel_id)
         return jsonify(analysis)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -784,11 +784,11 @@ def api_audience_demographics():
 @app.route('/audience/engagement-patterns')
 @login_required
 def audience_engagement_patterns():
-    """Analyze audience engagement patterns"""
+    """Analyse audience engagement patterns"""
     ensure_channel_id()
     
     try:
-        patterns = analyze_engagement_patterns(current_user.channel_id)
+        patterns = analyse_engagement_patterns(current_user.channel_id)
         return render_template('engagement_patterns.html', patterns=patterns)
     except Exception as e:
         return render_template('engagement_patterns.html', error=str(e))
@@ -796,17 +796,17 @@ def audience_engagement_patterns():
 @app.route('/api/audience/retention-analysis')
 @login_required
 def api_audience_retention():
-    """Analyze audience retention across videos"""
+    """Analyse audience retention across videos"""
     video_ids = request.args.getlist('video_ids')
     
     try:
-        retention = analyze_audience_retention(video_ids, current_user.channel_id)
+        retention = analyse_audience_retention(video_ids, current_user.channel_id)
         return jsonify(retention)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 # =============================================================================
-# CONTENT PLANNING & OPTIMIZATION
+# CONTENT PLANNING & OPTIMISATION
 # =============================================================================
 
 @app.route('/content/planner')
@@ -841,7 +841,7 @@ def optimal_timing():
     ensure_channel_id()
     
     try:
-        timing_data = analyze_optimal_posting_times(current_user.channel_id)
+        timing_data = analyse_optimal_posting_times(current_user.channel_id)
         return render_template('optimal_timing.html', timing=timing_data)
     except Exception as e:
         return render_template('optimal_timing.html', error=str(e))
@@ -920,23 +920,23 @@ def tools_dashboard():
     """Tools and utilities dashboard"""
     return render_template('tools_dashboard.html')
 
-@app.route('/tools/thumbnail-analyzer')
+@app.route('/tools/thumbnail-analyser')
 @login_required
-def thumbnail_analyzer():
+def thumbnail_analyser():
     """Thumbnail analysis tool"""
-    return render_template('thumbnail_analyzer.html')
+    return render_template('thumbnail_analyser.html')
 
-@app.route('/api/tools/thumbnail/analyze', methods=['POST'])
+@app.route('/api/tools/thumbnail/analyse', methods=['POST'])
 @login_required
-def analyze_thumbnail():
-    """Analyze thumbnail effectiveness"""
+def analyse_thumbnail():
+    """Analyse thumbnail effectiveness"""
     if 'thumbnail' not in request.files:
         return jsonify({"error": "No thumbnail uploaded"}), 400
     
     thumbnail = request.files['thumbnail']
     
     try:
-        analysis = analyze_thumbnail_effectiveness(thumbnail)
+        analysis = analyse_thumbnail_effectiveness(thumbnail)
         return jsonify(analysis)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -1081,8 +1081,8 @@ def get_health_recommendations(channel_id):
     # Implementation needed
     pass
 
-def analyze_channel_growth(channel_id):
-    """Analyze historical growth patterns"""
+def analyse_channel_growth(channel_id):
+    """Analyse historical growth patterns"""
     # Implementation needed
     pass
 
@@ -1101,8 +1101,8 @@ def get_detailed_video_analytics(video_id, channel_id):
     # Implementation needed
     pass
 
-def analyze_videos_batch(video_ids, channel_id):
-    """Analyze multiple videos at once"""
+def analyse_videos_batch(video_ids, channel_id):
+    """Analyse multiple videos at once"""
     # Implementation needed
     pass
 
@@ -1111,20 +1111,427 @@ def get_video_performance_trends(channel_id, timeframe, metric):
     # Implementation needed
     pass
 
-def optimize_video_seo(video_id, keywords, channel_id):
-    """Optimize video SEO"""
+def optimise_video_seo(video_id, keywords, channel_id):
+    """Optimise video SEO"""
     # Implementation needed
     pass
 
-def generate_optimized_tags(title, description, category):
-    """Generate optimized tags"""
+def generate_optimised_tags(title, description, category):
+    """Generate optimised tags"""
     # Implementation needed
     pass
 
-def optimize_video_title(title, audience):
-    """Optimize video title"""
+def optimise_video_title(title, audience):
+    """Optimise video title"""
     # Implementation needed
     pass
 
 # Additional helper functions would continue here...
 # Each function would contain the specific logic for that feature
+
+
+# Competitor Analysis Functions
+def get_user_competitors(user_id):
+    """Get list of competitors for a user"""
+    try:
+        competitors = CompetitorAnalysis.query.filter_by(
+            user_id=user_id,
+            is_active=True
+        ).order_by(CompetitorAnalysis.last_analyzed.desc()).all()
+        
+        return [{
+            'id': comp.id,
+            'channel_id': comp.competitor_channel_id,
+            'name': comp.competitor_name,
+            'subscriber_count': comp.subscriber_count,
+            'avg_views': comp.avg_views,
+            'engagement_rate': comp.engagement_rate,
+            'last_analyzed': comp.last_analyzed.isoformat() if comp.last_analyzed else None
+        } for comp in competitors]
+    except Exception as e:
+        print(f"Error getting competitors: {e}")
+        return []
+
+
+def analyse_competitor(competitor_id, user_channel_id):
+    """Analyze competitor performance"""
+    try:
+        competitor = CompetitorAnalysis.query.get(competitor_id)
+        if not competitor:
+            return None
+        
+        # Get competitor's recent videos
+        competitor_videos = get_competitor_videos(competitor.competitor_channel_id)
+        
+        # Get user's recent videos for comparison
+        user_videos = get_top_performing_videos(user_channel_id, limit=10)
+        
+        # Calculate comparison metrics
+        comparison = {
+            'subscriber_difference': competitor.subscriber_count - get_user_subscriber_count(user_channel_id),
+            'avg_views_difference': competitor.avg_views - calculate_user_avg_views(user_channel_id),
+            'engagement_difference': competitor.engagement_rate - calculate_user_avg_engagement(user_channel_id),
+            'content_analysis': analyse_competitor_content(competitor_videos),
+            'opportunity_keywords': find_competitor_keywords(competitor_videos)
+        }
+        
+        return {
+            'competitor': competitor,
+            'recent_videos': competitor_videos,
+            'comparison': comparison,
+            'recommendations': generate_competitor_recommendations(comparison)
+        }
+    except Exception as e:
+        print(f"Error analyzing competitor: {e}")
+        return None
+
+
+def  analyse_competitor_content(competitor_videos):
+    pass
+
+def get_user_subscriber_count(user_channel_id):
+    pass
+
+def calculate_user_avg_views(user_channel_id):
+    pass
+
+def  calculate_user_avg_engagement(user_channel_id):
+    pass
+
+def find_competitor_keywords(competitor_videos):
+    pass
+
+def generate_competitor_recommendations(comparison):
+    pass
+
+def get_top_performing_videos(user_channel_id, limit=10):
+    pass
+
+def get_competitor_videos(): #(competitor.competitor_channel_id):
+    pass
+
+
+def get_competitor_benchmarks(user_id, timeframe='30d'):
+    """Compare performance against all tracked competitors"""
+    try:
+        competitors = get_user_competitors(user_id)
+        user_metrics = get_user_metrics(user_id, timeframe)
+        
+        benchmarks = {
+            'user_metrics': user_metrics,
+            'competitor_metrics': [],
+            'rankings': {},
+            'opportunities': []
+        }
+        
+        for competitor in competitors:
+            comp_metrics = get_competitor_metrics(competitor['channel_id'], timeframe)
+            benchmarks['competitor_metrics'].append({
+                'name': competitor['name'],
+                'metrics': comp_metrics
+            })
+        
+        # Calculate rankings
+        all_channels = [user_metrics] + [comp['metrics'] for comp in benchmarks['competitor_metrics']]
+        
+        for metric in ['subscriber_count', 'avg_views', 'engagement_rate']:
+            sorted_channels = sorted(all_channels, key=lambda x: x.get(metric, 0), reverse=True)
+            user_rank = next((i+1 for i, ch in enumerate(sorted_channels) if ch == user_metrics), len(sorted_channels))
+            benchmarks['rankings'][metric] = {
+                'rank': user_rank,
+                'total': len(sorted_channels),
+                'percentile': round((1 - (user_rank-1)/len(sorted_channels)) * 100, 1)
+            }
+        
+        return benchmarks
+    except Exception as e:
+        print(f"Error getting benchmarks: {e}")
+        return {}
+
+def get_user_metrics(user_id, timeframe):
+    pass
+
+def get_competitor_metrics(): #(competitor['channel_id'], timeframe):
+    pass
+
+def  get_comprehensive_audience_insights(): #(current_user.channel_id):
+    pass
+
+
+   
+def get_audience_demographics(channel_id):
+    """Get overall channel audience demographics"""
+    try:
+        creds = Credentials(**session['youtube_token'])
+        if not creds:
+            return {}
+        
+        end_date = datetime.now().strftime('%Y-%m-%d')
+        start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
+        
+        # Age demographics
+        age_response = requests.get(
+            'https://youtubeanalytics.googleapis.com/v2/reports',
+            headers={'Authorization': f'Bearer {creds.token}'},
+            params={
+                'ids': 'channel==MINE',
+                'startDate': start_date,
+                'endDate': end_date,
+                'metrics': 'viewerPercentage',
+                'dimensions': 'ageGroup'
+            }
+        )
+        
+        # Gender demographics
+        gender_response = requests.get(
+            'https://youtubeanalytics.googleapis.com/v2/reports',
+            headers={'Authorization': f'Bearer {creds.token}'},
+            params={
+                'ids': 'channel==MINE',
+                'startDate': start_date,
+                'endDate': end_date,
+                'metrics': 'viewerPercentage',
+                'dimensions': 'gender'
+            }
+        )
+        
+        demographics = {
+            'age_groups': {},
+            'gender': {},
+            'last_updated': datetime.now().isoformat()
+        }
+        
+        if age_response.status_code == 200:
+            pass
+
+    except:
+        pass
+
+
+def analyse_engagement_patterns(): #(current_user.channel_id):
+    pass
+
+
+def analyse_audience_retention(): #(video_ids, current_user.channel_id):
+    pass
+
+def get_user_content_plans(): #(current_user.id):
+    pass
+
+def  generate_content_suggestions(
+            current_user, #.channel_id, 
+            category, 
+            target_audience
+        ):
+    pass
+
+def process_channel_analytics(channel_id):
+    # Stub: Replace with real analytics processing logic
+    return {
+        "total_views": 123456,
+        "subscriber_count": 7890,
+        "video_count": 42,
+        "avg_watch_time": 5.5,
+        "engagement_rate": 0.12,
+        "daily_views": [100, 200, 150, 300, 250, 400, 350]
+    }
+
+def fetch_youtube_analytics(channel_id):
+    # Stub: Replace with real YouTube Analytics API call
+    return {
+        "total_views": 123456,
+        "subscriber_count": 7890,
+        "video_count": 42,
+        "avg_watch_time": 5.5,
+        "engagement_rate": 0.12,
+        "daily_views": [100, 200, 150, 300, 250, 400, 350]
+    }
+
+def calculate_ctr_metrics(channel_id, days):
+    # Stub: Replace with real CTR calculation
+    return {
+        "avg_ctr": 0.045,
+        "impressions": 100000,
+        "clicks": 4500,
+        "period_days": days
+    }
+
+def get_seo_recommendations(keyword):
+    # Stub: Replace with real SEO recommendation logic
+    return [
+        {"keyword": f"{keyword} tutorial", "score": 85},
+        {"keyword": f"{keyword} 2025", "score": 78},
+        {"keyword": f"best {keyword} tips", "score": 80}
+    ]
+
+def extract_keywords(texts):
+    # Stub: Replace with real keyword extraction logic
+    content = " ".join(texts)
+    words = set(content.lower().split())
+    # Return top 5 unique words as 'keywords'
+    return list(words)[:5]
+
+def ensure_channel_id():
+    # Stub: In real app, update current_user.channel_id if needed
+    from flask_security import current_user
+    if not hasattr(current_user, 'channel_id') or not current_user.channel_id:
+        # For testing, assign a dummy channel ID
+        current_user.channel_id = "UC1234567890abcdef"
+
+def fetch_trending_keywords(region):
+    # Stub: Replace with real trending keywords fetch
+    return [f"trend_{region}_1", f"trend_{region}_2", f"trend_{region}_3"]
+
+def get_trending_keywords(region, categories):
+    # Stub: Returns trending keywords and their "age"
+    keywords = [f"{region}_cat_{cat}_trend" for cat in categories[:3]]
+    keyword_age = 2  # hours
+    return keywords, keyword_age
+
+def get_category_distribution(region):
+    # Stub: Replace with real category distribution logic
+    return {"Music": 25, "Gaming": 15, "Education": 10}
+
+def get_category_age_distribution(region):
+    # Stub: Replace with real category age distribution logic
+    return {"Music": 2.5, "Gaming": 1.8, "Education": 3.0}
+
+def get_top_channels(region):
+    # Stub: Replace with real top channels fetch
+    channels = [
+        {"channel_id": "UC1", "name": "TopChannel1", "subs": 1000000},
+        {"channel_id": "UC2", "name": "TopChannel2", "subs": 800000}
+    ]
+    channel_data_age = 1  # hours
+    return channels, channel_data_age
+
+def get_all_regions():
+    # Stub: Replace with real region list
+    return ["US", "GB", "IN", "NG"]
+
+def get_default_region(client_ip):
+    # Stub: Use IP to guess region (always returns 'US' here)
+    return "US"
+
+def get_available_categories(api_key, region):
+    # Stub: Replace with real category fetch
+    return ["Music", "Gaming", "Education"]
+
+def get_safe_region_code(region):
+    # Stub: Validate region code
+    return region if region in get_all_regions() else "US"
+
+def visualise_category_age_distribution_base64(region):
+    # Stub: Return a placeholder base64 image string
+    import base64
+    dummy_image = b"fakeimagebytes"
+    return base64.b64encode(dummy_image).decode("utf-8")
+
+
+def add_competitor_tracking(user_id, competitor_channel_id):
+    # Stub: Add a competitor channel to tracking list for a user
+    return {"status": "success", "message": f"Competitor {competitor_channel_id} added for user {user_id}"}
+
+def analyse_optimal_posting_times(channel_id):
+    # Stub: Return best times to post based on dummy data
+    return {
+        "best_days": ["Wednesday", "Saturday"],
+        "best_hours": [15, 18]  # 3pm, 6pm
+    }
+
+def create_content_schedule(user_id, schedule_details):
+    # Stub: Save a content schedule for a user
+    return {"status": "success", "schedule": schedule_details}
+
+def get_user_alerts(user_id):
+    # Stub: Return a list of alerts for the user
+    return [
+        {"id": 1, "type": "performance", "message": "Views dropped by 20%", "active": True},
+        {"id": 2, "type": "goal", "message": "Goal reached!", "active": False}
+    ]
+
+def create_performance_alert(user_id, alert_config):
+    # Stub: Create a new performance alert
+    return {"status": "success", "alert": alert_config}
+
+def toggle_alert_status(user_id, alert_id):
+    # Stub: Toggle alert status (activate/deactivate)
+    return {"status": "success", "alert_id": alert_id, "new_status": "toggled"}
+
+def get_notification_preferences(user_id):
+    # Stub: Return notification preferences for the user
+    return {
+        "email_notifications": True,
+        "push_notifications": False,
+        "sms_notifications": False
+    }
+
+def update_user_notification_preferences(user_id, new_prefs):
+    # Stub: Update notification preferences for the user
+    return {"status": "success", "updated_preferences": new_prefs}
+
+def analyse_thumbnail_effectiveness(video_id):
+    # Stub: Return dummy thumbnail analysis
+    return {
+        "score": 78,
+        "faces_detected": 1,
+        "text_coverage": "low",
+        "contrast": "high",
+        "suggestions": ["Add more vibrant colors", "Increase text size"]
+    }
+
+def get_user_ab_tests(user_id):
+    # Stub: Return a list of A/B tests for the user
+    return [
+        {"id": 1, "name": "Thumbnail Test", "status": "running"},
+        {"id": 2, "name": "Title Test", "status": "completed"}
+    ]
+
+def create_new_ab_test(user_id, test_details):
+    # Stub: Create a new A/B test
+    return {"status": "success", "test": test_details}
+
+def get_tracked_keywords(user_id):
+    # Stub: Return a list of tracked keywords for the user
+    return ["python tutorial", "flask web app", "seo tips"]
+
+def start_keyword_tracking(user_id, keyword):
+    # Stub: Start tracking a new keyword for the user
+    return {"status": "success", "keyword": keyword}
+
+def get_user_goals(user_id):
+    # Stub: Return a list of user goals
+    return [
+        {"id": 1, "description": "Reach 10,000 subscribers", "progress": 70},
+        {"id": 2, "description": "Publish 50 videos", "progress": 40}
+    ]
+
+def create_user_goal(user_id, goal_details):
+    # Stub: Create a new user goal
+    return {"status": "success", "goal": goal_details}
+
+def calculate_goal_progress(user_id, goal_id):
+    # Stub: Calculate progress for a specific goal
+    return {"goal_id": goal_id, "progress": 78}
+
+def get_user_milestones(user_id):
+    # Stub: Return a list of milestones achieved by the user
+    return [
+        {"id": 1, "description": "First 1,000 views", "date": "2024-01-15"},
+        {"id": 2, "description": "First 100 subscribers", "date": "2024-03-10"}
+    ]
+
+def get_user_reports(user_id):
+    # Stub: Return a list of analytics reports for the user
+    return [
+        {"id": 1, "name": "Monthly Report", "created_at": "2025-05-01"},
+        {"id": 2, "name": "Q1 Performance", "created_at": "2025-04-01"}
+    ]
+
+def generate_analytics_report(user_id, report_type):
+    # Stub: Generate a new analytics report
+    return {"status": "success", "report_type": report_type, "report_url": f"/reports/{user_id}/{report_type}"}
+
+def export_analytics_data(user_id, format="csv"):
+    # Stub: Export analytics data in the requested format
+    return {"status": "success", "download_url": f"/exports/{user_id}/analytics.{format}"}
