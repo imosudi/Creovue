@@ -13,6 +13,12 @@ from Creovue.config import creo_api_key
 def get_comprehensive_audience_insights(channel_id, days):
     """Get comprehensive audience insights including demographics, behavior, and growth patterns"""
     #print("channel_id: ", channel_id); time.sleep(30)
+
+    creds = Credentials(**session['youtube_token'])
+    end_date = datetime.now().strftime('%Y-%m-%d')
+    start_date = (datetime.now() - timedelta(4000)).strftime('%Y-%m-%d')
+    age_response= get_audience_demographics(creds, channel_id, start_date, end_date)
+    print("age_response: ", age_response); time.sleep(3000)
     try:
         creds = Credentials(**session['youtube_token'])
         if not creds:
@@ -67,6 +73,7 @@ def get_audience_demographics(creds, channel_id, start_date, end_date):
         
         youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
 
+        startDate = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
         
         #print("youtube_analytics: ", youtube_analytics); time.sleep(30)
         # Age demographics
@@ -79,7 +86,14 @@ def get_audience_demographics(creds, channel_id, start_date, end_date):
             sort='-viewerPercentage'
         ).execute()
 
-        print("age_response: ", age_response); time.sleep(30)
+        return age_response
+        #print("age_response.status_code: ", age_response.status_code)
+
+        try:
+            print("age_response.status_code: ", age_response.status_code)
+        except :
+            pass
+        print("age_response: ", age_response); time.sleep(3000)
 
         # Gender demographics
         gender_response = youtube_analytics.reports().query(
