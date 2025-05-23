@@ -15,8 +15,11 @@ def get_comprehensive_audience_insights(channel_id, days):
     #print("channel_id: ", channel_id); time.sleep(30)
 
     creds = Credentials(**session['youtube_token'])
+    #end_date = datetime.now().strftime('%Y-%m-%d')
+    #start_date = (datetime.now() - timedelta(4000)).strftime('%Y-%m-%d')
+
+    start_date = (datetime.now() - timedelta(days=4365)).strftime('%Y-%m-%d')
     end_date = datetime.now().strftime('%Y-%m-%d')
-    start_date = (datetime.now() - timedelta(4000)).strftime('%Y-%m-%d')
     age_response= get_audience_demographics(creds, channel_id, start_date, end_date)
     print("age_response: ", age_response); time.sleep(3000)
     try:
@@ -50,33 +53,23 @@ def get_comprehensive_audience_insights(channel_id, days):
         print(f"Error getting comprehensive audience insights: {e}")
         return {'error': str(e)}
 
+
 def get_audience_demographics(creds, channel_id, start_date, end_date):
-    """Get detailed audience demographics including age, gender, and geographic data"""
+    """Get audience demographics (age, gender, country) with proper fallback handling."""
     try:
-        creds = Credentials(**session['youtube_token'])
-        if not creds:
-            return {}
-        #print("creds: ", creds); time.sleep(30)
-        #end_date = datetime.now().strftime('%Y-%m-%d')
-        #start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
-        
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
 
-        print("creds: ", creds); #time.sleep(30)
+        youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
+
         demographics = {
             'age_groups': {},
             'gender': {},
             'countries': {},
             'last_updated': datetime.now().isoformat()
         }
-        
-        youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
 
-        startDate = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
-        
-        #print("youtube_analytics: ", youtube_analytics); time.sleep(30)
-        # Age demographics
+        # Query Age Demographics
         age_response = youtube_analytics.reports().query(
             ids='channel==MINE',
             startDate=start_date,
@@ -86,16 +79,18 @@ def get_audience_demographics(creds, channel_id, start_date, end_date):
             sort='-viewerPercentage'
         ).execute()
 
-        return age_response
-        #print("age_response.status_code: ", age_response.status_code)
+        if age_response.get('rows'):
+            for row in age_response['rows']:
+                age = row[0]
+                percentage = row[1]
+                demographics['age_groups'][age] = {
+                    'percentage': round(percentage, 2),
+                    'label': format_age_group_label(age)
+                }
+        else:
+            print("No age group data available.")
 
-        try:
-            print("age_response.status_code: ", age_response.status_code)
-        except :
-            pass
-        print("age_response: ", age_response); time.sleep(3000)
-
-        # Gender demographics
+        # Query Gender Demographics
         gender_response = youtube_analytics.reports().query(
             ids='channel==MINE',
             startDate=start_date,
@@ -105,7 +100,18 @@ def get_audience_demographics(creds, channel_id, start_date, end_date):
             sort='-viewerPercentage'
         ).execute()
 
-        # Geographic demographics
+        if gender_response.get('rows'):
+            for row in gender_response['rows']:
+                gender = row[0]
+                percentage = row[1]
+                demographics['gender'][gender] = {
+                    'percentage': round(percentage, 2),
+                    'label': gender.title()
+                }
+        else:
+            print("No gender data available.")
+
+        # Query Country Demographics
         geo_response = youtube_analytics.reports().query(
             ids='channel==MINE',
             startDate=start_date,
@@ -116,45 +122,19 @@ def get_audience_demographics(creds, channel_id, start_date, end_date):
             maxResults=20
         ).execute()
 
-        print("gender_response: ", gender_response.text, "\n", "geo_response: ", geo_response.text); time.sleep(300)
-        # Process age data
-        if age_response.status_code == 200:
-            age_data = age_response.json()
-            if 'rows' in age_data:
-                for row in age_data['rows']:
-                    age_group = row[0]
-                    percentage = row[1]
-                    demographics['age_groups'][age_group] = {
-                        'percentage': round(percentage, 2),
-                        'label': format_age_group_label(age_group)
-                    }
-        
-        # Process gender data
-        if gender_response.status_code == 200:
-            gender_data = gender_response.json()
-            if 'rows' in gender_data:
-                for row in gender_data['rows']:
-                    gender = row[0]
-                    percentage = row[1]
-                    demographics['gender'][gender] = {
-                        'percentage': round(percentage, 2),
-                        'label': gender.title()
-                    }
-        
-        # Process geographic data
-        if geo_response.status_code == 200:
-            geo_data = geo_response.json()
-            if 'rows' in geo_data:
-                for row in geo_data['rows']:
-                    country_code = row[0]
-                    percentage = row[1]
-                    demographics['countries'][country_code] = {
-                        'percentage': round(percentage, 2),
-                        'name': get_country_name(country_code)
-                    }
-        
+        if geo_response.get('rows'):
+            for row in geo_response['rows']:
+                country = row[0]
+                percentage = row[1]
+                demographics['countries'][country] = {
+                    'percentage': round(percentage, 2),
+                    'name': get_country_name(country)
+                }
+        else:
+            print("No country data available.")
+
         return demographics
-        
+
     except Exception as e:
         print(f"Error getting audience demographics: {e}")
         return {'error': str(e)}
