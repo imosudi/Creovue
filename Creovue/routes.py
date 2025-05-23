@@ -80,6 +80,10 @@ from Creovue.models.trends import (
     visualise_category_age_distribution_base64
 )
 
+from Creovue.utils.audience_insights import (
+    get_comprehensive_audience_insights, analyse_audience_retention, get_audience_demographics, analyse_engagement_patterns
+    
+)
 # Commented out import
 # from .app_secets import creo_channel_id, creo_api_key, creo_mock_view_history
 
@@ -761,9 +765,11 @@ def audience_insights():
     
     if not current_user.channel_id:
         return render_template('audience_insights.html', error="No channel connected")
-    
+    channel_id = current_user.channel_id
+    print("channel_id: ", channel_id); time.sleep(30)
+    insights = get_comprehensive_audience_insights(channel_id)
     try:
-        insights = get_comprehensive_audience_insights(current_user.channel_id)
+        insights = get_comprehensive_audience_insights(channel_id)
         return render_template('audience_insights.html', insights=insights)
     except Exception as e:
         return render_template('audience_insights.html', error=str(e))
@@ -1251,67 +1257,6 @@ def get_user_metrics(user_id, timeframe):
     pass
 
 def get_competitor_metrics(): #(competitor['channel_id'], timeframe):
-    pass
-
-def  get_comprehensive_audience_insights(): #(current_user.channel_id):
-    pass
-
-
-   
-def get_audience_demographics(channel_id):
-    """Get overall channel audience demographics"""
-    try:
-        creds = Credentials(**session['youtube_token'])
-        if not creds:
-            return {}
-        
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
-        
-        # Age demographics
-        age_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'viewerPercentage',
-                'dimensions': 'ageGroup'
-            }
-        )
-        
-        # Gender demographics
-        gender_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'viewerPercentage',
-                'dimensions': 'gender'
-            }
-        )
-        
-        demographics = {
-            'age_groups': {},
-            'gender': {},
-            'last_updated': datetime.now().isoformat()
-        }
-        
-        if age_response.status_code == 200:
-            pass
-
-    except:
-        pass
-
-
-def analyse_engagement_patterns(): #(current_user.channel_id):
-    pass
-
-
-def analyse_audience_retention(): #(video_ids, current_user.channel_id):
     pass
 
 def get_user_content_plans(): #(current_user.id):
