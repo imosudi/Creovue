@@ -116,20 +116,26 @@ def get_audience_demographics(creds, channel_id, start_date, end_date):
             ids='channel==MINE',
             startDate=start_date,
             endDate=end_date,
-            metrics='viewerPercentage',
+            metrics='views',
             dimensions='country',
-            sort='-viewerPercentage',
+            sort='-views',
             maxResults=20
         ).execute()
 
+
+
         if geo_response.get('rows'):
-            for row in geo_response['rows']:
-                country = row[0]
-                percentage = row[1]
-                demographics['countries'][country] = {
-                    'percentage': round(percentage, 2),
-                    'name': get_country_name(country)
-                }
+            for row in geo_response.get('rows', []):
+                country_code, gender, percentage = row
+                if country_code not in demographics['countries']:
+                    demographics['countries'][country_code] = {
+                        'name': get_country_name(country_code),
+                        'total_percentage': 0,
+                        'breakdown': {}
+                    }
+                demographics['countries'][country_code]['total_percentage'] += percentage
+                demographics['countries'][country_code]['breakdown'][gender] = round(percentage, 2)
+
         else:
             print("No country data available.")
 
