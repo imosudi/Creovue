@@ -31,7 +31,7 @@ def get_comprehensive_audience_insights(channel_id, days):
         #end_date = datetime.now().strftime('%Y-%m-%d')
         #start_date = (datetime.now() - timedelta(days)).strftime('%Y-%m-%d')
         content_preferences = get_content_preferences(creds, start_date, end_date)
-        print("content_preferences: ", content_preferences); time.sleep(300)
+        #print("content_preferences: ", content_preferences); time.sleep(300)
         traffic_sources = get_traffic_sources(creds, start_date, end_date)
         device_preferences = get_device_preferences(creds, start_date, end_date)
         engagement_overview = get_engagement_overview(creds, start_date, end_date)
@@ -47,7 +47,7 @@ def get_comprehensive_audience_insights(channel_id, days):
             'engagement_overview': engagement_overview, #get_engagement_overview(creds, start_date, end_date),
             'device_preferences': device_preferences, #get_device_preferences(creds, start_date, end_date),
             'traffic_sources': traffic_sources, #get_traffic_sources(creds, start_date, end_date),
-            'content_preferences': get_content_preferences(creds, start_date, end_date),
+            'content_preferences': content_preferences, #get_content_preferences(creds, start_date, end_date),
             'summary': {},
             'last_updated': datetime.now().isoformat()
         }
@@ -55,7 +55,7 @@ def get_comprehensive_audience_insights(channel_id, days):
         
         # Generate summary insights
         insights['summary'] = generate_audience_summary(insights)
-        print("insights: ", insights)
+        #print("insights: ", insights)
         
         return insights
         
@@ -688,7 +688,7 @@ def get_content_preferences(creds, start_date, end_date):
             maxResults=50
         ).execute()
 
-        print("performance_response: ", performance_response); time.sleep(30)
+        #print("performance_response: ", performance_response); time.sleep(30)
         preferences = {
             'content_performance': {},
             'content_categories': {},
@@ -709,6 +709,8 @@ def get_content_preferences(creds, start_date, end_date):
                 shares = row[4]
                 avg_duration = row[5]
 
+                watch_time_minutes = (views * avg_duration) / 60
+
                 # ✅ Fetch video metadata using YouTube Data API v3
                 video_details = get_video_details(video_id, creds)
                 print("avg_duration: ", avg_duration)
@@ -727,10 +729,9 @@ def get_content_preferences(creds, start_date, end_date):
                     'engagement_rate': round(((likes + comments + shares) / views) * 100, 2) if views > 0 else 0,
                     'retention_rate': round((avg_duration / duration_sec) * 100, 2) if duration_sec > 0 else 0,
                     'performance_score': calculate_content_performance_score(
-                        views, likes, comments, shares, avg_duration
+                        views, likes, comments, shares, watch_time_minutes, avg_duration
                     )
                 }
-
                 print("avg_duration: ", avg_duration)
                 video_performances.append(performance_data)
 
@@ -1488,20 +1489,26 @@ def get_video_details(video_id, creds):
             'description': ''
         }
 
-def calculate_content_performance_score(views, likes, comments, shares, watch_time, avg_duration):
+def calculate_content_performance_score(views, likes, comments, shares, watch_time_minutes, avg_duration):
     """Calculate overall performance score for content"""
     if views == 0:
         return 0
     
     # Normalize metrics
     engagement_rate = ((likes + comments + shares) / views) * 100
-    watch_time_quality = (watch_time / views) * 10  # Minutes per view * 10
+    watch_time_quality = (watch_time_minutes / views) * 10  # Minutes per view * 10
     duration_retention = min(avg_duration / 60, 10)  # Cap at 10 minutes
     
     # Weighted score
     score = (engagement_rate * 0.4) + (watch_time_quality * 0.4) + (duration_retention * 0.2)
     
     return round(min(score, 100), 2)
+
+"""def calculate_content_performance_score(views, likes, comments, shares, watch_time_minutes, avg_duration):
+    engagement = likes + comments + shares
+    score = (engagement + (watch_time_minutes / avg_duration)) / views if views > 0 and avg_duration > 0 else 0
+    return round(score, 2)"""
+
 
 def analyse_content_patterns(video_performances):
     """Analyse patterns in content performance"""

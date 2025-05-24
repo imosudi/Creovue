@@ -769,6 +769,7 @@ def audience_insights():
     days = 5900
     #print("channel_id: ", channel_id); time.sleep(30)
     insights = get_comprehensive_audience_insights(channel_id, days)
+    return render_template('audience_insights.html', insights=insights)
     try:
         #insights = get_comprehensive_audience_insights(channel_id, days)
         return render_template('audience_insights.html', insights=insights)
