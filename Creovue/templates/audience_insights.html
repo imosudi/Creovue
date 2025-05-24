@@ -81,7 +81,7 @@
                                                         <td>{#{ (data.watch_time_minutes / 60)|round(1) }#}</td>
                                                         <td>
                                                             <div class="progress" style="width: 100px;">
-                                                                <div class="progress-bar" style="width: {{ (data.views / insights.geography.top_countries[0][1].views * 100)|round }}%"></div>
+                                                                <div class="progress-bar" style="width: {#{ (data.views / insights.geography.top_countries[0][1].views * 100)|round }#}%"></div>
                                                             </div>
                                                         </td>
                                                     </tr>
