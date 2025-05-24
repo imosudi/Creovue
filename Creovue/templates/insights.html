@@ -1,0 +1,398 @@
+<!-- templates/audience_insights.html -->
+{% extends 'dashboard_base.html' %}
+
+    <style>
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .progress-modern {
+            height: 8px;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+        }
+        .progress-bar-modern {
+            border-radius: 20px;
+            background: linear-gradient(90deg, #28a745, #20c997);
+        }
+        .card-modern {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        .card-modern:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .table-modern {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table-modern thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .stat-icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+    </style>
+{% block dashboard_main %}
+<!-- Top Bar -->
+<header class="topbar">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h4 mb-0 text-gray-800">Audience Insights</h1>
+      <div class="d-flex align-items-center">
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            {% if current_user.profile_pic %}
+              <img src="{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}" alt="Profile" width="32" height="32" class="rounded-circle me-2">
+            {% else %}
+                <i class="bi bi-person-circle me-1"></i>
+                <span class="me-2">{{ current_user.username }}</span>
+            {% endif %}
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+
+    <div class="container-fluid py-4">
+
+        <!-- Key Metrics Overview -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card metric-card h-100 p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-eye stat-icon"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1">5</h3>
+                            <p class="mb-0 opacity-75">Total Views</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card h-100 p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-clock stat-icon"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1">1</h3>
+                            <p class="mb-0 opacity-75">Minutes Watched</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card h-100 p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-chart-line stat-icon"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1">14s</h3>
+                            <p class="mb-0 opacity-75">Avg Duration</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card h-100 p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-users stat-icon"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1">0</h3>
+                            <p class="mb-0 opacity-75">Subscribers</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Traffic Sources & Device Usage -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-8">
+                <div class="card card-modern h-100">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <h5 class="mb-0"><i class="fas fa-share-alt me-2"></i>Traffic Sources</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-medium">YouTube Search</span>
+                                        <span class="badge bg-primary">80%</span>
+                                    </div>
+                                    <div class="progress progress-modern">
+                                        <div class="progress-bar progress-bar-modern" style="width: 80%"></div>
+                                    </div>
+                                    <small class="text-muted">4 views • 1 min watch time</small>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-medium">External URL</span>
+                                        <span class="badge bg-secondary">20%</span>
+                                    </div>
+                                    <div class="progress progress-modern">
+                                        <div class="progress-bar bg-secondary" style="width: 20%"></div>
+                                    </div>
+                                    <small class="text-muted">1 view • 0 min watch time</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="chart-container d-flex align-items-center justify-content-center">
+                                    <canvas id="trafficChart" width="200" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-modern h-100">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <h5 class="mb-0"><i class="fas fa-desktop me-2"></i>Device Usage</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-medium"><i class="fas fa-desktop me-2"></i>Desktop</span>
+                                <span class="badge bg-success">100%</span>
+                            </div>
+                            <div class="progress progress-modern">
+                                <div class="progress-bar progress-bar-modern" style="width: 100%"></div>
+                            </div>
+                            <small class="text-muted">5 views • Quality Score: 5.72</small>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h6 class="text-muted mb-3">Operating Systems</h6>
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>Windows</span>
+                                    <span>40%</span>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>macOS</span>
+                                    <span>40%</span>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>Linux</span>
+                                    <span>20%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Performance -->
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                <div class="card card-modern">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <h5 class="mb-0"><i class="fas fa-video me-2"></i>Top Performing Content</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-modern table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Video Title</th>
+                                        <th>Views</th>
+                                        <th>Duration</th>
+                                        <th>Avg Watch Time</th>
+                                        <th>Retention</th>
+                                        <th>Performance Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="fw-medium">Ansible Automation of EC2 Instance, Docker CE, Icinga2, Icingaweb2</div>
+                                            <small class="text-muted">ID: DEQiARP_DiU</small>
+                                        </td>
+                                        <td><span class="badge bg-primary">2</span></td>
+                                        <td>64m 52s</td>
+                                        <td>18s</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress progress-modern me-2" style="width: 60px; height: 6px;">
+                                                    <div class="progress-bar progress-bar-modern" style="width: 46%"></div>
+                                                </div>
+                                                <small>46%</small>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-success">1.26</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="fw-medium">Ansible Automation of EC2 Instance, Docker CE, Icinga2, Icingaweb2</div>
+                                            <small class="text-muted">ID: FBZ21CjR_A4</small>
+                                        </td>
+                                        <td><span class="badge bg-primary">3</span></td>
+                                        <td>69m 1s</td>
+                                        <td>12s</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress progress-modern me-2" style="width: 60px; height: 6px;">
+                                                    <div class="progress-bar bg-warning" style="width: 29%"></div>
+                                                </div>
+                                                <small>29%</small>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-warning">0.84</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card card-modern">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Traffic Recommendations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning border-0" style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);">
+                            <div class="d-flex">
+                                <i class="fas fa-exclamation-triangle me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="mb-1">Diversify Traffic Sources</h6>
+                                    <p class="mb-0">Over 60% of traffic comes from YouTube Search. Work on developing other traffic sources for stability.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card card-modern">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Content Recommendations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info border-0" style="background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);">
+                            <div class="d-flex">
+                                <i class="fas fa-info-circle me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="mb-1">Focus on Unknown Content</h6>
+                                    <p class="mb-2">Unknown content shows the highest average performance score of 1.1.</p>
+                                    <small class="text-muted"><strong>Tip:</strong> Very long videos show the best engagement rates.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demographics Section -->
+        {% set has_demographics = insights.demographics.age_groups or insights.demographics.gender or insights.demographics.countries %}
+        {% if has_demographics %}
+        <div class="row g-4 mb-4">
+            {% if insights.demographics.age_groups %}
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">Age Demographics</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="ageChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <!-- Demographics (Empty State) -->
+        <div class="row g-4 mt-2">
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h4>Demographics Data Not Available</h4>
+                    <p class="text-muted">Audience demographics will appear here once you have sufficient viewership data. Keep creating content to unlock detailed audience insights!</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+    </div>
+
+    <!--script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // Traffic Sources Doughnut Chart
+        const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+        new Chart(trafficCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['YouTube Search', 'External URL'],
+                datasets: [{
+                    data: [80, 20],
+                    backgroundColor: ['#667eea', '#764ba2'],
+                    borderWidth: 0,
+                    cutout: '70%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}
