@@ -940,7 +940,7 @@ def generate_retention_recommendations(retention_data):
             recommendations.append({
                 'type': 'content_structure',
                 'priority': 'medium',
-                'title': 'Optimize Content Structure',
+                'title': 'Optimise  Content Structure',
                 'description': 'Analyse common drop-off points and restructure content to maintain engagement at these critical moments.'
             })
     
@@ -959,7 +959,7 @@ def generate_engagement_recommendations(patterns):
         recommendations.append({
             'type': 'posting_schedule',
             'priority': 'medium',
-            'title': f'Optimize Posting Schedule',
+            'title': f'Optimise  Posting Schedule',
             'description': f'{best_day[0]} shows the highest engagement rate. Consider posting more content on this day.'
         })
     
@@ -1333,8 +1333,8 @@ def generate_device_recommendations(preferences):
             recommendations.append({
                 'type': 'mobile_optimization',
                 'priority': 'high',
-                'title': 'Optimize for Mobile Viewing',
-                'description': f'{mobile_percentage:.1f}% of your views come from mobile devices. Ensure your content is optimized for smaller screens and shorter attention spans.'
+                'title': 'Optimise  for Mobile Viewing',
+                'description': f'{mobile_percentage:.1f}% of your views come from mobile devices. Ensure your content is optimise d for smaller screens and shorter attention spans.'
             })
         
         # TV viewing recommendations
@@ -1462,7 +1462,7 @@ def generate_traffic_recommendations(sources):
                     'type': 'seo_optimization',
                     'priority': 'medium',
                     'title': 'Improve YouTube SEO',
-                    'description': 'Only {:.1f}% of traffic comes from YouTube search. Optimize titles, descriptions, and tags for better discoverability.'.format(search_percentage)
+                    'description': 'Only {:.1f}% of traffic comes from YouTube search. optimise  titles, descriptions, and tags for better discoverability.'.format(search_percentage)
                 })
     
     return recommendations
@@ -1696,7 +1696,7 @@ def generate_content_recommendations(preferences):
             recommendations.append({
                 'type': 'video_length',
                 'priority': 'medium',
-                'title': f'Optimize Video Length',
+                'title': f'Optimise  Video Length',
                 'description': f'{optimal["range"].title()} videos show the best engagement rates at {optimal["avg_engagement"]:.1f}%.'
             })
     
@@ -1825,7 +1825,7 @@ def generate_retention_recommendations(retention_data):
             recommendations.append({
                 'type': 'content_structure',
                 'priority': 'medium',
-                'title': 'Optimize Content Structure',
+                'title': 'Optimise  Content Structure',
                 'description': 'Analyse common drop-off points and restructure content to maintain engagement at these critical moments.'
             })
     
@@ -1844,7 +1844,7 @@ def generate_engagement_recommendations(patterns):
         recommendations.append({
             'type': 'posting_schedule',
             'priority': 'medium',
-            'title': f'Optimize Posting Schedule',
+            'title': f'Optimise  Posting Schedule',
             'description': f'{best_day[0]} shows the highest engagement rate. Consider posting more content on this day.'
         })
     

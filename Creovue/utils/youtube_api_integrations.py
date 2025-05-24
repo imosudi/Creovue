@@ -1049,7 +1049,7 @@ def generate_competitor_recommendations(user_id, competitor_channel_id):
     return [
         "Post more tutorials on trending topics.",
         "Increase video upload frequency.",
-        "Optimize thumbnails for higher CTR."
+        "Optimise  thumbnails for higher CTR."
     ]
 
 # 11. get_user_metrics
