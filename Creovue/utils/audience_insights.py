@@ -30,8 +30,10 @@ def get_comprehensive_audience_insights(channel_id, days):
         """
         #end_date = datetime.now().strftime('%Y-%m-%d')
         #start_date = (datetime.now() - timedelta(days)).strftime('%Y-%m-%d')
+        traffic_sources = get_traffic_sources(creds, start_date, end_date)
+        print("traffic_sources: ", traffic_sources); time.sleep(300)
+        device_preferences = get_device_preferences(creds, start_date, end_date)
         engagement_overview = get_engagement_overview(creds, start_date, end_date)
-        print("engagement_overview: ", engagement_overview); time.sleep(300)
         subscription_trends = get_subscription_trends(creds, start_date, end_date)
         viewing_behaviour_insights = get_viewing_behaviour_insights(creds, start_date, end_date)
         geographic_insights = get_geographic_insights(creds, start_date, end_date)
@@ -41,9 +43,9 @@ def get_comprehensive_audience_insights(channel_id, days):
             'geographic_data': geographic_insights, #get_geographic_insights(creds, start_date, end_date),
             'viewing_behaviour': viewing_behaviour_insights, #get_viewing_behaviour_insights(creds, start_date, end_date),
             'subscription_trends': subscription_trends, #get_subscription_trends(creds, start_date, end_date),
-            'engagement_overview': get_engagement_overview(creds, start_date, end_date),
-            'device_preferences': get_device_preferences(creds, start_date, end_date),
-            #'traffic_sources': get_traffic_sources(creds, start_date, end_date),
+            'engagement_overview': engagement_overview, #get_engagement_overview(creds, start_date, end_date),
+            'device_preferences': device_preferences, #get_device_preferences(creds, start_date, end_date),
+            'traffic_sources': get_traffic_sources(creds, start_date, end_date),
             'content_preferences': get_content_preferences(creds, start_date, end_date),
             'summary': {},
             'last_updated': datetime.now().isoformat()
@@ -393,8 +395,6 @@ def get_viewing_behaviour_insights(creds, start_date, end_date):
         print(f"Error getting viewing behaviour insights: {e}")
         return {}
 
-
-
 def get_subscription_trends(creds, start_date, end_date):
     """Analyse subscription growth patterns."""
     try:
@@ -468,35 +468,278 @@ def get_engagement_overview(creds, start_date, end_date):
             metrics='views,likes,comments,shares,estimatedMinutesWatched,averageViewDuration',
         ).execute()
 
-        print("engagement_response:", engagement_response ); time.sleep(300)
+        #print("engagement_response:", engagement_response ); time.sleep(300)
 
-        if 'rows' in engagement_response and engagement_response['rows']:
+        if engagement_response.get('rows'):
             row = engagement_response['rows'][0]
-
             views = row[0]
             likes = row[1]
             comments = row[2]
             shares = row[3]
-            watch_time_minutes = row[4]
-            avg_view_duration = row[5]
+            watch_time = row[4]
+            avg_duration = row[5]
 
             return {
                 'total_views': views,
                 'total_likes': likes,
                 'total_comments': comments,
                 'total_shares': shares,
-                'total_watch_time_minutes': watch_time_minutes,
-                'average_view_duration_seconds': avg_view_duration,
+                'total_watch_time_minutes': watch_time,
+                'average_view_duration_seconds': avg_duration,
                 'engagement_rate': round(((likes + comments + shares) / views) * 100, 2) if views > 0 else 0,
                 'like_ratio': round((likes / views) * 100, 2) if views > 0 else 0,
                 'comment_ratio': round((comments / views) * 100, 2) if views > 0 else 0
             }
-
-        return {}
+        else:
+            print("No engagement data available.")
+            return {}
 
     except Exception as e:
         print(f"Error getting engagement overview: {e}")
         return {}
+
+def get_device_preferences(creds, start_date, end_date):
+    """Get detailed device usage preferences and performance metrics"""
+    try:
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+
+        youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
+
+        preferences = {
+            'device_types': {},
+            'operating_systems': {},
+            'device_insights': {},
+            'recommendations': []
+        }
+
+        # ✅ Device data (without subscribersGained)
+        device_data = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='views,estimatedMinutesWatched,averageViewDuration',
+            dimensions='deviceType',
+            sort='-views'
+        ).execute()
+
+        # Optional: Subscribers by device fallback (if supported)
+        subscriber_data = {}  # e.g., if you find a supported alternative dimension
+
+        if 'rows' in device_data:
+            total_views = sum(row[1] for row in device_data['rows'])
+
+            for row in device_data['rows']:
+                device_type = row[0]
+                views = row[1]
+                minutes_watched = row[2]
+                avg_duration = row[3]
+                subscribers = subscriber_data.get(device_type, 0)
+
+                preferences['device_types'][device_type] = {
+                    'views': views,
+                    'watch_time_minutes': minutes_watched,
+                    'average_view_duration': avg_duration,
+                    'subscribers_gained': subscribers,
+                    'percentage_of_views': round((views / total_views) * 100, 2) if total_views else 0,
+                    'engagement_quality': calculate_device_engagement_quality(views, minutes_watched, avg_duration)
+                }
+
+        # ✅ OS data (ensure metrics are valid)
+        os_data = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='views,estimatedMinutesWatched',
+            dimensions='operatingSystem',
+            sort='-views',
+            maxResults=10
+        ).execute()
+
+        if 'rows' in os_data:
+            total_views = sum(row[1] for row in os_data['rows'])
+            for row in os_data['rows']:
+                os_name = row[0]
+                views = row[1]
+                minutes_watched = row[2]
+
+                preferences['operating_systems'][os_name] = {
+                    'views': views,
+                    'watch_time_minutes': minutes_watched,
+                    'percentage_of_views': round((views / total_views) * 100, 2) if total_views else 0,
+                    'avg_session_duration': round(minutes_watched * 60 / views, 2) if views else 0
+                }
+
+        preferences['device_insights'] = analyse_device_performance(preferences['device_types'])
+        preferences['recommendations'] = generate_device_recommendations(preferences)
+
+        return preferences
+
+    except Exception as e:
+        print(f"Error getting device preferences: {e}")
+        return {}
+
+
+def get_traffic_sources(creds, start_date, end_date):
+    """Get comprehensive traffic source analysis and performance metrics"""
+    try:
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+
+        youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
+
+        sources = {
+            'traffic_types': {},
+            'traffic_details': {},
+            'performance_metrics': {},
+            'growth_sources': {},
+            'recommendations': []
+        }
+
+        # ✅ Traffic Type: Remove unsupported metric
+        traffic_data = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='views,estimatedMinutesWatched,averageViewDuration',
+            dimensions='insightTrafficSourceType',
+            sort='-views'
+        ).execute()
+
+        print("traffic_data: ", traffic_data); time.sleep(30)
+        
+        if 'rows' in traffic_data:
+            total_views = sum(row[1] for row in traffic_data['rows'])
+
+            for row in traffic_data['rows']:
+                source_type = row[0]
+                views = row[1]
+                minutes_watched = row[2]
+                avg_duration = row[3]
+                subscribers = row[4] if len(row) > 4 else 0
+
+                sources['traffic_types'][source_type] = {
+                    'views': views,
+                    'watch_time_minutes': minutes_watched,
+                    'average_view_duration': avg_duration,
+                    'subscribers_gained': subscribers,
+                    'percentage_of_views': round((views / total_views) * 100, 2) if total_views else 0,
+                    'quality_score': calculate_traffic_quality_score(views, minutes_watched, subscribers, avg_duration),
+                    'label': format_traffic_source_label(source_type)
+                }
+
+       # Detailed Sources (fixed)
+        detail_data = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='views',  # ✅ Only 'views' allowed with insightTrafficSourceDetail
+            dimensions='insightTrafficSourceDetail',
+            sort='-views',
+            maxResults=20
+        ).execute()
+
+        if 'rows' in detail_data:
+            for row in detail_data['rows']:
+                detail_source = row[0]
+                views = row[1]
+
+                sources['traffic_details'][detail_source] = {
+                    'views': views
+                }
+
+
+        sources['performance_metrics'] = calculate_traffic_performance_metrics(sources['traffic_types'])
+        sources['growth_sources'] = identify_growth_traffic_sources(sources['traffic_types'])
+        sources['recommendations'] = generate_traffic_recommendations(sources)
+
+        return sources
+
+    except Exception as e:
+        print(f"Error getting traffic sources: {e}")
+        return {}
+
+
+def get_content_preferences(creds, start_date, end_date):
+    """Analyse content preferences and performance patterns"""
+    try:
+        # Get video performance data
+        video_response = requests.get(
+            'https://youtubeanalytics.googleapis.com/v2/reports',
+            headers={'Authorization': f'Bearer {creds.token}'},
+            params={
+                'ids': 'channel==MINE',
+                'startDate': start_date,
+                'endDate': end_date,
+                'metrics': 'views,likes,comments,shares,watchTimeMinutes,averageViewDuration',
+                'dimensions': 'video',
+                'sort': '-views',
+                'maxResults': 50
+            }
+        )
+        
+        preferences = {
+            'content_performance': {},
+            'content_categories': {},
+            'engagement_patterns': {},
+            'optimal_content_features': {},
+            'trending_topics': [],
+            'recommendations': []
+        }
+        
+        if video_response.status_code == 200:
+            video_data = video_response.json()
+            
+            if 'rows' in video_data:
+                video_performances = []
+                
+                for row in video_data['rows']:
+                    video_id = row[0]
+                    views = row[1]
+                    likes = row[2]
+                    comments = row[3]
+                    shares = row[4]
+                    watch_time = row[5]
+                    avg_duration = row[6]
+                    
+                    # Get video details (title, description, etc.)
+                    video_details = get_video_details(video_id, creds)
+                    
+                    performance_data = {
+                        'video_id': video_id,
+                        'title': video_details.get('title', 'Unknown'),
+                        'duration': video_details.get('duration', 0),
+                        'tags': video_details.get('tags', []),
+                        'category': video_details.get('category', 'Unknown'),
+                        'views': views,
+                        'likes': likes,
+                        'comments': comments,
+                        'shares': shares,
+                        'watch_time_minutes': watch_time,
+                        'average_view_duration': avg_duration,
+                        'engagement_rate': round(((likes + comments + shares) / views) * 100, 2) if views > 0 else 0,
+                        'retention_rate': round((avg_duration / video_details.get('duration', 1)) * 100, 2) if video_details.get('duration', 0) > 0 else 0,
+                        'performance_score': calculate_content_performance_score(views, likes, comments, shares, watch_time, avg_duration)
+                    }
+                    
+                    video_performances.append(performance_data)
+                
+                # Analyse content patterns
+                preferences['content_performance'] = analyse_content_patterns(video_performances)
+                preferences['content_categories'] = analyse_content_categories(video_performances)
+                preferences['engagement_patterns'] = analyse_content_engagement_patterns(video_performances)
+                preferences['optimal_content_features'] = identify_optimal_content_features(video_performances)
+                preferences['trending_topics'] = identify_trending_topics(video_performances)
+        
+        # Generate content recommendations
+        preferences['recommendations'] = generate_content_recommendations(preferences)
+        
+        return preferences
+        
+    except Exception as e:
+        print(f"Error getting content preferences: {e}")
+        return {}
+
 
 def get_temporal_engagement(creds, start_date, end_date):
     """Analyse engagement patterns by time"""
@@ -891,7 +1134,7 @@ def get_subscription_trends_test(creds, start_date, end_date):
         print(f"Error getting subscription trends: {e}")
         return {}
 
-def get_engagement_overview(creds, start_date, end_date):
+def get_engagement_overview_test(creds, start_date, end_date):
     """Get comprehensive engagement metrics overview"""
     try:
         response = requests.get(
@@ -1003,273 +1246,6 @@ def get_temporal_engagement(creds, start_date, end_date):
         print(f"Error getting temporal engagement: {e}")
         return {}
 
-def get_device_preferences(creds, start_date, end_date):
-    """Get detailed device usage preferences and performance metrics"""
-    try:
-        # Get device type data
-        device_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'views,watchTimeMinutes,averageViewDuration,subscribersGained',
-                'dimensions': 'deviceType',
-                'sort': '-views'
-            }
-        )
-        
-        # Get operating system data
-        os_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'views,watchTimeMinutes',
-                'dimensions': 'operatingSystem',
-                'sort': '-views',
-                'maxResults': 10
-            }
-        )
-        
-        preferences = {
-            'device_types': {},
-            'operating_systems': {},
-            'device_insights': {},
-            'recommendations': []
-        }
-        
-        # Process device type data
-        if device_response.status_code == 200:
-            device_data = device_response.json()
-            if 'rows' in device_data:
-                total_views = sum(row[1] for row in device_data['rows'])
-                
-                for row in device_data['rows']:
-                    device_type = row[0]
-                    views = row[1]
-                    watch_time = row[2]
-                    avg_duration = row[3] if len(row) > 3 else 0
-                    subscribers_gained = row[4] if len(row) > 4 else 0
-                    
-                    preferences['device_types'][device_type] = {
-                        'views': views,
-                        'watch_time_minutes': watch_time,
-                        'average_view_duration': avg_duration,
-                        'subscribers_gained': subscribers_gained,
-                        'percentage_of_views': round((views / total_views) * 100, 2) if total_views > 0 else 0,
-                        'engagement_quality': calculate_device_engagement_quality(views, watch_time, avg_duration)
-                    }
-        
-        # Process operating system data
-        if os_response.status_code == 200:
-            os_data = os_response.json()
-            if 'rows' in os_data:
-                total_views = sum(row[1] for row in os_data['rows'])
-                
-                for row in os_data['rows']:
-                    os_name = row[0]
-                    views = row[1]
-                    watch_time = row[2]
-                    
-                    preferences['operating_systems'][os_name] = {
-                        'views': views,
-                        'watch_time_minutes': watch_time,
-                        'percentage_of_views': round((views / total_views) * 100, 2) if total_views > 0 else 0,
-                        'avg_session_duration': round(watch_time * 60 / views, 2) if views > 0 else 0
-                    }
-        
-        # Generate device insights
-        preferences['device_insights'] = analyse_device_performance(preferences['device_types'])
-        
-        # Generate device-specific recommendations
-        preferences['recommendations'] = generate_device_recommendations(preferences)
-        
-        return preferences
-        
-    except Exception as e:
-        print(f"Error getting device preferences: {e}")
-        return {}
-
-def get_traffic_sources(creds, start_date, end_date):
-    """Get comprehensive traffic source analysis and performance metrics"""
-    try:
-        # Get traffic source types
-        traffic_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'views,watchTimeMinutes,averageViewDuration,subscribersGained,estimatedRevenue',
-                'dimensions': 'insightTrafficSourceType',
-                'sort': '-views'
-            }
-        )
-        
-        # Get specific traffic source details
-        traffic_detail_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'views,watchTimeMinutes',
-                'dimensions': 'insightTrafficSourceDetail',
-                'sort': '-views',
-                'maxResults': 20
-            }
-        )
-        
-        sources = {
-            'traffic_types': {},
-            'traffic_details': {},
-            'performance_metrics': {},
-            'growth_sources': {},
-            'recommendations': []
-        }
-        
-        # Process traffic source types
-        if traffic_response.status_code == 200:
-            traffic_data = traffic_response.json()
-            if 'rows' in traffic_data:
-                total_views = sum(row[1] for row in traffic_data['rows'])
-                
-                for row in traffic_data['rows']:
-                    source_type = row[0]
-                    views = row[1]
-                    watch_time = row[2]
-                    avg_duration = row[3] if len(row) > 3 else 0
-                    subscribers = row[4] if len(row) > 4 else 0
-                    revenue = row[5] if len(row) > 5 else 0
-                    
-                    source_info = {
-                        'views': views,
-                        'watch_time_minutes': watch_time,
-                        'average_view_duration': avg_duration,
-                        'subscribers_gained': subscribers,
-                        'estimated_revenue': revenue,
-                        'percentage_of_views': round((views / total_views) * 100, 2) if total_views > 0 else 0,
-                        'quality_score': calculate_traffic_quality_score(views, watch_time, subscribers, avg_duration),
-                        'label': format_traffic_source_label(source_type)
-                    }
-                    
-                    sources['traffic_types'][source_type] = source_info
-        
-        # Process detailed traffic sources
-        if traffic_detail_response.status_code == 200:
-            detail_data = traffic_detail_response.json()
-            if 'rows' in detail_data:
-                for row in detail_data['rows']:
-                    source_detail = row[0]
-                    views = row[1]
-                    watch_time = row[2]
-                    
-                    sources['traffic_details'][source_detail] = {
-                        'views': views,
-                        'watch_time_minutes': watch_time,
-                        'avg_session_duration': round(watch_time * 60 / views, 2) if views > 0 else 0
-                    }
-        
-        # Calculate performance metrics
-        sources['performance_metrics'] = calculate_traffic_performance_metrics(sources['traffic_types'])
-        
-        # Identify growth sources
-        sources['growth_sources'] = identify_growth_traffic_sources(sources['traffic_types'])
-        
-        # Generate traffic source recommendations
-        sources['recommendations'] = generate_traffic_recommendations(sources)
-        
-        return sources
-        
-    except Exception as e:
-        print(f"Error getting traffic sources: {e}")
-        return {}
-
-def get_content_preferences(creds, start_date, end_date):
-    """Analyse content preferences and performance patterns"""
-    try:
-        # Get video performance data
-        video_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'views,likes,comments,shares,watchTimeMinutes,averageViewDuration',
-                'dimensions': 'video',
-                'sort': '-views',
-                'maxResults': 50
-            }
-        )
-        
-        preferences = {
-            'content_performance': {},
-            'content_categories': {},
-            'engagement_patterns': {},
-            'optimal_content_features': {},
-            'trending_topics': [],
-            'recommendations': []
-        }
-        
-        if video_response.status_code == 200:
-            video_data = video_response.json()
-            
-            if 'rows' in video_data:
-                video_performances = []
-                
-                for row in video_data['rows']:
-                    video_id = row[0]
-                    views = row[1]
-                    likes = row[2]
-                    comments = row[3]
-                    shares = row[4]
-                    watch_time = row[5]
-                    avg_duration = row[6]
-                    
-                    # Get video details (title, description, etc.)
-                    video_details = get_video_details(video_id, creds)
-                    
-                    performance_data = {
-                        'video_id': video_id,
-                        'title': video_details.get('title', 'Unknown'),
-                        'duration': video_details.get('duration', 0),
-                        'tags': video_details.get('tags', []),
-                        'category': video_details.get('category', 'Unknown'),
-                        'views': views,
-                        'likes': likes,
-                        'comments': comments,
-                        'shares': shares,
-                        'watch_time_minutes': watch_time,
-                        'average_view_duration': avg_duration,
-                        'engagement_rate': round(((likes + comments + shares) / views) * 100, 2) if views > 0 else 0,
-                        'retention_rate': round((avg_duration / video_details.get('duration', 1)) * 100, 2) if video_details.get('duration', 0) > 0 else 0,
-                        'performance_score': calculate_content_performance_score(views, likes, comments, shares, watch_time, avg_duration)
-                    }
-                    
-                    video_performances.append(performance_data)
-                
-                # Analyse content patterns
-                preferences['content_performance'] = analyse_content_patterns(video_performances)
-                preferences['content_categories'] = analyse_content_categories(video_performances)
-                preferences['engagement_patterns'] = analyse_content_engagement_patterns(video_performances)
-                preferences['optimal_content_features'] = identify_optimal_content_features(video_performances)
-                preferences['trending_topics'] = identify_trending_topics(video_performances)
-        
-        # Generate content recommendations
-        preferences['recommendations'] = generate_content_recommendations(preferences)
-        
-        return preferences
-        
-    except Exception as e:
-        print(f"Error getting content preferences: {e}")
-        return {}
 
 # Helper functions for device preferences
 
