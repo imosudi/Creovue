@@ -30,8 +30,9 @@ def get_comprehensive_audience_insights(channel_id, days):
         """
         #end_date = datetime.now().strftime('%Y-%m-%d')
         #start_date = (datetime.now() - timedelta(days)).strftime('%Y-%m-%d')
+        content_preferences = get_content_preferences(creds, start_date, end_date)
+        print("content_preferences: ", content_preferences); time.sleep(300)
         traffic_sources = get_traffic_sources(creds, start_date, end_date)
-        print("traffic_sources: ", traffic_sources); time.sleep(300)
         device_preferences = get_device_preferences(creds, start_date, end_date)
         engagement_overview = get_engagement_overview(creds, start_date, end_date)
         subscription_trends = get_subscription_trends(creds, start_date, end_date)
@@ -45,7 +46,7 @@ def get_comprehensive_audience_insights(channel_id, days):
             'subscription_trends': subscription_trends, #get_subscription_trends(creds, start_date, end_date),
             'engagement_overview': engagement_overview, #get_engagement_overview(creds, start_date, end_date),
             'device_preferences': device_preferences, #get_device_preferences(creds, start_date, end_date),
-            'traffic_sources': get_traffic_sources(creds, start_date, end_date),
+            'traffic_sources': traffic_sources, #get_traffic_sources(creds, start_date, end_date),
             'content_preferences': get_content_preferences(creds, start_date, end_date),
             'summary': {},
             'last_updated': datetime.now().isoformat()
@@ -54,6 +55,7 @@ def get_comprehensive_audience_insights(channel_id, days):
         
         # Generate summary insights
         insights['summary'] = generate_audience_summary(insights)
+        print("insights: ", insights)
         
         return insights
         
@@ -606,7 +608,7 @@ def get_traffic_sources(creds, start_date, end_date):
             sort='-views'
         ).execute()
 
-        print("traffic_data: ", traffic_data); time.sleep(30)
+        #print("traffic_data: ", traffic_data); time.sleep(30)
         
         if 'rows' in traffic_data:
             total_views = sum(row[1] for row in traffic_data['rows'])
@@ -628,17 +630,24 @@ def get_traffic_sources(creds, start_date, end_date):
                     'label': format_traffic_source_label(source_type)
                 }
 
-       # Detailed Sources (fixed)
+        # Detailed Sources (fixed)
         detail_data = youtube_analytics.reports().query(
             ids='channel==MINE',
             startDate=start_date,
             endDate=end_date,
-            metrics='views',  # ✅ Only 'views' allowed with insightTrafficSourceDetail
+            metrics='views',
             dimensions='insightTrafficSourceDetail',
+            filters='insightTrafficSourceType==RELATED_VIDEO',  # ✅ Required for this dimension
             sort='-views',
             maxResults=20
         ).execute()
 
+
+        #print("detail_data: ", detail_data); time.sleep(30)
+        TRAFFIC_TYPES = ['RELATED_VIDEO', 'YT_SEARCH', 'EXT_URL', 'YT_CHANNEL', 'PLAYLIST']
+
+        traffic_details = {}
+                                                          
         if 'rows' in detail_data:
             for row in detail_data['rows']:
                 detail_source = row[0]
@@ -663,21 +672,23 @@ def get_traffic_sources(creds, start_date, end_date):
 def get_content_preferences(creds, start_date, end_date):
     """Analyse content preferences and performance patterns"""
     try:
-        # Get video performance data
-        video_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'views,likes,comments,shares,watchTimeMinutes,averageViewDuration',
-                'dimensions': 'video',
-                'sort': '-views',
-                'maxResults': 50
-            }
-        )
-        
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+
+        youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
+
+        # ⚠️ Only allowed metrics for dimension=video (as per docs)
+        performance_response = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='views,likes,comments,shares,averageViewDuration',
+            dimensions='video',
+            sort='-views',
+            maxResults=50
+        ).execute()
+
+        print("performance_response: ", performance_response); time.sleep(30)
         preferences = {
             'content_performance': {},
             'content_categories': {},
@@ -686,56 +697,53 @@ def get_content_preferences(creds, start_date, end_date):
             'trending_topics': [],
             'recommendations': []
         }
-        
-        if video_response.status_code == 200:
-            video_data = video_response.json()
-            
-            if 'rows' in video_data:
-                video_performances = []
-                
-                for row in video_data['rows']:
-                    video_id = row[0]
-                    views = row[1]
-                    likes = row[2]
-                    comments = row[3]
-                    shares = row[4]
-                    watch_time = row[5]
-                    avg_duration = row[6]
-                    
-                    # Get video details (title, description, etc.)
-                    video_details = get_video_details(video_id, creds)
-                    
-                    performance_data = {
-                        'video_id': video_id,
-                        'title': video_details.get('title', 'Unknown'),
-                        'duration': video_details.get('duration', 0),
-                        'tags': video_details.get('tags', []),
-                        'category': video_details.get('category', 'Unknown'),
-                        'views': views,
-                        'likes': likes,
-                        'comments': comments,
-                        'shares': shares,
-                        'watch_time_minutes': watch_time,
-                        'average_view_duration': avg_duration,
-                        'engagement_rate': round(((likes + comments + shares) / views) * 100, 2) if views > 0 else 0,
-                        'retention_rate': round((avg_duration / video_details.get('duration', 1)) * 100, 2) if video_details.get('duration', 0) > 0 else 0,
-                        'performance_score': calculate_content_performance_score(views, likes, comments, shares, watch_time, avg_duration)
-                    }
-                    
-                    video_performances.append(performance_data)
-                
-                # Analyse content patterns
-                preferences['content_performance'] = analyse_content_patterns(video_performances)
-                preferences['content_categories'] = analyse_content_categories(video_performances)
-                preferences['engagement_patterns'] = analyse_content_engagement_patterns(video_performances)
-                preferences['optimal_content_features'] = identify_optimal_content_features(video_performances)
-                preferences['trending_topics'] = identify_trending_topics(video_performances)
-        
-        # Generate content recommendations
-        preferences['recommendations'] = generate_content_recommendations(preferences)
-        
+
+        if 'rows' in performance_response:
+            video_performances = []
+
+            for row in performance_response['rows']:
+                video_id = row[0]
+                views = row[1]
+                likes = row[2]
+                comments = row[3]
+                shares = row[4]
+                avg_duration = row[5]
+
+                # ✅ Fetch video metadata using YouTube Data API v3
+                video_details = get_video_details(video_id, creds)
+                print("avg_duration: ", avg_duration)
+                duration_sec = video_details.get('duration', 0)
+                performance_data = {
+                    'video_id': video_id,
+                    'title': video_details.get('title', 'Unknown'),
+                    'duration': duration_sec,
+                    'tags': video_details.get('tags', []),
+                    'category': video_details.get('category', 'Unknown'),
+                    'views': views,
+                    'likes': likes,
+                    'comments': comments,
+                    'shares': shares,
+                    'average_view_duration': avg_duration,
+                    'engagement_rate': round(((likes + comments + shares) / views) * 100, 2) if views > 0 else 0,
+                    'retention_rate': round((avg_duration / duration_sec) * 100, 2) if duration_sec > 0 else 0,
+                    'performance_score': calculate_content_performance_score(
+                        views, likes, comments, shares, avg_duration
+                    )
+                }
+
+                print("avg_duration: ", avg_duration)
+                video_performances.append(performance_data)
+
+            # 🚀 Analyse
+            preferences['content_performance'] = analyse_content_patterns(video_performances)
+            preferences['content_categories'] = analyse_content_categories(video_performances)
+            preferences['engagement_patterns'] = analyse_content_engagement_patterns(video_performances)
+            preferences['optimal_content_features'] = identify_optimal_content_features(video_performances)
+            preferences['trending_topics'] = identify_trending_topics(video_performances)
+            preferences['recommendations'] = generate_content_recommendations(preferences)
+
         return preferences
-        
+
     except Exception as e:
         print(f"Error getting content preferences: {e}")
         return {}
