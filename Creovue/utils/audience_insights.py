@@ -19,7 +19,7 @@ def get_comprehensive_audience_insights(channel_id, days):
     #end_date = datetime.now().strftime('%Y-%m-%d')
     #start_date = (datetime.now() - timedelta(4000)).strftime('%Y-%m-%d')
 
-    start_date = (datetime.now() - timedelta(days=4365)).strftime('%Y-%m-%d')
+    start_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
     end_date = datetime.now().strftime('%Y-%m-%d')
     
     #print("age_response: ", age_response); time.sleep(3000)
