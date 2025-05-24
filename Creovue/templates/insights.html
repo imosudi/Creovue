@@ -87,590 +87,229 @@
 
   <div class="container-fluid py-4">
 
-    <div class="container-fluid py-4">
-        <!-- Key Metrics Overview -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-3">
-                <div class="card metric-card h-100 p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-eye stat-icon"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-1" id="totalViews">0</h3>
-                            <p class="mb-0 opacity-75">Total Views</p>
-                        </div>
+    <!-- Key Metrics Overview -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card metric-card h-100 p-4">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-eye stat-icon"></i>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card metric-card h-100 p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-clock stat-icon"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-1" id="totalWatchTime">0</h3>
-                            <p class="mb-0 opacity-75">Minutes Watched</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card metric-card h-100 p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-chart-line stat-icon"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-1" id="avgDuration">0s</h3>
-                            <p class="mb-0 opacity-75">Avg Duration</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card metric-card h-100 p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-users stat-icon"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-1" id="netSubscribers">0</h3>
-                            <p class="mb-0 opacity-75">Net Subscribers</p>
-                        </div>
+                    <div>
+                        <h3 class="mb-1">{{ insights.engagement_overview.total_views | default(0) }}</h3>
+                        <p class="mb-0 opacity-75">Total Views</p>
                     </div>
                 </div>
             </div>
         </div>
-    
-        <!-- Traffic Sources & Device Usage -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-8">
-                <div class="card card-modern h-100">
-                    <div class="card-header bg-transparent border-0 pb-0">
-                        <h5 class="mb-0"><i class="fas fa-share-alt me-2"></i>Traffic Sources</h5>
+        <div class="col-md-3">
+            <div class="card metric-card h-100 p-4">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-clock stat-icon"></i>
                     </div>
-                    <div class="card-body">
-                        <div id="trafficSourcesContent">
-                            <!-- Traffic sources will be populated here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card card-modern h-100">
-                    <div class="card-header bg-transparent border-0 pb-0">
-                        <h5 class="mb-0"><i class="fas fa-desktop me-2"></i>Device Usage</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="deviceUsageContent">
-                            <!-- Device usage will be populated here -->
-                        </div>
+                    <div>
+                        <h3 class="mb-1">{{ insights.engagement_overview.total_watch_time_minutes | default(0) }}</h3>
+                        <p class="mb-0 opacity-75">Minutes Watched</p>
                     </div>
                 </div>
             </div>
         </div>
-    
-        <!-- Content Performance -->
-        <div class="row g-4 mb-4">
-            <div class="col-12">
-                <div class="card card-modern">
-                    <div class="card-header bg-transparent border-0 pb-0">
-                        <h5 class="mb-0"><i class="fas fa-video me-2"></i>Top Performing Content</h5>
+        <div class="col-md-3">
+            <div class="card metric-card h-100 p-4">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-chart-line stat-icon"></i>
                     </div>
-                    <div class="card-body">
-                        <div id="contentPerformanceTable">
-                            <!-- Content performance table will be populated here -->
-                        </div>
+                    <div>
+                        <h3 class="mb-1">{{ insights.engagement_overview.average_view_duration_seconds | default(0) }}s</h3>
+                        <p class="mb-0 opacity-75">Avg Duration</p>
                     </div>
                 </div>
             </div>
         </div>
-    
-        <!-- Recommendations -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-6">
-                <div class="card card-modern">
-                    <div class="card-header bg-transparent border-0 pb-0">
-                        <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Traffic Recommendations</h5>
+        <div class="col-md-3">
+            <div class="card metric-card h-100 p-4">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-users stat-icon"></i>
                     </div>
-                    <div class="card-body">
-                        <div id="trafficRecommendations">
-                            <!-- Traffic recommendations will be populated here -->
-                        </div>
+                    <div>
+                        <h3 class="mb-1">{{ insights.subscription_trends.total_gained | default(0) }}</h3>
+                        <p class="mb-0 opacity-75">Subscribers</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card card-modern">
-                    <div class="card-header bg-transparent border-0 pb-0">
-                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Content Recommendations</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="contentRecommendations">
-                            <!-- Content recommendations will be populated here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    
-        <!-- Demographics Section -->
-        <div class="row g-4" id="demographicsSection">
-            <!-- Demographics will be populated here or shown as empty state -->
         </div>
     </div>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script>
-    // Sample insights data - replace this with your actual data
-    const insights = {
-        'demographics': {'age_groups': {}, 'gender': {}, 'countries': {}, 'last_updated': '2025-05-24T02:41:31.078728'}, 
-        'geographic_data': {}, 
-        'viewing_behaviour': {
-            'traffic_sources': {
-                'YT_SEARCH': {'views': 4, 'watch_time_minutes': 1, 'percentage': 80.0, 'avg_duration_seconds': 15.0}, 
-                'EXT_URL': {'views': 1, 'watch_time_minutes': 0, 'percentage': 20.0, 'avg_duration_seconds': 0.0}
-            }, 
-            'device_preferences': {
-                'DESKTOP': {'views': 5, 'watch_time_minutes': 1, 'percentage': 100.0, 'avg_duration_seconds': 12.0}
-            }, 
-            'viewing_patterns': {}
-        }, 
-        'subscription_trends': {
-            'total_gained': 0, 
-            'total_lost': 0, 
-            'net_growth': 0, 
-            'growth_rate': 0
-        }, 
-        'engagement_overview': {
-            'total_views': 5, 
-            'total_likes': 0, 
-            'total_comments': 0, 
-            'total_shares': 0, 
-            'total_watch_time_minutes': 1, 
-            'average_view_duration_seconds': 14, 
-            'engagement_rate': 0.0, 
-            'like_ratio': 0.0, 
-            'comment_ratio': 0.0
-        }, 
-        'device_preferences': {
-            'device_types': {
-                'DESKTOP': {'views': 5, 'watch_time_minutes': 1, 'average_view_duration': 14, 'subscribers_gained': 0, 'percentage_of_views': 100.0, 'engagement_quality': 5.72}
-            }, 
-            'operating_systems': {
-                'WINDOWS': {'views': 2, 'watch_time_minutes': 0, 'percentage_of_views': 40.0, 'avg_session_duration': 0.0}, 
-                'MACINTOSH': {'views': 2, 'watch_time_minutes': 0, 'percentage_of_views': 40.0, 'avg_session_duration': 0.0}, 
-                'LINUX': {'views': 1, 'watch_time_minutes': 0, 'percentage_of_views': 20.0, 'avg_session_duration': 0.0}
-            }
-        }, 
-        'traffic_sources': {
-            'traffic_types': {
-                'YT_SEARCH': {'views': 4, 'watch_time_minutes': 1, 'average_view_duration': 17, 'subscribers_gained': 0, 'percentage_of_views': 80.0, 'quality_score': 0.21, 'label': 'YouTube Search'}, 
-                'EXT_URL': {'views': 1, 'watch_time_minutes': 0, 'average_view_duration': 2, 'subscribers_gained': 0, 'percentage_of_views': 20.0, 'quality_score': 0.01, 'label': 'Ext Url'}
-            }, 
-            'recommendations': [
-                {'type': 'diversification', 'priority': 'high', 'title': 'Diversify Traffic Sources', 'description': 'Over 60% of traffic comes from YouTube Search. Work on developing other traffic sources for stability.'}
-            ]
-        }, 
-        'content_preferences': {
-            'content_performance': {
-                'top_performers': [
-                    {'video_id': 'DEQiARP_DiU', 'title': 'Ansible Automation of EC2 Instance, Docker CE, Icinga2, Icingaweb2', 'duration': 3892, 'views': 2, 'likes': 0, 'comments': 0, 'shares': 0, 'average_view_duration': 18, 'engagement_rate': 0.0, 'retention_rate': 0.46, 'performance_score': 1.26}, 
-                    {'video_id': 'FBZ21CjR_A4', 'title': 'Ansible Automation of EC2 Instance, Docker CE, Icinga2, Icingaweb2', 'duration': 4141, 'views': 3, 'likes': 0, 'comments': 0, 'shares': 0, 'average_view_duration': 12, 'engagement_rate': 0.0, 'retention_rate': 0.29, 'performance_score': 0.84}
-                ]
-            }, 
-            'recommendations': [
-                {'type': 'content_focus', 'priority': 'high', 'title': 'Focus on Unknown Content', 'description': 'Unknown content shows the highest average performance score of 1.1.'}, 
-                {'type': 'video_length', 'priority': 'medium', 'title': 'Optimize Video Length', 'description': 'Very_Long videos show the best engagement rates at 0.0%.'}
-            ]
-        }
-    };
-    
-    // Helper functions
-    function formatDuration(seconds) {
-        if (seconds < 60) return `${seconds}s`;
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        if (minutes < 60) return `${minutes}m ${remainingSeconds}s`;
-        const hours = Math.floor(minutes / 60);
-        const remainingMinutes = minutes % 60;
-        return `${hours}h ${remainingMinutes}m ${remainingSeconds}s`;
-    }
-    
-    function getProgressBarColor(value, type = 'default') {
-        if (type === 'retention') {
-            if (value >= 0.5) return 'bg-success';
-            if (value >= 0.3) return 'bg-warning'; 
-            return 'bg-danger';
-        }
-        if (type === 'performance') {
-            if (value >= 1.0) return 'bg-success';
-            if (value >= 0.5) return 'bg-warning';
-            return 'bg-danger';
-        }
-        return 'bg-primary';
-    }
-    
-    function populateKeyMetrics() {
-        const engagement = insights.engagement_overview || {};
-        const subscription = insights.subscription_trends || {};
-        
-        document.getElementById('totalViews').textContent = engagement.total_views || 0;
-        document.getElementById('totalWatchTime').textContent = engagement.total_watch_time_minutes || 0;
-        document.getElementById('avgDuration').textContent = formatDuration(engagement.average_view_duration_seconds || 0);
-        document.getElementById('netSubscribers').textContent = subscription.net_growth || 0;
-    }
-    
-    function populateTrafficSources() {
-        const trafficSources = insights.traffic_sources?.traffic_types || {};
-        const container = document.getElementById('trafficSourcesContent');
-        
-        if (Object.keys(trafficSources).length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-share-alt"></i>
-                    <h5>No Traffic Data Available</h5>
-                    <p class="text-muted">Traffic source data will appear here once available.</p>
+
+    <!-- Traffic Sources & Device Usage -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-8">
+            <div class="card card-modern h-100">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h5 class="mb-0"><i class="fas fa-share-alt me-2"></i>Traffic Sources</h5>
                 </div>
-            `;
-            return;
-        }
-        
-        let html = '<div class="row">';
-        
-        // Traffic sources list
-        html += '<div class="col-md-6">';
-        Object.entries(trafficSources).forEach(([key, source]) => {
-            html += `
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-medium">${source.label || key}</span>
-                        <span class="badge bg-primary">${Math.round(source.percentage_of_views || 0)}%</span>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {% for source, data in insights.traffic_sources.traffic_types.items() %}
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-medium">{{ data.label }}</span>
+                                        <span class="badge bg-primary">{{ data.percentage_of_views | default(0) }}%</span>
+                                    </div>
+                                    <div class="progress progress-modern">
+                                        <div class="progress-bar progress-bar-modern" style="width: {{ data.percentage_of_views | default(0) }}%"></div>
+                                    </div>
+                                    <small class="text-muted">{{ data.views }} views • {{ data.watch_time_minutes }} min watch time</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="chart-container d-flex align-items-center justify-content-center">
+                                <canvas id="trafficChart" width="200" height="200"></canvas>
+                            </div>
+                        </div>
                     </div>
-                    <div class="progress progress-modern">
-                        <div class="progress-bar progress-bar-modern" style="width: ${source.percentage_of_views || 0}%"></div>
-                    </div>
-                    <small class="text-muted">${source.views || 0} views • ${source.watch_time_minutes || 0} min watch time</small>
-                </div>
-            `;
-        });
-        html += '</div>';
-        
-        // Chart placeholder
-        html += `
-            <div class="col-md-6">
-                <div class="chart-container d-flex align-items-center justify-content-center">
-                    <canvas id="trafficChart" width="200" height="200"></canvas>
                 </div>
             </div>
-        `;
-        html += '</div>';
-        
-        container.innerHTML = html;
-        
-        // Create chart
-        createTrafficChart(trafficSources);
-    }
-    
-    function populateDeviceUsage() {
-        const devices = insights.device_preferences?.device_types || {};
-        const operatingSystems = insights.device_preferences?.operating_systems || {};
-        const container = document.getElementById('deviceUsageContent');
-        
-        if (Object.keys(devices).length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-desktop"></i>
-                    <h5>No Device Data Available</h5>
-                    <p class="text-muted">Device usage data will appear here once available.</p>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-modern h-100">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h5 class="mb-0"><i class="fas fa-desktop me-2"></i>Device Usage</h5>
                 </div>
-            `;
-            return;
-        }
-        
-        let html = '';
-        
-        // Device types
-        Object.entries(devices).forEach(([deviceType, data]) => {
-            const icon = deviceType === 'DESKTOP' ? 'fa-desktop' : 
-                       deviceType === 'MOBILE' ? 'fa-mobile-alt' : 'fa-tablet-alt';
-            
-            html += `
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-medium"><i class="fas ${icon} me-2"></i>${deviceType}</span>
-                        <span class="badge bg-success">${Math.round(data.percentage_of_views || 0)}%</span>
-                    </div>
-                    <div class="progress progress-modern">
-                        <div class="progress-bar progress-bar-modern" style="width: ${data.percentage_of_views || 0}%"></div>
-                    </div>
-                    <small class="text-muted">${data.views || 0} views • Quality Score: ${data.engagement_quality?.toFixed(2) || 'N/A'}</small>
-                </div>
-            `;
-        });
-        
-        // Operating systems
-        if (Object.keys(operatingSystems).length > 0) {
-            html += `
-                <div class="mt-4">
-                    <h6 class="text-muted mb-3">Operating Systems</h6>
-            `;
-            
-            Object.entries(operatingSystems).forEach(([os, data]) => {
-                html += `
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between">
-                            <span>${os === 'MACINTOSH' ? 'macOS' : os.charAt(0) + os.slice(1).toLowerCase()}</span>
-                            <span>${Math.round(data.percentage_of_views || 0)}%</span>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += '</div>';
-        }
-        
-        container.innerHTML = html;
-    }
-    
-    function populateContentPerformance() {
-        const topPerformers = insights.content_preferences?.content_performance?.top_performers || [];
-        const container = document.getElementById('contentPerformanceTable');
-        
-        if (topPerformers.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-video"></i>
-                    <h5>No Content Performance Data</h5>
-                    <p class="text-muted">Content performance metrics will appear here once available.</p>
-                </div>
-            `;
-            return;
-        }
-        
-        let html = `
-            <div class="table-responsive">
-                <table class="table table-modern table-hover">
-                    <thead>
-                        <tr>
-                            <th>Video Title</th>
-                            <th>Views</th>
-                            <th>Duration</th>
-                            <th>Avg Watch Time</th>
-                            <th>Retention</th>
-                            <th>Performance Score</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-        
-        topPerformers.forEach(video => {
-            const retentionPercent = Math.round((video.retention_rate || 0) * 100);
-            const retentionColor = getProgressBarColor(video.retention_rate || 0, 'retention');
-            const performanceColor = getProgressBarColor(video.performance_score || 0, 'performance');
-            
-            html += `
-                <tr>
-                    <td>
-                        <div class="fw-medium">${video.title || 'Untitled Video'}</div>
-                        <small class="text-muted">ID: ${video.video_id || 'N/A'}</small>
-                    </td>
-                    <td><span class="badge bg-primary">${video.views || 0}</span></td>
-                    <td>${formatDuration(video.duration || 0)}</td>
-                    <td>${formatDuration(video.average_view_duration || 0)}</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="progress progress-modern me-2" style="width: 60px; height: 6px;">
-                                <div class="progress-bar ${retentionColor}" style="width: ${retentionPercent}%"></div>
+                <div class="card-body">
+                    {% for device, data in insights.device_preferences.device_types.items() %}
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-medium"><i class="fas fa-desktop me-2"></i>{{ device.title() }}</span>
+                                <span class="badge bg-success">{{ data.percentage_of_views }}%</span>
                             </div>
-                            <small>${retentionPercent}%</small>
+                            <div class="progress progress-modern">
+                                <div class="progress-bar progress-bar-modern" style="width: {{ data.percentage_of_views }}%"></div>
+                            </div>
+                            <small class="text-muted">{{ data.views }} views • Quality Score: {{ data.engagement_quality }}</small>
                         </div>
-                    </td>
-                    <td><span class="badge ${performanceColor}">${(video.performance_score || 0).toFixed(2)}</span></td>
-                </tr>
-            `;
-        });
-        
-        html += `
-                    </tbody>
-                </table>
+                    {% endfor %}
+
+                    {% if insights.device_preferences.operating_systems %}
+                        <div class="mt-4">
+                            <h6 class="text-muted mb-3">Operating Systems</h6>
+                            {% for os_name, os_data in insights.device_preferences.operating_systems.items() %}
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>{{ os_name }}</span>
+                                        <span>{{ os_data.percentage_of_views }}%</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-        `;
-        
-        container.innerHTML = html;
-    }
-    
-    function populateRecommendations() {
-        const trafficRecs = insights.traffic_sources?.recommendations || [];
-        const contentRecs = insights.content_preferences?.recommendations || [];
-        
-        // Traffic recommendations
-        const trafficContainer = document.getElementById('trafficRecommendations');
-        if (trafficRecs.length === 0) {
-            trafficContainer.innerHTML = `
-                <div class="text-center text-muted">
-                    <i class="fas fa-check-circle mb-2"></i>
-                    <p>No traffic recommendations at this time.</p>
+        </div>
+    </div>
+
+    <!-- Top Content Performance -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card card-modern">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h5 class="mb-0"><i class="fas fa-video me-2"></i>Top Performing Content</h5>
                 </div>
-            `;
-        } else {
-            let trafficHtml = '';
-            trafficRecs.forEach(rec => {
-                const alertClass = rec.priority === 'high' ? 'alert-warning' : 
-                                 rec.priority === 'medium' ? 'alert-info' : 'alert-success';
-                const icon = rec.priority === 'high' ? 'fa-exclamation-triangle' : 
-                            rec.priority === 'medium' ? 'fa-info-circle' : 'fa-check-circle';
-                
-                trafficHtml += `
-                    <div class="alert ${alertClass} border-0 mb-3">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-modern table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Video Title</th>
+                                    <th>Views</th>
+                                    <th>Duration</th>
+                                    <th>Avg Watch Time</th>
+                                    <th>Retention</th>
+                                    <th>Performance Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for video in insights.content_preferences.content_performance.top_performers %}
+                                    <tr>
+                                        <td>
+                                            <div class="fw-medium">{{ video.title }}</div>
+                                            <small class="text-muted">ID: {{ video.video_id }}</small>
+                                        </td>
+                                        <td><span class="badge bg-primary">{{ video.views }}</span></td>
+                                        <td>{{ (video.duration // 60)|int }}m {{ (video.duration % 60)|int }}s</td>
+                                        <td>{{ video.average_view_duration }}s</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress progress-modern me-2" style="width: 60px; height: 6px;">
+                                                    <div class="progress-bar {{ 'bg-success' if video.retention_rate > 50 else 'bg-warning' if video.retention_rate > 25 else 'bg-danger' }}" style="width: {{ video.retention_rate }}%"></div>
+                                                </div>
+                                                <small>{{ video.retention_rate }}%</small>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-info">{{ video.performance_score }}</span></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="row g-4">
+        {% for rec in insights.traffic_sources.recommendations %}
+        <div class="col-md-6">
+            <div class="card card-modern">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>{{ rec.title }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning border-0" style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);">
                         <div class="d-flex">
-                            <i class="fas ${icon} me-3 mt-1"></i>
+                            <i class="fas fa-exclamation-triangle me-3 mt-1"></i>
                             <div>
-                                <h6 class="mb-1">${rec.title || 'Recommendation'}</h6>
-                                <p class="mb-0">${rec.description || 'No description available'}</p>
+                                <h6 class="mb-1">{{ rec.title }}</h6>
+                                <p class="mb-0">{{ rec.description }}</p>
                             </div>
                         </div>
                     </div>
-                `;
-            });
-            trafficContainer.innerHTML = trafficHtml;
-        }
-        
-        // Content recommendations
-        const contentContainer = document.getElementById('contentRecommendations');
-        if (contentRecs.length === 0) {
-            contentContainer.innerHTML = `
-                <div class="text-center text-muted">
-                    <i class="fas fa-check-circle mb-2"></i>
-                    <p>No content recommendations at this time.</p>
                 </div>
-            `;
-        } else {
-            let contentHtml = '';
-            contentRecs.forEach(rec => {
-                const alertClass = rec.priority === 'high' ? 'alert-info' : 
-                                 rec.priority === 'medium' ? 'alert-success' : 'alert-light';
-                const icon = rec.priority === 'high' ? 'fa-lightbulb' : 
-                            rec.priority === 'medium' ? 'fa-chart-line' : 'fa-info-circle';
-                
-                contentHtml += `
-                    <div class="alert ${alertClass} border-0 mb-3">
+            </div>
+        </div>
+        {% endfor %}
+
+        {% for rec in insights.content_preferences.recommendations %}
+        <div class="col-md-6">
+            <div class="card card-modern">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>{{ rec.title }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info border-0" style="background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);">
                         <div class="d-flex">
-                            <i class="fas ${icon} me-3 mt-1"></i>
+                            <i class="fas fa-info-circle me-3 mt-1"></i>
                             <div>
-                                <h6 class="mb-1">${rec.title || 'Recommendation'}</h6>
-                                <p class="mb-0">${rec.description || 'No description available'}</p>
+                                <h6 class="mb-1">{{ rec.title }}</h6>
+                                <p class="mb-2">{{ rec.description }}</p>
+                                {% if rec.tip %}
+                                    <small class="text-muted"><strong>Tip:</strong> {{ rec.tip }}</small>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
-                `;
-            });
-            contentContainer.innerHTML = contentHtml;
-        }
-    }
-    
-    function populateDemographics() {
-        const demographics = insights.demographics || {};
-        const hasAgeGroups = demographics.age_groups && Object.keys(demographics.age_groups).length > 0;
-        const hasGender = demographics.gender && Object.keys(demographics.gender).length > 0;
-        const hasCountries = demographics.countries && Object.keys(demographics.countries).length > 0;
-        const hasDemographics = hasAgeGroups || hasGender || hasCountries;
-        
-        const container = document.getElementById('demographicsSection');
-        
-        if (!hasDemographics) {
-            container.innerHTML = `
-                <div class="col-12">
-                    <div class="empty-state">
-                        <i class="fas fa-users"></i>
-                        <h4>Demographics Data Not Available</h4>
-                        <p class="text-muted">Audience demographics will appear here once you have sufficient viewership data. Keep creating content to unlock detailed audience insights!</p>
-                    </div>
                 </div>
-            `;
-            return;
-        }
-        
-        let html = '';
-        
-        if (hasAgeGroups) {
-            html += `
-                <div class="col-md-6">
-                    <div class="card card-modern h-100">
-                        <div class="card-header bg-transparent">
-                            <h5 class="mb-0">Age Demographics</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="ageChart" width="400" height="300"></canvas>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        if (hasGender) {
-            html += `
-                <div class="col-md-6">
-                    <div class="card card-modern h-100">
-                        <div class="card-header bg-transparent">
-                            <h5 class="mb-0">Gender Demographics</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="genderChart" width="400" height="300"></canvas>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        container.innerHTML = html;
-    }
-    
-    function createTrafficChart(trafficSources) {
-        const ctx = document.getElementById('trafficChart');
-        if (!ctx) return;
-        
-        const labels = Object.values(trafficSources).map(source => source.label || 'Unknown');
-        const data = Object.values(trafficSources).map(source => source.percentage_of_views || 0);
-        
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: [
-                        '#667eea',
-                        '#764ba2',
-                        '#f093fb',
-                        '#f5576c',
-                        '#4facfe'
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-    }
-    
-    // Initialize dashboard
-    document.addEventListener('DOMContentLoaded', function() {
-        populateKeyMetrics();
-        populateTrafficSources();
-        populateDeviceUsage();
-        populateContentPerformance();
-        populateRecommendations();
-        populateDemographics();
-    });
-    </script>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 {% endblock %}
