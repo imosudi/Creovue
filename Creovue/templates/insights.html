@@ -85,299 +85,426 @@
     </div>
   </header>
 
-    <div class="container-fluid py-4">
-
-        <!-- Key Metrics Overview -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-3">
-                <div class="card metric-card h-100 p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-eye stat-icon"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-1">5</h3>
-                            <p class="mb-0 opacity-75">Total Views</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card metric-card h-100 p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-clock stat-icon"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-1">1</h3>
-                            <p class="mb-0 opacity-75">Minutes Watched</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card metric-card h-100 p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-chart-line stat-icon"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-1">14s</h3>
-                            <p class="mb-0 opacity-75">Avg Duration</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card metric-card h-100 p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-users stat-icon"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-1">0</h3>
-                            <p class="mb-0 opacity-75">Subscribers</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div id="dashboard-container">
+    <div class="loading-spinner">
+        <div class="spinner-border text-light" role="status">
+            <span class="visually-hidden">Loading...</span>
         </div>
-
-        <!-- Traffic Sources & Device Usage -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-8">
-                <div class="card card-modern h-100">
-                    <div class="card-header bg-transparent border-0 pb-0">
-                        <h5 class="mb-0"><i class="fas fa-share-alt me-2"></i>Traffic Sources</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="fw-medium">YouTube Search</span>
-                                        <span class="badge bg-primary">80%</span>
-                                    </div>
-                                    <div class="progress progress-modern">
-                                        <div class="progress-bar progress-bar-modern" style="width: 80%"></div>
-                                    </div>
-                                    <small class="text-muted">4 views • 1 min watch time</small>
-                                </div>
-                                <div class="mb-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="fw-medium">External URL</span>
-                                        <span class="badge bg-secondary">20%</span>
-                                    </div>
-                                    <div class="progress progress-modern">
-                                        <div class="progress-bar bg-secondary" style="width: 20%"></div>
-                                    </div>
-                                    <small class="text-muted">1 view • 0 min watch time</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="chart-container d-flex align-items-center justify-content-center">
-                                    <canvas id="trafficChart" width="200" height="200"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card card-modern h-100">
-                    <div class="card-header bg-transparent border-0 pb-0">
-                        <h5 class="mb-0"><i class="fas fa-desktop me-2"></i>Device Usage</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-medium"><i class="fas fa-desktop me-2"></i>Desktop</span>
-                                <span class="badge bg-success">100%</span>
-                            </div>
-                            <div class="progress progress-modern">
-                                <div class="progress-bar progress-bar-modern" style="width: 100%"></div>
-                            </div>
-                            <small class="text-muted">5 views • Quality Score: 5.72</small>
-                        </div>
-                        
-                        <div class="mt-4">
-                            <h6 class="text-muted mb-3">Operating Systems</h6>
-                            <div class="mb-2">
-                                <div class="d-flex justify-content-between">
-                                    <span>Windows</span>
-                                    <span>40%</span>
-                                </div>
-                            </div>
-                            <div class="mb-2">
-                                <div class="d-flex justify-content-between">
-                                    <span>macOS</span>
-                                    <span>40%</span>
-                                </div>
-                            </div>
-                            <div class="mb-2">
-                                <div class="d-flex justify-content-between">
-                                    <span>Linux</span>
-                                    <span>20%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Content Performance -->
-        <div class="row g-4 mb-4">
-            <div class="col-12">
-                <div class="card card-modern">
-                    <div class="card-header bg-transparent border-0 pb-0">
-                        <h5 class="mb-0"><i class="fas fa-video me-2"></i>Top Performing Content</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-modern table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Video Title</th>
-                                        <th>Views</th>
-                                        <th>Duration</th>
-                                        <th>Avg Watch Time</th>
-                                        <th>Retention</th>
-                                        <th>Performance Score</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="fw-medium">Ansible Automation of EC2 Instance, Docker CE, Icinga2, Icingaweb2</div>
-                                            <small class="text-muted">ID: DEQiARP_DiU</small>
-                                        </td>
-                                        <td><span class="badge bg-primary">2</span></td>
-                                        <td>64m 52s</td>
-                                        <td>18s</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress progress-modern me-2" style="width: 60px; height: 6px;">
-                                                    <div class="progress-bar progress-bar-modern" style="width: 46%"></div>
-                                                </div>
-                                                <small>46%</small>
-                                            </div>
-                                        </td>
-                                        <td><span class="badge bg-success">1.26</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="fw-medium">Ansible Automation of EC2 Instance, Docker CE, Icinga2, Icingaweb2</div>
-                                            <small class="text-muted">ID: FBZ21CjR_A4</small>
-                                        </td>
-                                        <td><span class="badge bg-primary">3</span></td>
-                                        <td>69m 1s</td>
-                                        <td>12s</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress progress-modern me-2" style="width: 60px; height: 6px;">
-                                                    <div class="progress-bar bg-warning" style="width: 29%"></div>
-                                                </div>
-                                                <small>29%</small>
-                                            </div>
-                                        </td>
-                                        <td><span class="badge bg-warning">0.84</span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recommendations -->
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card card-modern">
-                    <div class="card-header bg-transparent border-0 pb-0">
-                        <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Traffic Recommendations</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-warning border-0" style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);">
-                            <div class="d-flex">
-                                <i class="fas fa-exclamation-triangle me-3 mt-1"></i>
-                                <div>
-                                    <h6 class="mb-1">Diversify Traffic Sources</h6>
-                                    <p class="mb-0">Over 60% of traffic comes from YouTube Search. Work on developing other traffic sources for stability.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card card-modern">
-                    <div class="card-header bg-transparent border-0 pb-0">
-                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Content Recommendations</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-info border-0" style="background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);">
-                            <div class="d-flex">
-                                <i class="fas fa-info-circle me-3 mt-1"></i>
-                                <div>
-                                    <h6 class="mb-1">Focus on Unknown Content</h6>
-                                    <p class="mb-2">Unknown content shows the highest average performance score of 1.1.</p>
-                                    <small class="text-muted"><strong>Tip:</strong> Very long videos show the best engagement rates.</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Demographics Section -->
-        {% set has_demographics = insights.demographics.age_groups or insights.demographics.gender or insights.demographics.countries %}
-        {% if has_demographics %}
-        <div class="row g-4 mb-4">
-            {% if insights.demographics.age_groups %}
-            <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-header bg-transparent">
-                        <h5 class="mb-0">Age Demographics</h5>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="ageChart" width="400" height="300"></canvas>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-        {% else %}
-        <!-- Demographics (Empty State) -->
-        <div class="row g-4 mt-2">
-            <div class="col-12">
-                <div class="empty-state">
-                    <i class="fas fa-users"></i>
-                    <h4>Demographics Data Not Available</h4>
-                    <p class="text-muted">Audience demographics will appear here once you have sufficient viewership data. Keep creating content to unlock detailed audience insights!</p>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-        
     </div>
+</div>
+<script>
+    // Sample insights data (replace with your dynamic data)
+    const insights = {
+        'demographics': {'age_groups': {}, 'gender': {}, 'countries': {}, 'last_updated': '2025-05-24T02:41:31.078728'}, 
+        'geographic_data': {}, 
+        'viewing_behaviour': {
+            'traffic_sources': {
+                'YT_SEARCH': {'views': 4, 'watch_time_minutes': 1, 'percentage': 80.0, 'avg_duration_seconds': 15.0}, 
+                'EXT_URL': {'views': 1, 'watch_time_minutes': 0, 'percentage': 20.0, 'avg_duration_seconds': 0.0}
+            }, 
+            'device_preferences': {
+                'DESKTOP': {'views': 5, 'watch_time_minutes': 1, 'percentage': 100.0, 'avg_duration_seconds': 12.0}
+            }, 
+            'viewing_patterns': {}
+        }, 
+        'subscription_trends': {
+            'total_gained': 0, 'total_lost': 0, 'net_growth': 0, 'growth_rate': 0
+        }, 
+        'engagement_overview': {
+            'total_views': 5, 'total_likes': 0, 'total_comments': 0, 'total_shares': 0, 
+            'total_watch_time_minutes': 1, 'average_view_duration_seconds': 14, 
+            'engagement_rate': 0.0, 'like_ratio': 0.0, 'comment_ratio': 0.0
+        }, 
+        'device_preferences': {
+            'device_types': {
+                'DESKTOP': {'views': 5, 'watch_time_minutes': 1, 'average_view_duration': 14, 'subscribers_gained': 0, 'percentage_of_views': 100.0, 'engagement_quality': 5.72}
+            }, 
+            'operating_systems': {
+                'WINDOWS': {'views': 2, 'watch_time_minutes': 0, 'percentage_of_views': 40.0}, 
+                'MACINTOSH': {'views': 2, 'watch_time_minutes': 0, 'percentage_of_views': 40.0}, 
+                'LINUX': {'views': 1, 'watch_time_minutes': 0, 'percentage_of_views': 20.0}
+            }
+        }, 
+        'traffic_sources': {
+            'traffic_types': {
+                'YT_SEARCH': {'views': 4, 'watch_time_minutes': 1, 'average_view_duration': 17, 'percentage_of_views': 80.0, 'label': 'YouTube Search'}, 
+                'EXT_URL': {'views': 1, 'watch_time_minutes': 0, 'average_view_duration': 2, 'percentage_of_views': 20.0, 'label': 'External URL'}
+            },
+            'recommendations': [
+                {'type': 'diversification', 'priority': 'high', 'title': 'Diversify Traffic Sources', 'description': 'Over 60% of traffic comes from YouTube Search. Work on developing other traffic sources for stability.'}
+            ]
+        }, 
+        'content_preferences': {
+            'content_performance': {
+                'top_performers': [
+                    {'video_id': 'DEQiARP_DiU', 'title': 'Ansible Automation of EC2 Instance, Docker CE, Icinga2, Icingaweb2', 'duration': 3892, 'views': 2, 'average_view_duration': 18, 'retention_rate': 0.46, 'performance_score': 1.26},
+                    {'video_id': 'FBZ21CjR_A4', 'title': 'Ansible Automation of EC2 Instance, Docker CE, Icinga2, Icingaweb2', 'duration': 4141, 'views': 3, 'average_view_duration': 12, 'retention_rate': 0.29, 'performance_score': 0.84}
+                ]
+            },
+            'recommendations': [
+                {'type': 'content_focus', 'priority': 'high', 'title': 'Focus on Unknown Content', 'description': 'Unknown content shows the highest average performance score of 1.1.'},
+                {'type': 'video_length', 'priority': 'medium', 'title': 'Optimize Video Length', 'description': 'Very long videos show the best engagement rates.'}
+            ]
+        }
+    };
 
-    <!--script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script>
-        // Traffic Sources Doughnut Chart
-        const trafficCtx = document.getElementById('trafficChart').getContext('2d');
-        new Chart(trafficCtx, {
+    function formatDuration(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return minutes > 0 ? `${minutes}m ${remainingSeconds}s` : `${seconds}s`;
+    }
+
+    function formatNumber(num) {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return num.toString();
+    }
+
+    function generateMetricCards(insights) {
+        const metrics = [
+            {
+                icon: 'fas fa-eye',
+                value: formatNumber(insights.engagement_overview?.total_views || 0),
+                label: 'Total Views',
+                variant: ''
+            },
+            {
+                icon: 'fas fa-clock',
+                value: insights.engagement_overview?.total_watch_time_minutes || 0,
+                label: 'Minutes Watched',
+                variant: 'variant-1'
+            },
+            {
+                icon: 'fas fa-chart-line',
+                value: formatDuration(insights.engagement_overview?.average_view_duration_seconds || 0),
+                label: 'Avg Duration',
+                variant: 'variant-2'
+            },
+            {
+                icon: 'fas fa-users',
+                value: insights.subscription_trends?.net_growth || 0,
+                label: 'Subscribers',
+                variant: 'variant-3'
+            }
+        ];
+
+        return metrics.map(metric => `
+            <div class="col-md-3">
+                <div class="card metric-card ${metric.variant} h-100 p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="${metric.icon} stat-icon"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1">${metric.value}</h3>
+                            <p class="mb-0 opacity-75">${metric.label}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function generateTrafficSources(insights) {
+        const trafficSources = insights.traffic_sources?.traffic_types || {};
+        const sources = Object.entries(trafficSources);
+        
+        if (sources.length === 0) {
+            return `
+                <div class="empty-state">
+                    <i class="fas fa-share-alt"></i>
+                    <h4>No Traffic Data Available</h4>
+                    <p class="text-muted">Traffic source data will appear here once you have viewership data.</p>
+                </div>
+            `;
+        }
+
+        const sourcesList = sources.map(([key, data]) => `
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-medium">${data.label || key.replace('_', ' ')}</span>
+                    <span class="badge bg-primary">${Math.round(data.percentage_of_views)}%</span>
+                </div>
+                <div class="progress progress-modern">
+                    <div class="progress-bar progress-bar-modern" style="width: ${data.percentage_of_views}%"></div>
+                </div>
+                <small class="text-muted">${data.views} views • ${data.watch_time_minutes} min watch time</small>
+            </div>
+        `).join('');
+
+        return `
+            <div class="row">
+                <div class="col-md-6">
+                    ${sourcesList}
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container d-flex align-items-center justify-content-center">
+                        <canvas id="trafficChart" width="200" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function generateDeviceUsage(insights) {
+        const deviceTypes = insights.device_preferences?.device_types || {};
+        const operatingSystems = insights.device_preferences?.operating_systems || {};
+        
+        const deviceList = Object.entries(deviceTypes).map(([device, data]) => `
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-medium"><i class="fas fa-${device.toLowerCase()}"></i> ${device}</span>
+                    <span class="badge bg-success">${Math.round(data.percentage_of_views)}%</span>
+                </div>
+                <div class="progress progress-modern">
+                    <div class="progress-bar progress-bar-modern" style="width: ${data.percentage_of_views}%"></div>
+                </div>
+                <small class="text-muted">${data.views} views • Quality Score: ${data.engagement_quality?.toFixed(2) || 'N/A'}</small>
+            </div>
+        `).join('');
+
+        const osList = Object.entries(operatingSystems).map(([os, data]) => `
+            <div class="mb-2">
+                <div class="d-flex justify-content-between">
+                    <span>${os.charAt(0) + os.slice(1).toLowerCase()}</span>
+                    <span>${Math.round(data.percentage_of_views)}%</span>
+                </div>
+            </div>
+        `).join('');
+
+        return `
+            ${deviceList}
+            ${osList.length > 0 ? `
+                <div class="mt-4">
+                    <h6 class="text-muted mb-3">Operating Systems</h6>
+                    ${osList}
+                </div>
+            ` : ''}
+        `;
+    }
+
+    function generateContentTable(insights) {
+        const topPerformers = insights.content_preferences?.content_performance?.top_performers || [];
+        
+        if (topPerformers.length === 0) {
+            return `
+                <div class="empty-state">
+                    <i class="fas fa-video"></i>
+                    <h4>No Content Data Available</h4>
+                    <p class="text-muted">Content performance data will appear here once you have video analytics.</p>
+                </div>
+            `;
+        }
+
+        const rows = topPerformers.map(video => `
+            <tr>
+                <td>
+                    <div class="fw-medium">${video.title}</div>
+                    <small class="text-muted">ID: ${video.video_id}</small>
+                </td>
+                <td><span class="badge bg-primary">${video.views}</span></td>
+                <td>${formatDuration(video.duration)}</td>
+                <td>${formatDuration(video.average_view_duration)}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="progress progress-modern me-2" style="width: 60px; height: 6px;">
+                            <div class="progress-bar progress-bar-modern" style="width: ${(video.retention_rate * 100)}%"></div>
+                        </div>
+                        <small>${Math.round(video.retention_rate * 100)}%</small>
+                    </div>
+                </td>
+                <td><span class="badge ${video.performance_score > 1 ? 'bg-success' : 'bg-warning'}">${video.performance_score?.toFixed(2)}</span></td>
+            </tr>
+        `).join('');
+
+        return `
+            <div class="table-responsive">
+                <table class="table table-modern table-hover">
+                    <thead>
+                        <tr>
+                            <th>Video Title</th>
+                            <th>Views</th>
+                            <th>Duration</th>
+                            <th>Avg Watch Time</th>
+                            <th>Retention</th>
+                            <th>Performance Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    function generateRecommendations(insights) {
+        const trafficRecs = insights.traffic_sources?.recommendations || [];
+        const contentRecs = insights.content_preferences?.recommendations || [];
+        
+        const trafficRecsHtml = trafficRecs.map(rec => `
+            <div class="alert alert-${rec.priority === 'high' ? 'warning' : 'info'} border-0" style="background: linear-gradient(135deg, ${rec.priority === 'high' ? '#fff3cd 0%, #ffeaa7 100%' : '#d1ecf1 0%, #bee5eb 100%'});">
+                <div class="d-flex">
+                    <i class="fas fa-${rec.priority === 'high' ? 'exclamation-triangle' : 'info-circle'} me-3 mt-1"></i>
+                    <div>
+                        <h6 class="mb-1">${rec.title}</h6>
+                        <p class="mb-0">${rec.description}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        const contentRecsHtml = contentRecs.map(rec => `
+            <div class="alert alert-${rec.priority === 'high' ? 'warning' : 'info'} border-0" style="background: linear-gradient(135deg, ${rec.priority === 'high' ? '#fff3cd 0%, #ffeaa7 100%' : '#d1ecf1 0%, #bee5eb 100%'});">
+                <div class="d-flex">
+                    <i class="fas fa-${rec.priority === 'high' ? 'lightbulb' : 'chart-bar'} me-3 mt-1"></i>
+                    <div>
+                        <h6 class="mb-1">${rec.title}</h6>
+                        <p class="mb-0">${rec.description}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        return { trafficRecsHtml, contentRecsHtml };
+    }
+
+    function generateDemographics(insights) {
+        const demographics = insights.demographics || {};
+        const hasData = Object.keys(demographics.age_groups || {}).length > 0 || 
+                       Object.keys(demographics.gender || {}).length > 0 || 
+                       Object.keys(demographics.countries || {}).length > 0;
+
+        if (!hasData) {
+            return `
+                <div class="row g-4 mt-2">
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="fas fa-users"></i>
+                            <h4>Demographics Data Not Available</h4>
+                            <p class="text-muted">Audience demographics will appear here once you have sufficient viewership data. Keep creating content to unlock detailed audience insights!</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generate demographics charts if data exists
+        return `
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card card-modern h-100">
+                        <div class="card-header bg-transparent">
+                            <h5 class="mb-0">Age Demographics</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="ageChart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function generateDashboard(insights) {
+        const recommendations = generateRecommendations(insights);
+        
+        return `
+            <div class="container-fluid py-4">
+                <!-- Key Metrics Overview -->
+                <div class="row g-4 mb-4">
+                    ${generateMetricCards(insights)}
+                </div>
+
+                <!-- Traffic Sources & Device Usage -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-8">
+                        <div class="card card-modern h-100">
+                            <div class="card-header bg-transparent border-0 pb-0">
+                                <h5 class="mb-0"><i class="fas fa-share-alt me-2"></i>Traffic Sources</h5>
+                            </div>
+                            <div class="card-body">
+                                ${generateTrafficSources(insights)}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-modern h-100">
+                            <div class="card-header bg-transparent border-0 pb-0">
+                                <h5 class="mb-0"><i class="fas fa-desktop me-2"></i>Device Usage</h5>
+                            </div>
+                            <div class="card-body">
+                                ${generateDeviceUsage(insights)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Performance -->
+                <div class="row g-4 mb-4">
+                    <div class="col-12">
+                        <div class="card card-modern">
+                            <div class="card-header bg-transparent border-0 pb-0">
+                                <h5 class="mb-0"><i class="fas fa-video me-2"></i>Top Performing Content</h5>
+                            </div>
+                            <div class="card-body">
+                                ${generateContentTable(insights)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="row g-4 mb-4">
+                    ${recommendations.trafficRecsHtml ? `
+                        <div class="col-md-6">
+                            <div class="card card-modern">
+                                <div class="card-header bg-transparent border-0 pb-0">
+                                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Traffic Recommendations</h5>
+                                </div>
+                                <div class="card-body">
+                                    ${recommendations.trafficRecsHtml}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${recommendations.contentRecsHtml ? `
+                        <div class="col-md-6">
+                            <div class="card card-modern">
+                                <div class="card-header bg-transparent border-0 pb-0">
+                                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Content Recommendations</h5>
+                                </div>
+                                <div class="card-body">
+                                    ${recommendations.contentRecsHtml}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+
+                <!-- Demographics -->
+                ${generateDemographics(insights)}
+            </div>
+        `;
+    }
+
+    function createTrafficChart() {
+        const canvas = document.getElementById('trafficChart');
+        if (!canvas) return;
+
+        const trafficData = insights.traffic_sources?.traffic_types || {};
+        const labels = Object.values(trafficData).map(item => item.label || 'Unknown');
+        const data = Object.values(trafficData).map(item => item.percentage_of_views || 0);
+        const colors = ['#667eea', '#f093fb', '#4facfe', '#43e97b', '#fa709a'];
+
+        new Chart(canvas, {
             type: 'doughnut',
             data: {
-                labels: ['YouTube Search', 'External URL'],
+                labels: labels,
                 datasets: [{
-                    data: [80, 20],
-                    backgroundColor: ['#667eea', '#764ba2'],
-                    borderWidth: 0,
-                    cutout: '70%'
+                    data: data,
+                    backgroundColor: colors.slice(0, labels.length),
+                    borderWidth: 0
                 }]
             },
             options: {
@@ -394,5 +521,29 @@
                 }
             }
         });
-    </script>
+    }
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('dashboard-container');
+        container.innerHTML = generateDashboard(insights);
+        
+        // Create charts after DOM is ready
+        setTimeout(() => {
+            createTrafficChart();
+        }, 100);
+    });
+
+    // Function to update dashboard with new data (call this when data changes)
+    function updateDashboard(newInsights) {
+        const container = document.getElementById('dashboard-container');
+        container.innerHTML = generateDashboard(newInsights);
+        setTimeout(() => {
+            createTrafficChart();
+        }, 100);
+    }
+
+    // Export function for external use
+    window.updateYouTubeDashboard = updateDashboard;
+</script>
 {% endblock %}
