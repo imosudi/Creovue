@@ -6,12 +6,13 @@ import statistics
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
+
 from flask import session
 import json
 from Creovue.config import creo_api_key
 
 def get_comprehensive_audience_insights(channel_id, days):
-    """Get comprehensive audience insights including demographics, behavior, and growth patterns"""
+    """Get comprehensive audience insights including demographics, behaviour, and growth patterns"""
     #print("channel_id: ", channel_id); time.sleep(30)
 
     creds = Credentials(**session['youtube_token'])
@@ -20,21 +21,26 @@ def get_comprehensive_audience_insights(channel_id, days):
 
     start_date = (datetime.now() - timedelta(days=4365)).strftime('%Y-%m-%d')
     end_date = datetime.now().strftime('%Y-%m-%d')
-    age_response= get_audience_demographics(creds, channel_id, start_date, end_date)
-    print("age_response: ", age_response); time.sleep(3000)
+    
+    #print("age_response: ", age_response); time.sleep(3000)
     try:
-        creds = Credentials(**session['youtube_token'])
+        """creds = Credentials(**session['youtube_token'])
         if not creds:
             return {}
-        
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days)).strftime('%Y-%m-%d')
-        #print("creds: ", creds); time.sleep(30)
+        """
+        #end_date = datetime.now().strftime('%Y-%m-%d')
+        #start_date = (datetime.now() - timedelta(days)).strftime('%Y-%m-%d')
+        engagement_overview = get_engagement_overview(creds, start_date, end_date)
+        print("engagement_overview: ", engagement_overview); time.sleep(300)
+        subscription_trends = get_subscription_trends(creds, start_date, end_date)
+        viewing_behaviour_insights = get_viewing_behaviour_insights(creds, start_date, end_date)
+        geographic_insights = get_geographic_insights(creds, start_date, end_date)
+        age_response= get_audience_demographics(creds, start_date, end_date)
         insights = {
-            'demographics': get_audience_demographics(creds, channel_id, start_date, end_date),
-            'geographic_data': get_geographic_insights(creds, start_date, end_date),
-            'viewing_behavior': get_viewing_behavior_insights(creds, start_date, end_date),
-            'subscription_trends': get_subscription_trends(creds, start_date, end_date),
+            'demographics': age_response, #get_audience_demographics(creds, start_date, end_date),
+            'geographic_data': geographic_insights, #get_geographic_insights(creds, start_date, end_date),
+            'viewing_behaviour': viewing_behaviour_insights, #get_viewing_behaviour_insights(creds, start_date, end_date),
+            'subscription_trends': subscription_trends, #get_subscription_trends(creds, start_date, end_date),
             'engagement_overview': get_engagement_overview(creds, start_date, end_date),
             'device_preferences': get_device_preferences(creds, start_date, end_date),
             #'traffic_sources': get_traffic_sources(creds, start_date, end_date),
@@ -54,7 +60,7 @@ def get_comprehensive_audience_insights(channel_id, days):
         return {'error': str(e)}
 
 
-def get_audience_demographics(creds, channel_id, start_date, end_date):
+def get_audience_demographics(creds, start_date, end_date):
     """Get audience demographics (age, gender, country) with proper fallback handling."""
     try:
         if creds and creds.expired and creds.refresh_token:
@@ -78,15 +84,16 @@ def get_audience_demographics(creds, channel_id, start_date, end_date):
             dimensions='ageGroup',
             sort='-viewerPercentage'
         ).execute()
+        #print("Age rows:", age_response.get('rows'))
 
-        if age_response.get('rows'):
+        if 'rows' in age_response:
             for row in age_response['rows']:
-                age = row[0]
-                percentage = row[1]
-                demographics['age_groups'][age] = {
+                age_group, percentage = row  # Only 2 values
+                demographics['age_groups'][age_group] = {
                     'percentage': round(percentage, 2),
-                    'label': format_age_group_label(age)
+                    'label': format_age_group_label(age_group)
                 }
+
         else:
             print("No age group data available.")
 
@@ -100,14 +107,17 @@ def get_audience_demographics(creds, channel_id, start_date, end_date):
             sort='-viewerPercentage'
         ).execute()
 
-        if gender_response.get('rows'):
+        #print("Gender rows:", gender_response.get('rows'))
+
+
+        if 'rows' in gender_response:
             for row in gender_response['rows']:
-                gender = row[0]
-                percentage = row[1]
+                gender, percentage = row
                 demographics['gender'][gender] = {
                     'percentage': round(percentage, 2),
                     'label': gender.title()
                 }
+
         else:
             print("No gender data available.")
 
@@ -121,23 +131,23 @@ def get_audience_demographics(creds, channel_id, start_date, end_date):
             sort='-views',
             maxResults=20
         ).execute()
+        #print("Country rows:", geo_response.get('rows'))
 
 
 
         if geo_response.get('rows'):
-            for row in geo_response.get('rows', []):
-                country_code, gender, percentage = row
-                if country_code not in demographics['countries']:
-                    demographics['countries'][country_code] = {
-                        'name': get_country_name(country_code),
-                        'total_percentage': 0,
-                        'breakdown': {}
-                    }
-                demographics['countries'][country_code]['total_percentage'] += percentage
-                demographics['countries'][country_code]['breakdown'][gender] = round(percentage, 2)
+            total_views = sum(row[1] for row in geo_response['rows']) or 1  # Prevent division by zero
 
+            for row in geo_response['rows']:
+                country_code, view_count = row
+                demographics['countries'][country_code] = {
+                    'name': get_country_name(country_code),
+                    'percentage': round((view_count / total_views) * 100, 2),
+                    'views': view_count
+                }
         else:
             print("No country data available.")
+
 
         return demographics
 
@@ -195,7 +205,7 @@ def analyse_audience_retention(video_ids, channel_id):
                         retention_points.append(retention_percentage)
                         total_retention_points.append(retention_percentage)
                     
-                    # Analyze drop-off points
+                    # Analyse drop-off points
                     drop_offs = find_significant_drop_offs(video_retention)
                     drop_off_points.extend(drop_offs)
                     
@@ -235,7 +245,7 @@ def analyse_audience_retention(video_ids, channel_id):
         return {'error': str(e)}
 
 def analyse_engagement_patterns(channel_id):
-    """Analyse detailed audience engagement patterns and behaviors"""
+    """Analyse detailed audience engagement patterns and behaviours"""
     try:
         creds = Credentials(**session['youtube_token'])
         if not creds:
@@ -265,229 +275,231 @@ def analyse_engagement_patterns(channel_id):
         return {'error': str(e)}
 
 # Helper functions for comprehensive analysis
-
 def get_geographic_insights(creds, start_date, end_date):
     """Get detailed geographic audience insights"""
     try:
-        response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'views,watchTimeMinutes,subscribersGained',
-                'dimensions': 'country',
-                'sort': '-views',
-                'maxResults': 25
-            }
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            countries = {}
-            
-            if 'rows' in data:
-                for row in data['rows']:
-                    country_code = row[0]
-                    countries[country_code] = {
-                        'name': get_country_name(country_code),
-                        'views': row[1],
-                        'watch_time_minutes': row[2],
-                        'subscribers_gained': row[3],
-                        'avg_view_duration': round(row[2] * 60 / row[1], 2) if row[1] > 0 else 0
-                    }
-            
-            return countries
-        
-        return {}
-        
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+
+        youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
+
+        # Execute the correct query with valid metrics
+        country_response = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='views,estimatedMinutesWatched,subscribersGained',
+            dimensions='country',
+            sort='-views',
+            maxResults=25
+        ).execute()
+
+        #print("country_response:", country_response); time.sleep(30)
+
+        countries = {}
+
+        if 'rows' in country_response:
+            for row in country_response['rows']:
+                country_code = row[0]
+                views = row[1]
+                estimated_minutes = row[2]
+                subscribers_gained = row[3]
+
+                countries[country_code] = {
+                    'name': get_country_name(country_code),
+                    'views': views,
+                    'watch_time_minutes': estimated_minutes,
+                    'subscribers_gained': subscribers_gained,
+                    'avg_view_duration': round((estimated_minutes * 60) / views, 2) if views > 0 else 0
+                }
+
+        return countries
+
     except Exception as e:
         print(f"Error getting geographic insights: {e}")
         return {}
 
-def get_viewing_behavior_insights(creds, start_date, end_date):
-    """Analyze viewing behavior patterns"""
+def get_viewing_behaviour_insights(creds, start_date, end_date):
+    """
+    Analyse viewing behaviour patterns across traffic sources and devices.
+    """
     try:
-        # Get traffic sources
-        traffic_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'views,watchTimeMinutes',
-                'dimensions': 'insightTrafficSourceType',
-                'sort': '-views'
-            }
-        )
-        
-        # Get device types
-        device_response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'views,watchTimeMinutes',
-                'dimensions': 'deviceType',
-                'sort': '-views'
-            }
-        )
-        
-        behavior = {
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+
+        youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
+
+        behaviour = {
             'traffic_sources': {},
             'device_preferences': {},
             'viewing_patterns': {}
         }
-        
-        if traffic_response.status_code == 200:
-            traffic_data = traffic_response.json()
-            if 'rows' in traffic_data:
-                total_views = sum(row[1] for row in traffic_data['rows'])
-                for row in traffic_data['rows']:
-                    source = row[0]
-                    views = row[1]
-                    watch_time = row[2]
-                    behavior['traffic_sources'][source] = {
-                        'views': views,
-                        'watch_time_minutes': watch_time,
-                        'percentage': round((views / total_views) * 100, 2) if total_views > 0 else 0,
-                        'avg_duration': round(watch_time * 60 / views, 2) if views > 0 else 0
-                    }
-        
-        if device_response.status_code == 200:
-            device_data = device_response.json()
-            if 'rows' in device_data:
-                total_views = sum(row[1] for row in device_data['rows'])
-                for row in device_data['rows']:
-                    device = row[0]
-                    views = row[1]
-                    watch_time = row[2]
-                    behavior['device_preferences'][device] = {
-                        'views': views,
-                        'watch_time_minutes': watch_time,
-                        'percentage': round((views / total_views) * 100, 2) if total_views > 0 else 0,
-                        'avg_duration': round(watch_time * 60 / views, 2) if views > 0 else 0
-                    }
-        
-        return behavior
-        
+
+        # Traffic source insights
+        traffic_response = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='views,estimatedMinutesWatched',
+            dimensions='insightTrafficSourceType',
+            sort='-views'
+        ).execute()
+
+        #print("traffic_response: ", traffic_response); time.sleep(3)
+
+        if 'rows' in traffic_response:
+            traffic_rows = traffic_response['rows']
+            total_views = sum(row[1] for row in traffic_rows)
+
+            for row in traffic_rows:
+                source = row[0]
+                views = row[1]
+                watch_time = row[2]
+                behaviour['traffic_sources'][source] = {
+                    'views': views,
+                    'watch_time_minutes': round(watch_time, 2),
+                    'percentage': round((views / total_views) * 100, 2) if total_views > 0 else 0,
+                    'avg_duration_seconds': round((watch_time * 60 / views), 2) if views > 0 else 0
+                }
+
+        # Device usage insights
+        device_response = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='views,estimatedMinutesWatched',
+            dimensions='deviceType',
+            sort='-views'
+        ).execute()
+
+        if 'rows' in device_response:
+            device_rows = device_response['rows']
+            total_views = sum(row[1] for row in device_rows)
+
+            for row in device_rows:
+                device = row[0]
+                views = row[1]
+                watch_time = row[2]
+                behaviour['device_preferences'][device] = {
+                    'views': views,
+                    'watch_time_minutes': round(watch_time, 2),
+                    'percentage': round((views / total_views) * 100, 2) if total_views > 0 else 0,
+                    'avg_duration_seconds': round((watch_time * 60 / views), 2) if views > 0 else 0
+                }
+
+        return behaviour
+
     except Exception as e:
-        print(f"Error getting viewing behavior insights: {e}")
+        print(f"Error getting viewing behaviour insights: {e}")
         return {}
 
+
+
 def get_subscription_trends(creds, start_date, end_date):
-    """Analyze subscription growth patterns"""
+    """Analyse subscription growth patterns."""
     try:
-        response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'subscribersGained,subscribersLost',
-                'dimensions': 'day',
-                'sort': 'day'
-            }
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            trends = {
-                'daily_data': [],
-                'total_gained': 0,
-                'total_lost': 0,
-                'net_growth': 0,
-                'growth_rate': 0,
-                'best_day': None,
-                'worst_day': None
-            }
-            
-            if 'rows' in data:
-                daily_net = []
-                for row in data['rows']:
-                    date = row[0]
-                    gained = row[1]
-                    lost = row[2]
-                    net = gained - lost
-                    
-                    trends['daily_data'].append({
-                        'date': date,
-                        'gained': gained,
-                        'lost': lost,
-                        'net': net
-                    })
-                    
-                    daily_net.append((date, net))
-                    trends['total_gained'] += gained
-                    trends['total_lost'] += lost
-                
-                trends['net_growth'] = trends['total_gained'] - trends['total_lost']
-                
-                if daily_net:
-                    trends['best_day'] = max(daily_net, key=lambda x: x[1])
-                    trends['worst_day'] = min(daily_net, key=lambda x: x[1])
-            
-            return trends
-        
-        return {}
-        
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+
+        youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
+
+        subscription_response = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='subscribersGained,subscribersLost',
+            dimensions='day',
+            sort='day'
+        ).execute()
+
+        #print("subscription_response:", subscription_response ); time.sleep(300)
+        trends = {
+            'daily_data': [],
+            'total_gained': 0,
+            'total_lost': 0,
+            'net_growth': 0,
+            'growth_rate': 0,
+            'best_day': None,
+            'worst_day': None
+        }
+
+        if 'rows' in subscription_response:
+            daily_net = []
+
+            for row in subscription_response['rows']:
+                date, gained, lost = row
+                net = gained - lost
+
+                trends['daily_data'].append({
+                    'date': date,
+                    'gained': gained,
+                    'lost': lost,
+                    'net': net
+                })
+
+                daily_net.append((date, net))
+                trends['total_gained'] += gained
+                trends['total_lost'] += lost
+
+            trends['net_growth'] = trends['total_gained'] - trends['total_lost']
+
+            if daily_net:
+                trends['best_day'] = max(daily_net, key=lambda x: x[1])
+                trends['worst_day'] = min(daily_net, key=lambda x: x[1])
+
+        return trends
+
     except Exception as e:
         print(f"Error getting subscription trends: {e}")
         return {}
 
 def get_engagement_overview(creds, start_date, end_date):
-    """Get comprehensive engagement metrics overview"""
+    """Get comprehensive engagement metrics overview."""
     try:
-        response = requests.get(
-            'https://youtubeanalytics.googleapis.com/v2/reports',
-            headers={'Authorization': f'Bearer {creds.token}'},
-            params={
-                'ids': 'channel==MINE',
-                'startDate': start_date,
-                'endDate': end_date,
-                'metrics': 'views,likes,dislikes,comments,shares,watchTimeMinutes,averageViewDuration'
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+
+        youtube_analytics = build('youtubeAnalytics', 'v2', credentials=creds)
+
+        engagement_response = youtube_analytics.reports().query(
+            ids='channel==MINE',
+            startDate=start_date,
+            endDate=end_date,
+            metrics='views,likes,comments,shares,estimatedMinutesWatched,averageViewDuration',
+        ).execute()
+
+        print("engagement_response:", engagement_response ); time.sleep(300)
+
+        if 'rows' in engagement_response and engagement_response['rows']:
+            row = engagement_response['rows'][0]
+
+            views = row[0]
+            likes = row[1]
+            comments = row[2]
+            shares = row[3]
+            watch_time_minutes = row[4]
+            avg_view_duration = row[5]
+
+            return {
+                'total_views': views,
+                'total_likes': likes,
+                'total_comments': comments,
+                'total_shares': shares,
+                'total_watch_time_minutes': watch_time_minutes,
+                'average_view_duration_seconds': avg_view_duration,
+                'engagement_rate': round(((likes + comments + shares) / views) * 100, 2) if views > 0 else 0,
+                'like_ratio': round((likes / views) * 100, 2) if views > 0 else 0,
+                'comment_ratio': round((comments / views) * 100, 2) if views > 0 else 0
             }
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            if 'rows' in data and data['rows']:
-                row = data['rows'][0]
-                
-                views = row[0]
-                likes = row[1]
-                dislikes = row[2] if len(row) > 2 else 0
-                comments = row[3] if len(row) > 3 else 0
-                shares = row[4] if len(row) > 4 else 0
-                watch_time = row[5] if len(row) > 5 else 0
-                avg_duration = row[6] if len(row) > 6 else 0
-                
-                return {
-                    'total_views': views,
-                    'total_likes': likes,
-                    'total_dislikes': dislikes,
-                    'total_comments': comments,
-                    'total_shares': shares,
-                    'total_watch_time_minutes': watch_time,
-                    'average_view_duration': avg_duration,
-                    'engagement_rate': round(((likes + comments + shares) / views) * 100, 2) if views > 0 else 0,
-                    'like_ratio': round((likes / views) * 100, 2) if views > 0 else 0,
-                    'comment_ratio': round((comments / views) * 100, 2) if views > 0 else 0
-                }
-        
+
         return {}
-        
+
     except Exception as e:
         print(f"Error getting engagement overview: {e}")
         return {}
 
 def get_temporal_engagement(creds, start_date, end_date):
-    """Analyze engagement patterns by time"""
+    """Analyse engagement patterns by time"""
     try:
         # Daily patterns
         daily_response = requests.get(
@@ -628,7 +640,7 @@ def generate_audience_summary(insights):
         'recommendations': []
     }
     
-    # Analyze demographics
+    # Analyse demographics
     if 'demographics' in insights and insights['demographics']:
         demo = insights['demographics']
         
@@ -676,7 +688,7 @@ def generate_retention_recommendations(retention_data):
                 'type': 'content_structure',
                 'priority': 'medium',
                 'title': 'Optimize Content Structure',
-                'description': 'Analyze common drop-off points and restructure content to maintain engagement at these critical moments.'
+                'description': 'Analyse common drop-off points and restructure content to maintain engagement at these critical moments.'
             })
     
     return recommendations
@@ -705,7 +717,7 @@ def generate_engagement_recommendations(patterns):
 
 # Helper functions for comprehensive analysis
 
-def get_geographic_insights_tes(creds, start_date, end_date):
+def get_geographic_insights_test(creds, start_date, end_date):
     """Get detailed geographic audience insights"""
     try:
         response = requests.get(
@@ -745,8 +757,8 @@ def get_geographic_insights_tes(creds, start_date, end_date):
         print(f"Error getting geographic insights: {e}")
         return {}
 
-def get_viewing_behavior_insights(creds, start_date, end_date):
-    """Analyze viewing behavior patterns"""
+def get_viewing_behaviour_insights_test(creds, start_date, end_date):
+    """Analyse viewing behaviour patterns"""
     try:
         # Get traffic sources
         traffic_response = requests.get(
@@ -776,7 +788,7 @@ def get_viewing_behavior_insights(creds, start_date, end_date):
             }
         )
         
-        behavior = {
+        behaviour = {
             'traffic_sources': {},
             'device_preferences': {},
             'viewing_patterns': {}
@@ -790,7 +802,7 @@ def get_viewing_behavior_insights(creds, start_date, end_date):
                     source = row[0]
                     views = row[1]
                     watch_time = row[2]
-                    behavior['traffic_sources'][source] = {
+                    behaviour['traffic_sources'][source] = {
                         'views': views,
                         'watch_time_minutes': watch_time,
                         'percentage': round((views / total_views) * 100, 2) if total_views > 0 else 0,
@@ -805,21 +817,21 @@ def get_viewing_behavior_insights(creds, start_date, end_date):
                     device = row[0]
                     views = row[1]
                     watch_time = row[2]
-                    behavior['device_preferences'][device] = {
+                    behaviour['device_preferences'][device] = {
                         'views': views,
                         'watch_time_minutes': watch_time,
                         'percentage': round((views / total_views) * 100, 2) if total_views > 0 else 0,
                         'avg_duration': round(watch_time * 60 / views, 2) if views > 0 else 0
                     }
         
-        return behavior
+        return behaviour
         
     except Exception as e:
-        print(f"Error getting viewing behavior insights: {e}")
+        print(f"Error getting viewing behaviour insights: {e}")
         return {}
 
-def get_subscription_trends(creds, start_date, end_date):
-    """Analyze subscription growth patterns"""
+def get_subscription_trends_test(creds, start_date, end_date):
+    """Analyse subscription growth patterns"""
     try:
         response = requests.get(
             'https://youtubeanalytics.googleapis.com/v2/reports',
@@ -926,7 +938,7 @@ def get_engagement_overview(creds, start_date, end_date):
         return {}
 
 def get_temporal_engagement(creds, start_date, end_date):
-    """Analyze engagement patterns by time"""
+    """Analyse engagement patterns by time"""
     try:
         # Daily patterns
         daily_response = requests.get(
@@ -1180,7 +1192,7 @@ def get_traffic_sources(creds, start_date, end_date):
         return {}
 
 def get_content_preferences(creds, start_date, end_date):
-    """Analyze content preferences and performance patterns"""
+    """Analyse content preferences and performance patterns"""
     try:
         # Get video performance data
         video_response = requests.get(
@@ -1243,7 +1255,7 @@ def get_content_preferences(creds, start_date, end_date):
                     
                     video_performances.append(performance_data)
                 
-                # Analyze content patterns
+                # Analyse content patterns
                 preferences['content_performance'] = analyse_content_patterns(video_performances)
                 preferences['content_categories'] = analyse_content_categories(video_performances)
                 preferences['engagement_patterns'] = analyse_content_engagement_patterns(video_performances)
@@ -1273,7 +1285,7 @@ def calculate_device_engagement_quality(views, watch_time, avg_duration):
     return min(round(engagement_score, 2), 100)
 
 def analyse_device_performance(device_types):
-    """Analyze performance differences across device types"""
+    """Analyse performance differences across device types"""
     insights = {
         'best_performing_device': None,
         'mobile_vs_desktop': {},
@@ -1508,7 +1520,7 @@ def calculate_content_performance_score(views, likes, comments, shares, watch_ti
     return round(min(score, 100), 2)
 
 def analyse_content_patterns(video_performances):
-    """Analyze patterns in content performance"""
+    """Analyse patterns in content performance"""
     if not video_performances:
         return {}
     
@@ -1536,7 +1548,7 @@ def analyse_content_patterns(video_performances):
     return patterns
 
 def analyse_content_categories(video_performances):
-    """Analyze performance by content categories"""
+    """Analyse performance by content categories"""
     categories = {}
     
     for video in video_performances:
@@ -1564,14 +1576,14 @@ def analyse_content_categories(video_performances):
     return categories
 
 def analyse_content_engagement_patterns(video_performances):
-    """Analyze engagement patterns across content"""
+    """Analyse engagement patterns across content"""
     patterns = {
         'high_engagement_factors': [],
         'optimal_video_length': None,
         'engagement_trends': {}
     }
     
-    # Analyze by duration ranges
+    # Analyse by duration ranges
     duration_ranges = {
         'short': (0, 180),      # 0-3 minutes
         'medium': (180, 600),   # 3-10 minutes
@@ -1614,13 +1626,13 @@ def identify_optimal_content_features(video_performances):
     }
     
     if video_performances:
-        # Analyze title lengths
+        # Analyse title lengths
         high_performers = [v for v in video_performances if v['performance_score'] > 70]
         if high_performers:
             avg_title_length = sum(len(v['title']) for v in high_performers) / len(high_performers)
             features['optimal_title_length'] = round(avg_title_length, 0)
         
-        # Analyze common tags in high performers
+        # Analyse common tags in high performers
         tag_performance = {}
         for video in high_performers:
             for tag in video['tags']:
@@ -1646,7 +1658,7 @@ def identify_optimal_content_features(video_performances):
 
 def identify_trending_topics(video_performances):
     """Identify trending topics based on recent performance"""
-    # This would typically analyze recent videos and their performance
+    # This would typically analyse recent videos and their performance
     # For now, return a simplified analysis
     trending = []
     
@@ -1774,7 +1786,7 @@ def generate_audience_summary(insights):
         'recommendations': []
     }
     
-    # Analyze demographics
+    # Analyse demographics
     if 'demographics' in insights and insights['demographics']:
         demo = insights['demographics']
         
@@ -1822,7 +1834,7 @@ def generate_retention_recommendations(retention_data):
                 'type': 'content_structure',
                 'priority': 'medium',
                 'title': 'Optimize Content Structure',
-                'description': 'Analyze common drop-off points and restructure content to maintain engagement at these critical moments.'
+                'description': 'Analyse common drop-off points and restructure content to maintain engagement at these critical moments.'
             })
     
     return recommendations
@@ -1854,7 +1866,7 @@ from collections import Counter, defaultdict
 import json
 
 def analyse_common_drop_offs(drop_off_points):
-    """Analyze common drop-off points across videos to identify patterns"""
+    """Analyse common drop-off points across videos to identify patterns"""
     if not drop_off_points:
         return {}
     
@@ -1987,7 +1999,7 @@ def calculate_retention_trend(video_analysis):
     }
 
 def get_content_type_engagement(creds, start_date, end_date):
-    """Analyze engagement by content type (inferred from titles/descriptions)"""
+    """Analyse engagement by content type (inferred from titles/descriptions)"""
     try:
         # Get video list with details
         videos_response = requests.get(
@@ -2009,7 +2021,7 @@ def get_content_type_engagement(creds, start_date, end_date):
         data = videos_response.json()
         content_types = defaultdict(list)
         
-        # Analyze each video
+        # Analyse each video
         for row in data.get('rows', []):
             video_id = row[0]
             metrics = {
@@ -2197,7 +2209,7 @@ def get_subscriber_engagement_comparison(creds, start_date, end_date):
         return {'error': str(e)}
 
 def get_interaction_patterns(creds, start_date, end_date):
-    """Analyze interaction timing and patterns"""
+    """Analyse interaction timing and patterns"""
     try:
         # Get hourly engagement data
         response = requests.get(
@@ -2263,7 +2275,7 @@ def get_interaction_patterns(creds, start_date, end_date):
         return {'error': str(e)}
 
 def get_watch_time_patterns(creds, start_date, end_date):
-    """Analyze watch time patterns and behaviors"""
+    """Analyse watch time patterns and behaviours"""
     try:
         # Get watch time metrics
         response = requests.get(
@@ -2492,13 +2504,13 @@ def generate_engagement_recommendations(patterns):
     """Generate engagement recommendations based on pattern analysis"""
     recommendations = []
     
-    # Analyze peak times
+    # Analyse peak times
     interaction_patterns = patterns.get('interaction_patterns', {})
     if interaction_patterns.get('peak_interaction_time'):
         peak = interaction_patterns['peak_interaction_time']
         recommendations.append(f"Consider posting content on {peak['day']}s around {peak['hour']}:00 for maximum engagement")
     
-    # Analyze subscriber engagement
+    # Analyse subscriber engagement
     subscriber_comparison = patterns.get('subscriber_vs_non_subscriber', {})
     if subscriber_comparison.get('comparison', {}).get('engagement_rate_difference', 0) < 0:
         recommendations.append("Focus on content that better engages your existing subscriber base")

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'dashboard_base.html' %}
 
 {% block title %}SEO Recommendations | Creovue{% endblock %}
 
@@ -113,14 +113,37 @@
 </style>
 {% endblock %}
 
-{% block content %}
+
+{% block dashboard_main %}
+<!-- Top Bar -->
+<header class="topbar">
+  <div class="d-flex justify-content-between align-items-center">
+    <h1 class="h4 mb-0 text-gray-800">🔍 Smart SEO & Keyword Recommendations</h1>
+    <div class="d-flex align-items-center">
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          {% if current_user.profile_pic %}
+            <img src="{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}" alt="Profile" width="32" height="32" class="rounded-circle me-2">
+          {% else %}
+              <i class="bi bi-person-circle me-1"></i>
+              <span class="me-2">{{ current_user.username }}</span>
+          {% endif %}
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+          <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
 {% if error %}
   <div class="alert alert-danger fade-in-up" role="alert">{{ error }}</div>
 {% endif %}
 
 <!-- Header Section -->
 <div class="seo-hero fade-in-up">
-  <h2>🔍 Smart SEO & Keyword Recommendations</h2>
   <p>Optimise your video content and titles using AI-powered tags, metadata tips, and export-ready content suggestions.</p>
 </div>
 
