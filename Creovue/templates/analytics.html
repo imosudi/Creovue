@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'dashboard_base.html' %}
 
 {% block title %}Analytics | Creovue{% endblock %}
 
@@ -246,14 +246,36 @@
 
 {% endblock %}
 
-{% block content %}
-<div class="container analytics-container">
-  <h2 class="mb-4 text-center">📊 Channel Performance Analytics</h2>
+{% block dashboard_main %}
+<!-- Top Bar -->
+<header class="topbar">
+  <div class="d-flex justify-content-between align-items-center">
+    <h1 class="h4 mb-0 text-gray-800">📊 Channel Performance Analytics</h1>
+    <div class="d-flex align-items-center">
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          {% if current_user.profile_pic %}
+            <img src="{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}" alt="Profile" width="32" height="32" class="rounded-circle me-2">
+          {% else %}
+              <i class="bi bi-person-circle me-1"></i>
+              <span class="me-2">{{ current_user.username }}</span>
+          {% endif %}
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+          <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container-fluid py-4">
 
   <!-- Summary Cards -->
   <div class="row summary-cards-row">
     <div class="col-md-4">
-      <div class="card summary-card card-blue shadow-sm">
+      <div class="card summary-card card-blue shadow-sm h-100 p-4">
         <div class="card-body">
           <h5 class="card-title">Total Views</h5>
           <p class="display-6 fw-bold">{{ analytics.total_views }}</p>
@@ -261,7 +283,7 @@
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card summary-card card-green shadow-sm">
+      <div class="card summary-card card-green shadow-sm h-100 p-4">
         <div class="card-body">
           <h5 class="card-title">Avg. Watch Time</h5>
           <p class="display-6 fw-bold">{{ analytics.avg_watch_time }} mins</p>
@@ -269,7 +291,7 @@
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card summary-card card-purple shadow-sm">
+      <div class="card summary-card card-purple shadow-sm h-100 p-4">
         <div class="card-body">
           <h5 class="card-title">Engagement Rate</h5>
           <p class="display-6 fw-bold">{{ analytics.engagement_rate }}%</p>
@@ -277,7 +299,7 @@
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card summary-card card-orange shadow-sm">
+      <div class="card summary-card card-orange shadow-sm h-100 p-4">
         <div class="card-body">
           <h5 class="card-title">Total Videos</h5>
           <p class="display-6 fw-bold">{{ analytics.video_count }}</p>
@@ -285,7 +307,7 @@
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card summary-card card-teal shadow-sm">
+      <div class="card summary-card card-teal shadow-sm h-100 p-4">
         <div class="card-body">
           <h5 class="card-title">Subscribers</h5>
           <p class="display-6 fw-bold">{{ analytics.subscriber_count }}</p>
@@ -293,7 +315,7 @@
       </div>
     </div>
     <div class="col-md-4">
-        <div class="card summary-card card-teal shadow-sm">
+        <div class="card summary-card card-teal shadow-sm h-100 p-4">
           <div class="card-body">
             <h5 class="card-title">Most viewed:</h5>
             <p class="fw-bold">{{ analytics.most_viewed_video.title }}</p>
