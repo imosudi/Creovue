@@ -52,6 +52,7 @@ def get_comprehensive_audience_insights(channel_id, days):
             'last_updated': datetime.now().isoformat()
         }
 
+
         
         # Generate summary insights
         insights['summary'] = generate_audience_summary(insights)
