@@ -1,6 +1,6 @@
 <!-- templates/audience_insights.html -->
-{#% extends 'dashboard_base.html' %#}
-{#% block dashboard_main %#}
+{% extends 'dashboard_base.html' %}
+{% block dashboard_main %}
  <!-- Top Bar -->
  <header class="topbar">
     <div class="d-flex justify-content-between align-items-center">
@@ -23,7 +23,7 @@
       </div>
     </div>
   </header>
-{#{insights}#}
+{{insights}}
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
@@ -268,4 +268,4 @@
         });
     </script>
     {#% endif %#}
-{#% endblock %#}
+{% endblock %}
