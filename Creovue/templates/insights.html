@@ -61,6 +61,57 @@
             margin-bottom: 20px;
         }
     </style>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card-modern {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.95);
+        }
+        
+        .progress-modern {
+            height: 8px;
+            border-radius: 10px;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .progress-bar-modern {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.6s ease;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+        }
+        
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        .traffic-item {
+            padding: 1rem;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.5);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .traffic-item:hover {
+            background: rgba(255,255,255,0.7);
+            transform: translateY(-2px);
+        }
+    </style>
 {% block dashboard_main %}
 <!-- Top Bar -->
 <header class="topbar">
@@ -312,4 +363,62 @@
 
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+    function createTrafficChart(trafficSources) {
+        const ctx = document.getElementById('trafficChart');
+        if (!ctx) return;
+
+        const labels = [];
+        const data = [];
+        const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#43e97b', '#38f9d7', '#ff758c', '#ff7eb3'];
+
+        Object.values(trafficSources).forEach((source, index) => {
+            labels.push(source.label || 'Unknown');
+            data.push(source.percentage_of_views || 0);
+        });
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors.slice(0, labels.length),
+                    borderWidth: 1,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            boxWidth: 12
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || 'Unknown';
+                                const value = context.parsed || 0;
+                                return `${label}: ${value}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Safely invoke after DOM and data are loaded (example only)
+    document.addEventListener('DOMContentLoaded', () => {
+        // Replace `trafficSources` with your JSON-encoded data injected by Jinja2:
+        const trafficSources = {{ insights.traffic_sources.traffic_types | tojson | safe }};
+        createTrafficChart(trafficSources);
+    });
+</script>
+
 {% endblock %}
