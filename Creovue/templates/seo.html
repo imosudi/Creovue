@@ -113,116 +113,95 @@
 </style>
 {% endblock %}
 
-
+{% block page_header %} 🔍 Smart SEO & Keyword Recommendations {% endblock %}
 {% block dashboard_main %}
-<!-- Top Bar -->
-<header class="topbar">
-  <div class="d-flex justify-content-between align-items-center">
-    <h1 class="h4 mb-0 text-gray-800">🔍 Smart SEO & Keyword Recommendations</h1>
-    <div class="d-flex align-items-center">
-      <div class="dropdown">
-        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          {% if current_user.profile_pic %}
-            <img src="{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}" alt="Profile" width="32" height="32" class="rounded-circle me-2">
-          {% else %}
-              <i class="bi bi-person-circle me-1"></i>
-              <span class="me-2">{{ current_user.username }}</span>
-          {% endif %}
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
-          <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</header>
-<div class="container-fluid py-4">
+  
+  <div class="container-fluid py-4">
 
-{% if error %}
-  <div class="alert alert-danger fade-in-up" role="alert">{{ error }}</div>
-{% endif %}
-
-
-<!-- Header Section -->
-<section class="mb-5">
-  <div class="card card-custom">
-    <div class="card-body">
-      <div class="row text-center text-md-start g-3">
-        <div class="seo-hero fade-in-up">
-          <p>Optimise your video content and titles using AI-powered tags, metadata tips, and export-ready content suggestions.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Keyword Input -->
-<div class="row justify-content-center mb-5 fade-in-up">
-  <div class="col-md-8">
-    <form method="POST" action="{{ url_for('seo') }}" class="seo-form">
-      <div class="input-group shadow">
-        <input type="text" name="keyword" class="form-control" placeholder="e.g. How to grow on YouTube..." {% if keyword !=none %} value="{{keyword}}""  {% endif %} required>
-        <button class="btn btn-primary" type="submit">Analyse</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Result Cards -->
-<div class="row fade-in-up">
-  <div class="col-lg-10 offset-lg-1">
-    {% if recommendations %}
-      <div class="seo-card mb-3 py">
-        <h5 class="mb-3 text-primary">Recommended Tags</h5>
-        <div class="tag-list" role="list">
-          {% for tag in recommendations.tags %}
-            <span class="tag-badge" role="listitem" tabindex="0" aria-label="Tag: {{ tag }}">{{ tag }}</span>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="seo-card mb-3 py3">
-        <h5 class="mb-3 text-primary">SEO Tips</h5>
-        <ul class="seo-tips list-group list-group-numbered">
-          {% for tip in recommendations.tips %}
-            <li class="list-group-item">{{ tip }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-
-      <div class="seo-card export-options mb-3 py3">
-        <h6 class="mb-2 text-primary">📁 Export Options</h6>
-        <button class="btn btn-outline-secondary btn-sm me-2" onclick="copyTags()">📋 Copy Tags</button>
-        <button class="btn btn-outline-success btn-sm" onclick="downloadJSON()">⬇️ Download JSON</button>
-        <pre id="tagsJson" class="d-none">{{ recommendations|tojson(indent=2) }}</pre>
-      </div>
-    {% else %}
-      <div class="text-muted text-center">
-        <p>⚠️ No SEO suggestions yet. Try entering a keyword above to see relevant tags and tips.</p>
-      </div>
+    {% if error %}
+      <div class="alert alert-danger fade-in-up" role="alert">{{ error }}</div>
     {% endif %}
+
+
+    <!-- Header Section -->
+    <section class="mb-5">
+      <div class="card card-custom">
+        <div class="card-body">
+          <div class="row text-center text-md-start g-3">
+            <div class="seo-hero fade-in-up">
+              <p>Optimise your video content and titles using AI-powered tags, metadata tips, and export-ready content suggestions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Keyword Input -->
+    <div class="row justify-content-center mb-5 fade-in-up">
+      <div class="col-md-8">
+        <form method="POST" action="{{ url_for('seo') }}" class="seo-form">
+          <div class="input-group shadow">
+            <input type="text" name="keyword" class="form-control" placeholder="e.g. How to grow on YouTube..." {% if keyword !=none %} value="{{keyword}}""  {% endif %} required>
+            <button class="btn btn-primary" type="submit">Analyse</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Result Cards -->
+    <div class="row fade-in-up">
+      <div class="col-lg-10 offset-lg-1">
+        {% if recommendations %}
+          <div class="seo-card mb-3 py">
+            <h5 class="mb-3 text-primary">Recommended Tags</h5>
+            <div class="tag-list" role="list">
+              {% for tag in recommendations.tags %}
+                <span class="tag-badge" role="listitem" tabindex="0" aria-label="Tag: {{ tag }}">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="seo-card mb-3 py3">
+            <h5 class="mb-3 text-primary">SEO Tips</h5>
+            <ul class="seo-tips list-group list-group-numbered">
+              {% for tip in recommendations.tips %}
+                <li class="list-group-item">{{ tip }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <div class="seo-card export-options mb-3 py3">
+            <h6 class="mb-2 text-primary">📁 Export Options</h6>
+            <button class="btn btn-outline-secondary btn-sm me-2" onclick="copyTags()">📋 Copy Tags</button>
+            <button class="btn btn-outline-success btn-sm" onclick="downloadJSON()">⬇️ Download JSON</button>
+            <pre id="tagsJson" class="d-none">{{ recommendations|tojson(indent=2) }}</pre>
+          </div>
+        {% else %}
+          <div class="text-muted text-center">
+            <p>⚠️ No SEO suggestions yet. Try entering a keyword above to see relevant tags and tips.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
   </div>
-</div>
+  <script>
+    function copyTags() {
+      const tags = {{ recommendations.tags|tojson if recommendations else '[]' }};
+      const clipboard = tags.join(", ");
+      navigator.clipboard.writeText(clipboard).then(() => {
+        alert("Tags copied to clipboard ✅");
+      });
+    }
 
-<script>
-  function copyTags() {
-    const tags = {{ recommendations.tags|tojson if recommendations else '[]' }};
-    const clipboard = tags.join(", ");
-    navigator.clipboard.writeText(clipboard).then(() => {
-      alert("Tags copied to clipboard ✅");
-    });
-  }
-
-  function downloadJSON() {
-    const jsonData = document.getElementById('tagsJson').textContent;
-    const blob = new Blob([jsonData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'seo_recommendations.json';
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-</script>
+    function downloadJSON() {
+      const jsonData = document.getElementById('tagsJson').textContent;
+      const blob = new Blob([jsonData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'seo_recommendations.json';
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
 {% endblock %}

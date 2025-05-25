@@ -87,6 +87,16 @@
     </style>
     <style>
         :root {
+          --sidebar-width: 340px; /* Increased from 280px */
+          --primary-color: #0d6efd;
+          --secondary-color: #6c757d;
+          --success-color: #198754;
+          --danger-color: #dc3545;
+          --warning-color: #ffc107;
+          --info-color: #0dcaf0;
+          --dark-color: #212529;
+          --light-color: #f8f9fa;
+          --sidebar-width: 280px;
           --color-primary: #3E63DD;
           --color-accent: #A259FF;
           --color-muted: #6C757D;
@@ -121,6 +131,15 @@
         .nav-link {
           font-weight: 500;
           color: var(--color-muted);
+          /*color: rgba(255, 255, 255, 0.85);*/
+          padding: 0.75rem 1.5rem;
+          border-left: 3px solid transparent;
+          white-space: nowrap; /* Prevent wrapping */
+          overflow: hidden;     /* Hide overflow text */
+          text-overflow: ellipsis; /* Add ellipsis if too long */
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
         }
       
         .nav-link:hover,
@@ -232,8 +251,8 @@
             <div class="collapse navbar-collapse" id="mainNavbar">
                 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center">
-                    {% if current_user.is_authenticated %}
-                      <li class="nav-item px-2">
+                    {#% if current_user.is_authenticated %#}
+                      <!--li class="nav-item px-2">
                         <a class="nav-link{% if request.endpoint == 'dashboard' %} active{% endif %}" href="{{ url_for('dashboard') }}">
                           <i class="bi bi-speedometer2{% if request.endpoint == 'dashboard' %} text-primary{% endif %}"></i>Dashboard
                         </a>
@@ -252,9 +271,9 @@
                         <a class="nav-link{% if request.endpoint == 'trends' %} active{% endif %}" href="{{ url_for('trends') }}">
                           <i class="bi bi-bar-chart-steps{% if request.endpoint == 'trends' %} text-primary{% endif %}"></i>Trends
                         </a>
-                      </li>
+                      </li-->
                       <!-- Thumbnail Tools Dropdown -->
-                      <li class="nav-item dropdown px-2">
+                      <!--li class="nav-item dropdown px-2">
                         <a class="nav-link dropdown-toggle{% if request.endpoint in ['face_detection.face_detect', 'colour_heatmap.colour_heatmap', 'text_density.text_density', 'ctr_predict.ctr_score', 'thumbnail_summary.thumbnail_summary'] %} active{% endif %}" href="#" id="thumbToolsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                           <i class="bi bi-images{% if request.endpoint in ['face_detection.face_detect', 'colour_heatmap.colour_heatmap', 'text_density.text_density', 'ctr_predict.ctr_score', 'thumbnail_summary.thumbnail_summary'] %} text-primary{% endif %}"></i>Thumbnail Tools
                         </a>
@@ -285,13 +304,13 @@
                             </a>
                           </li>
                         </ul>
-                      </li>
-                    {% else %}
+                      </li-->
+                    {#% else %#}
                       <!-- Placeholder items to preserve layout spacing -->
                       {% for _ in range(5) %}
                       <li class="nav-item px-2 invisible"><a class="nav-link disabled">&nbsp;</a></li>
                       {% endfor %}
-                    {% endif %}
+                    {#% endif %#}
                   </ul>
                   
                 
@@ -345,7 +364,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="container my-5" role="main" aria-label="Page Content">
+    <main class="my-5" role="main" aria-label="Page Content">
         {% block content %}{% endblock %}
     </main>
 
