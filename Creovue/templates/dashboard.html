@@ -24,25 +24,32 @@
         
         <!-- Channel Overview & Health -->
         <section class="mb-5">
-          <div class="card card-custom">
-            <div class="card-body">
-              <div class="row text-center text-md-start g-3">
-                <div class="col-6 col-md-3">
-                  <strong>👥 Subscribers:</strong> <span class="d-block fs-5">{{ stats.subscribers }}</span>
-                </div>
-                <div class="col-6 col-md-3">
-                  <strong>👁️ Views:</strong> <span class="d-block fs-5">{{ stats.views }}</span>
-                </div>
-                <div class="col-6 col-md-3">
-                  <strong>📺 Videos:</strong> <span class="d-block fs-5">{{ stats.videos }}</span>
-                </div>
-                <div class="col-6 col-md-3">
-                  <strong>🚨 Sudden Spike Detected:</strong> <span class="d-block fs-5">{{ "Yes 🚀" if stats.spike_detected else "No" }}</span>
-                </div>
+          <div class="row g-4 mb-4">
+
+            <div class="col-md-3">
+              <div class="card metric-card h-100 p-4">
+                <p class="mb-0 opacity-75">👥 Subscribers:</p> <span class="d-block fs-5">{{ stats.subscribers }}</span>
               </div>
             </div>
+            <div class="col-md-3">
+              <div class="card metric-card h-100 p-4">
+                <p class="mb-0 opacity-75">👁️ Views:</p> <span class="d-block fs-5">{{ stats.views }}</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card metric-card h-100 p-4">
+                <p class="mb-0 opacity-75">📺 Videos:</p> <span class="d-block fs-5">{{ stats.videos }}</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card metric-card h-100 p-4">
+                <p class="mb-0 opacity-75">🚨 Sudden Spike Detected:</p> <span class="d-block fs-5">{{ "Yes 🚀" if stats.spike_detected else "No" }}</span>
+              </div>
+            </div>
+            
           </div>
         </section>
+
 
         <!-- Analytics Section -->
         <div class="row g-4 mb-4">
