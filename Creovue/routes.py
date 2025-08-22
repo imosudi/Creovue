@@ -402,7 +402,7 @@ def oauth2callback():
         state=state
     )
     flow.redirect_uri = creo_google_redirect_uri
-    print("request.url: ", request.url); time.sleep(300)
+    #print("request.url: ", request.url); time.sleep(300)
     flow.fetch_token(authorization_response=request.url)
     credentials = flow.credentials
 
