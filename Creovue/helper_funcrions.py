@@ -3,6 +3,7 @@
 # HELPER FUNCTIONS (You'll need to implement these)
 # =============================================================================
 
+print("Inside helper_functions 1")
 from Creovue.models.trends import get_all_regions
 
 
