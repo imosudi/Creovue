@@ -346,3 +346,5 @@ def get_health_recommendations(channel_id):
 def update_user_notification_preferences(user_id, new_prefs):
     # Stub: Update notification preferences for the user
     return {"status": "success", "updated_preferences": new_prefs}  
+
+print("Inside helper_functions getting out ")
