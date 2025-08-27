@@ -17,7 +17,6 @@ def get_youtube_client():
     return build("youtube", "v3", developerKey=creo_api_key)
 
 
-
 def ensure_channel_id():
     """
     If the current_user has no channel_id, query YouTube API to get it
@@ -48,3 +47,23 @@ def ensure_channel_id():
             except SQLAlchemyError as e:
                 db.session.rollback()
                 app.logger.error(f"Failed to update user with channel_id: {str(e)}")
+
+def get_recent_video_performance():
+    pass 
+def calculate_subscriber_trend():
+    pass 
+
+def calculate_view_trend():
+    pass
+
+def calculate_subscriber_growth_rate():
+    pass 
+
+def calculate_view_growth_rate():
+    pass
+
+def calculate_avg_engagement_rate():
+    pass 
+
+def calculate_upload_consistency():
+    pass

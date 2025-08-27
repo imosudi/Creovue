@@ -31,6 +31,9 @@ from werkzeug.security import generate_password_hash
 from flask import abort
 from sqlalchemy import desc, func
 
+from Creovue.helper_funcrions import analyse_channel_growth, analyse_videos_batch, get_channel_health_overview, get_detailed_video_analytics, get_health_recommendations, get_video_performance_data, predict_channel_growth
+from Creovue.utils.analytics_helpers import calculate_channel_health_score
+
 # Add these model imports (you'll need to create these models)
 from .models.channel_health import ChannelHealth, VideoPerformance, CompetitorAnalysis
 from .models.audience import AudienceInsight, ContentPlan, Alert, Goal
@@ -39,6 +42,15 @@ from .models.notifications import NotificationPreference
 
 from Creovue.utils.youtube_client import ensure_channel_id
 from Creovue.utils.yt_api import calculate_ctr_metrics
+
+from .competitors_analytics import *
+from .alerts_notifications import *
+from .tools_utilities import *
+from .goals_progress import *
+from .content_planning_optimisation import *
+from .audience_insights import *
+from .seo_discovery_tools import * 
+
 
 # Local application imports
 from . import app, google, oauth
@@ -395,8 +407,8 @@ def oauth2callback():
         scopes=[
             "openid",
             "https://www.googleapis.com/auth/userinfo.email",
-            "https://www.googleapis.com/auth/userinfo.profile"#,
-            #"https://www.googleapis.com/auth/youtube.readonly",
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "https://www.googleapis.com/auth/youtube.readonly",
             #"https://www.googleapis.com/auth/yt-analytics.readonly"
         ],
         state=state
@@ -655,12 +667,14 @@ def video_performance_trends():
 # =============================================================================
 # SEO & DISCOVERY TOOLS (Enhanced)
 # =============================================================================
-
+'''
 @app.route('/seo/optimisation')
 @login_required
 def seo_optimisation():
     """SEO optimisation dashboard"""
     return render_template('seo_optimisation.html')
+
+
 
 @app.route('/api/seo/video-optimisation', methods=['POST'])
 @login_required
@@ -1483,3 +1497,4 @@ def export_analytics_data(user_id, format="csv"):
     # Stub: Export analytics data in the requested format
     return {"status": "success", "download_url": f"/exports/{user_id}/analytics.{format}"}
 
+'''
