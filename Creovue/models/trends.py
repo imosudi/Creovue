@@ -23,7 +23,7 @@ import pycountry, geocoder
 #import matplotlib
 #matplotlib.use('Agg')  # Use a non-GUI backend
 import matplotlib.pyplot as plt
-import numpy as np
+#import numpy as np
 
 from collections import Counter, defaultdict
 from Creovue.config import creo_api_key, creo_base_url
@@ -880,7 +880,7 @@ def visualise_category_age_distribution(region):
 
     # Bar settings
     bar_width = 0.12
-    index = np.arange(len(categories))
+    index = "" #np.arange(len(categories))
     colors = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f']
 
     # Loop through each age group to plot
@@ -920,7 +920,7 @@ def visualise_category_age_distribution_base64(region):
 
     fig, ax = plt.subplots(figsize=(14, 8))
     bar_width = 0.12
-    index = np.arange(len(categories))
+    index = ""# np.arange(len(categories))
 
     for i, age_group in enumerate(age_groups):
         values = []
