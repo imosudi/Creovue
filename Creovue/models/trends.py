@@ -14,14 +14,14 @@ import base64
 
 from collections import defaultdict
 import random
-from Creovue.utils.youtube_client import get_youtube_client
-from Creovue.utils.decorators import cached, handle_api_error
+#from Creovue.utils.youtube_client import get_youtube_client
+#from Creovue.utils.decorators import cached, handle_api_error
 
-from youtubesearchpython import Suggestions
+#from youtubesearchpython import Suggestions
 
 import pycountry, geocoder
-import matplotlib
-matplotlib.use('Agg')  # Use a non-GUI backend
+#import matplotlib
+#matplotlib.use('Agg')  # Use a non-GUI backend
 import matplotlib.pyplot as plt
 import numpy as np
 
