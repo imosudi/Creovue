@@ -1,4 +1,5 @@
 # trends.py (Production-ready)
+print("Inside trends 1")
 import requests
 from googleapiclient.discovery import build
 from datetime import datetime, timedelta
@@ -48,7 +49,7 @@ CACHE_DURATION = 3600  # Cache for 1 hour
 # Cache storage
 _trend_cache = {}
 _cache_timestamps = {}
-print("Inside trends 1")
+
 
 """ALLOWED_YOUTUBE_REGIONS = [
     "US", "NG", "GB", "IN", "CA", "KE", "ZA", "GH", "EG", "DE", "BR", "FR", "RU", "JP", "KR", "ID", "AU", "MX"
