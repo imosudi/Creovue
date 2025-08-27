@@ -48,7 +48,7 @@ CACHE_DURATION = 3600  # Cache for 1 hour
 # Cache storage
 _trend_cache = {}
 _cache_timestamps = {}
-
+print("Inside trends 1")
 
 """ALLOWED_YOUTUBE_REGIONS = [
     "US", "NG", "GB", "IN", "CA", "KE", "ZA", "GH", "EG", "DE", "BR", "FR", "RU", "JP", "KR", "ID", "AU", "MX"
@@ -1127,6 +1127,6 @@ def fetch_trending_keywords(region, category_id=None, max_results=50):
     result.sort(key=lambda x: x["trend_score"], reverse=True)
     return result[:max_results]  # Return top 15 keywords
 
-
+print("Getting out of trends")
 
 
