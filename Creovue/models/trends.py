@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 from collections import Counter, defaultdict
 from Creovue.config import creo_api_key, creo_base_url
 # models/trends.py
-
+print
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
