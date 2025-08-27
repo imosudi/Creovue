@@ -65,6 +65,7 @@ from .models.analytics import (
     fetch_youtube_analytics, 
     generate_plot
 )
+print("Inside routes 7")
 from .models.seo import get_seo_recommendations
 from .logic import extract_keywords
 from .config import (
@@ -78,6 +79,7 @@ from .config import (
     creo_api_key,
     creo_mock_view_history
 )
+print("Inside routes 8")
 from Creovue.models.trends import (
     clear_trend_cache,
     fetch_top_channels,
@@ -95,7 +97,7 @@ from Creovue.models.trends import (
     get_trending_regions,
     visualise_category_age_distribution_base64
 )
-
+print("Inside routes 9")
 from Creovue.utils.audience_insights import (
     get_comprehensive_audience_insights, analyse_audience_retention, get_audience_demographics, analyse_engagement_patterns
     
