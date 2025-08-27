@@ -74,7 +74,7 @@ def get_competitor_metrics(): #(competitor['channel_id'], timeframe):
 
 def get_user_content_plans(): #(current_user.id):
     pass
-
+print
 def  generate_content_suggestions(
             current_user, #.channel_id, 
             category, 
