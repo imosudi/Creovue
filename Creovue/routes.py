@@ -30,6 +30,7 @@ from werkzeug.security import generate_password_hash
 
 from flask import abort
 from sqlalchemy import desc, func
+print("Inside routes 3")
 
 from Creovue.helper_funcrions import analyse_channel_growth, analyse_videos_batch, get_channel_health_overview, get_detailed_video_analytics, get_health_recommendations, get_video_performance_data, predict_channel_growth
 from Creovue.utils.analytics_helpers import calculate_channel_health_score
