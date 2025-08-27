@@ -112,9 +112,11 @@ ALLOWED_YOUTUBE_REGIONS = [
     'VN'   # Vietnam
 ]
 def get_youtube_client():
+    return True
     return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=creo_api_key)
 
-def sanitize_text(text):
+def sanitise_text(text):
+    return True
     """Remove special characters and common stop words"""
     # Basic stopwords list
     stopwords = {'a', 'an', 'the', 'and', 'or', 'but', 'is', 'are', 'in', 'to', 'of', 'for', 'with'}
@@ -125,6 +127,7 @@ def sanitize_text(text):
     return words
 
 def fetch_trending_keywords(region="US"):
+    return True
     youtube = get_youtube_client()
     try:
         response = youtube.videos().list(
@@ -152,6 +155,7 @@ def fetch_trending_keywords(region="US"):
         return [{"name": f"Sample {i}", "volume": random.randint(50, 500)} for i in range(1, 11)]
 
 def fetch_top_channels(region="US"):
+    return  True
     youtube = get_youtube_client()
     try:
         response = youtube.videos().list(
@@ -187,6 +191,7 @@ def fetch_top_channels(region="US"):
                 "thumbnail": ""} for i in range(1, 6)]
 
 def get_trend_chart_data():
+    return True
     # Simulate a trend chart over 7 days using top keyword frequency
     labels = [(datetime.now() - timedelta(days=i)).strftime("%a") for i in reversed(range(7))]
     values = [random.randint(10, 50) for i in range(7)]  # Fixed variable name error
@@ -201,6 +206,7 @@ def get_trend_chart_data():
     }
 
 def cached(expiry_seconds=CACHE_DURATION):
+    return True
     """Decorator for caching API results"""
     def decorator(func):
         @functools.wraps(func)
@@ -222,6 +228,7 @@ def cached(expiry_seconds=CACHE_DURATION):
     return decorator
 
 def get_youtube_client():
+    return True
     """Get authenticated YouTube API client"""
     try:
         return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=creo_api_key)
@@ -230,6 +237,7 @@ def get_youtube_client():
         raise
 
 def handle_api_error(func):
+    return True
     """Decorator to handle API errors gracefully"""
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -249,6 +257,7 @@ def handle_api_error(func):
     return wrapper
 
 def extract_keywords_from_title(title):
+    return True
     """Extract meaningful keywords from title"""
     # Remove special characters and lowercase
     cleaned = re.sub(r'[^\w\s]', ' ', title.lower())
@@ -262,9 +271,10 @@ def extract_keywords_from_title(title):
     keywords = [word for word in cleaned.split() if word not in common_words and len(word) > 2]
     return keywords
 
-@cached(expiry_seconds=3600)  # Cache for 1 hour
-@handle_api_error
+#@cached(expiry_seconds=3600)  # Cache for 1 hour
+#@handle_api_error
 def fetch_top_channels(region="GB", category_id=None, max_results=10):
+    return True
     """
     Fetch top channels with detailed metrics
     
@@ -346,6 +356,7 @@ def fetch_top_channels(region="GB", category_id=None, max_results=10):
     return channels_data[:max_results]
 
 def format_number(num):
+    return True
     """Format large numbers with K/M/B suffix"""
     if num >= 1_000_000_000:
         return f"{num/1_000_000_000:.1f}B"
@@ -357,6 +368,7 @@ def format_number(num):
         return str(num)
 
 def get_channel_category(keywords_str):
+    return True
     """Determine channel category from keywords"""
     if not keywords_str:
         return "General"
@@ -385,9 +397,10 @@ def get_channel_category(keywords_str):
         return category_scores.most_common(1)[0][0]
     return "General"
 
-@cached(expiry_seconds=3600)  # Cache for 1 hour
-@handle_api_error
+#@cached(expiry_seconds=3600)  # Cache for 1 hour
+#@handle_api_error
 def get_trend_chart_data(days=14, region="GB", keyword=None):
+    return  True
     """
     Get historical trend data for charting
     
@@ -454,9 +467,10 @@ def get_trend_chart_data(days=14, region="GB", keyword=None):
         "datasets": datasets
     }
 
-@cached(expiry_seconds=43200)  # Cache for 12 hours
-@handle_api_error
+#@cached(expiry_seconds=43200)  # Cache for 12 hours
+#@handle_api_error
 def get_related_keywords(keyword, max_results=10):
+    return True
     """Find related keywords for a given seed keyword"""
     try:
         # This would ideally use a proper API, but we'll simulate with a model
@@ -506,6 +520,7 @@ def get_related_keywords(keyword, max_results=10):
 
 
 def get_trending_regions():
+    return True
     """Get list of available regions with localised names"""
     # Custom name mappings to match original entries and common usage
     custom_names = {
@@ -527,6 +542,7 @@ def get_trending_regions():
     return regions
 
 def get_trending_regions():
+    return True
     """Get list of available regions with localised names"""
     return [
         {"code": "GB", "name": "United Kingdom"},
@@ -544,6 +560,7 @@ def get_trending_regions():
 
 # URL and route utility functions
 def generate_trend_api_url(base_url, region="GB", category=None, keyword=None):
+    return True
     """Generate API URL with optional parameters"""
     url = f"{base_url}/api/trend_data?region={region}"
     if category:
@@ -553,6 +570,7 @@ def generate_trend_api_url(base_url, region="GB", category=None, keyword=None):
     return url
 
 def clear_trend_cache():
+    return True
     """Clear all cached trend data"""
     global _trend_cache, _cache_timestamps
     _trend_cache = {}
@@ -572,6 +590,7 @@ def get_category_distribution_(region="US"):
 
 
 def get_all_regions():
+    return True
     """Get list of available regions with localised names"""
     # Custom name mappings to match original entries and common usage
     custom_names = {
@@ -596,6 +615,7 @@ def get_all_regions():
 
 # Default region
 def get_default_region(client_ipaddr):
+    return True
     """Determine the default region using client IP geolocation, fallback to server geolocation or 'US'."""
     # First attempt: Try using client IP if provided
     #print("client_ipaddr: ", client_ipaddr)
@@ -625,6 +645,7 @@ def get_safe_region_code(raw_region):
     return raw_region if raw_region in ALLOWED_YOUTUBE_REGIONS else "US"
 
 def get_available_categories(api_key, region_code="US"):
+    return True
     """Retrieve available YouTube video categories using the YouTube Data API v3."""
     url = f"{creo_base_url}/videoCategories"
     
@@ -654,6 +675,7 @@ def get_available_categories(api_key, region_code="US"):
     
 
 def get_trending_keywords(region, category):
+    return True
     base_keywords = {
         # North America
         "US": ["AI tools 2025", "midjourney prompts", "productivity hacks", "SEO tips", "startup trends", 
@@ -747,9 +769,10 @@ def get_trending_keywords(region, category):
     return keyword_list, timestamp
 
 
-@cached(expiry_seconds=86400)  # Cache for 1 day
-@handle_api_error
+#@cached(expiry_seconds=86400)  # Cache for 1 day
+#@handle_api_error
 def get_category_distribution(region):
+    return True
     """Get the distribution of video categories in trending content"""
     youtube = get_youtube_client()
     
@@ -790,9 +813,10 @@ def get_category_distribution(region):
     
     return results
 
-@cached(expiry_seconds=86400)
-@handle_api_error
+#@cached(expiry_seconds=86400)
+#@handle_api_error
 def get_category_age_distribution(region):
+    return True
     """
     Simulate age distribution of viewers for trending video categories.
     Args:
@@ -862,6 +886,7 @@ def get_category_age_distribution(region):
     return category_age_data
 
 def visualise_category_age_distribution(region):
+    return True
     """
     Create a visualisation of the age distribution for each category.
 
@@ -880,7 +905,7 @@ def visualise_category_age_distribution(region):
 
     # Bar settings
     bar_width = 0.12
-    index = "" #np.arange(len(categories))
+    index = np.arange(len(categories))
     colors = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f']
 
     # Loop through each age group to plot
@@ -905,6 +930,7 @@ def visualise_category_age_distribution(region):
     return fig
 
 def visualise_category_age_distribution_base64(region):
+    return True
     """
     Create a base64 image of the age distribution bar chart by YouTube category.
 
@@ -920,7 +946,7 @@ def visualise_category_age_distribution_base64(region):
 
     fig, ax = plt.subplots(figsize=(14, 8))
     bar_width = 0.12
-    index = ""# np.arange(len(categories))
+    index = np.arange(len(categories))
 
     for i, age_group in enumerate(age_groups):
         values = []
@@ -950,9 +976,10 @@ def visualise_category_age_distribution_base64(region):
 
 
 # Simulated top channels
-@cached(expiry_seconds=86400)
-@handle_api_error
+#@cached(expiry_seconds=86400)
+#@handle_api_error
 def get_top_channels(region):
+    return True
     """
     Get top channels from trending videos in the specified region.
     
@@ -1026,9 +1053,10 @@ def get_top_channels(region):
     return sorted_channels , timestamp
 
 
-@cached(expiry_seconds=1800)  # Cache for 30 minutes
-@handle_api_error
+#@cached(expiry_seconds=1800)  # Cache for 30 minutes
+#@handle_api_error
 def fetch_trending_keywords(region, category_id=None, max_results=50):
+    return
     """
     Fetch trending keywords with improved analysis and categorisation
     
