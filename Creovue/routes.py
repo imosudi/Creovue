@@ -55,6 +55,7 @@ from Creovue.helper_funcrions import analyse_channel_growth, analyse_videos_batc
 from Creovue.utils.analytics_helpers import calculate_channel_health_score
 from Creovue.utils.youtube_client import get_recent_video_performance, calculate_subscriber_trend, calculate_view_trend, calculate_subscriber_growth_rate, calculate_view_growth_rate, calculate_avg_engagement_rate, calculate_upload_consistency
 
+print("Inside routes 6")
 # Local application imports
 from . import app, google, oauth
 from .models import db, User, Role
