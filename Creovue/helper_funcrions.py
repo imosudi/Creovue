@@ -5,7 +5,7 @@
 
 print("Inside helper_functions 1")
 from Creovue.models.trends import get_all_regions
-
+print("Inside helper_functions 2")
 
 def get_channel_health_overview(channel_id):
     """Get comprehensive channel health data"""
@@ -74,7 +74,7 @@ def get_competitor_metrics(): #(competitor['channel_id'], timeframe):
 
 def get_user_content_plans(): #(current_user.id):
     pass
-print
+print("Inside helper_functions 3")
 def  generate_content_suggestions(
             current_user, #.channel_id, 
             category, 
