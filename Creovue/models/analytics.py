@@ -57,6 +57,7 @@ def process_channel_analytics(channel_id):
     }
 
 def get_channel_stats(channel_id):
+    return True
     raw_stats = fetch_youtube_analytics(channel_id)
     return {
         'subscribers': int(raw_stats.get('subscriberCount', 0)),
