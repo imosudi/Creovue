@@ -26,10 +26,12 @@ import pycountry, geocoder
 import matplotlib.pyplot as plt
 #import numpy as np
 
+print("Inside trends 2")
+
 from collections import Counter, defaultdict
 from Creovue.config import creo_api_key, creo_base_url
 # models/trends.py
-print
+print("Inside trends 3")
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
