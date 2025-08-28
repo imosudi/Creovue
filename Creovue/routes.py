@@ -55,10 +55,16 @@ from .seo_discovery_tools import *"""
 print("Inside routes 5")
 
 from Creovue.helper_funcrions import analyse_channel_growth, analyse_videos_batch, get_channel_health_overview, get_detailed_video_analytics, get_health_recommendations, get_video_performance_data, get_video_performance_trends, predict_channel_growth
-from Creovue.utils.analytics_helpers import calculate_channel_health_score
-from Creovue.utils.youtube_client import get_recent_video_performance, calculate_subscriber_trend, calculate_view_trend, calculate_subscriber_growth_rate, calculate_view_growth_rate, calculate_avg_engagement_rate, calculate_upload_consistency
 
 print("Inside routes 6")
+
+from Creovue.utils.analytics_helpers import calculate_channel_health_score
+
+print("Inside routes 7")
+
+from Creovue.utils.youtube_client import get_recent_video_performance, calculate_subscriber_trend, calculate_view_trend, calculate_subscriber_growth_rate, calculate_view_growth_rate, calculate_avg_engagement_rate, calculate_upload_consistency
+
+
 # Local application imports
 from . import app, google, oauth
 from .models import db, User, Role
@@ -68,7 +74,7 @@ from .models.analytics import (
     fetch_youtube_analytics, 
     generate_plot
 )
-print("Inside routes 7")
+print("Inside routes 8")
 from .models.seo import get_seo_recommendations
 from .logic import extract_keywords
 from .config import (
