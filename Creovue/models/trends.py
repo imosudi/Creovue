@@ -15,6 +15,10 @@ import base64
 
 from collections import defaultdict
 import random
+
+print("Inside trends 2")
+
+
 #from Creovue.utils.youtube_client import get_youtube_client
 #from Creovue.utils.decorators import cached, handle_api_error
 
