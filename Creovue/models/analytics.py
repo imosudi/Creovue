@@ -7,6 +7,8 @@ import time
 from Creovue.utils.yt_api import fetch_youtube_analytics
 from Creovue.ml.predictor import generate_plot, sudden_spike
 
+print("Inside analytics model")
+
 def process_channel_analytics_(channel_id):
     # Fetch actual stats with simulated daily views
     full_data = fetch_youtube_analytics(channel_id, days=7)
