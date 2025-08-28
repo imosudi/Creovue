@@ -3,11 +3,12 @@
 """Module: analytics.py."""
 # models/analytics.py
 import time
-
+print("Inside analytics model 1")
 from Creovue.utils.yt_api import fetch_youtube_analytics
+print("Inside analytics model 2")
 from Creovue.ml.predictor import generate_plot, sudden_spike
+print("Inside analytics model 3")
 
-print("Inside analytics model")
 
 def process_channel_analytics_(channel_id):
     # Fetch actual stats with simulated daily views
