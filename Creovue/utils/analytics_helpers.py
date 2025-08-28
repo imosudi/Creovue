@@ -9,7 +9,12 @@ print("Inside Analytics helper 1")
 
 #from Creovue.helper_funcrions import get_health_recommendations
 from Creovue.helper_funcrions import get_health_recommendations
+
+print("Inside Analytics helper 2")
+
 from Creovue.models.analytics import get_channel_stats
+
+print("Inside Analytics helper 3")
 from Creovue.utils.youtube_client import get_recent_video_performance, calculate_subscriber_trend, calculate_view_trend, calculate_subscriber_growth_rate, calculate_view_growth_rate, calculate_avg_engagement_rate, calculate_upload_consistency
 
 def get_channel_health_overview(channel_id):
