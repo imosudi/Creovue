@@ -27,15 +27,15 @@ print("Inside trends 2")
 import pycountry, geocoder
 #import matplotlib
 #matplotlib.use('Agg')  # Use a non-GUI backend
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 #import numpy as np
 
-print("Inside trends 2")
+print("Inside trends 3")
 
 from collections import Counter, defaultdict
 from Creovue.config import creo_api_key, creo_base_url
 # models/trends.py
-print("Inside trends 3")
+print("Inside trends 4")
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
