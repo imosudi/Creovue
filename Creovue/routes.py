@@ -43,6 +43,7 @@ from Creovue.utils.youtube_client import ensure_channel_id
 from Creovue.utils.yt_api import calculate_ctr_metrics
 
 print("Inside routes 4")
+print("Inside routes 4_2")
 """from .competitors_analytics import *
 from .alerts_notifications import *
 from .tools_utilities import *
@@ -50,7 +51,9 @@ from .goals_progress import *
 from .content_planning_optimisation import *
 from .audience_insights import *
 from .seo_discovery_tools import *""" 
+
 print("Inside routes 5")
+
 from Creovue.helper_funcrions import analyse_channel_growth, analyse_videos_batch, get_channel_health_overview, get_detailed_video_analytics, get_health_recommendations, get_video_performance_data, get_video_performance_trends, predict_channel_growth
 from Creovue.utils.analytics_helpers import calculate_channel_health_score
 from Creovue.utils.youtube_client import get_recent_video_performance, calculate_subscriber_trend, calculate_view_trend, calculate_subscriber_growth_rate, calculate_view_growth_rate, calculate_avg_engagement_rate, calculate_upload_consistency
