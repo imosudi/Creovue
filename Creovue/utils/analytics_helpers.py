@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 import statistics
 
+print("Inside Analytics helper 1")
+
 #from Creovue.helper_funcrions import get_health_recommendations
 from Creovue.helper_funcrions import get_health_recommendations
 from Creovue.models.analytics import get_channel_stats
@@ -222,3 +224,5 @@ def export_analytics_data(user_id, export_type, format_type='csv'):
     except Exception as e:
         print(f"Error exporting analytics data: {e}")
         return None
+
+print("Exiting Analytics helper ")
